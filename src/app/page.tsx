@@ -1,5 +1,5 @@
 import { PageHeader } from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Droplet, HeartPulse, Activity, Thermometer, Scale } from 'lucide-react';
 import type { HealthMetric } from '@/lib/constants';
 import Image from 'next/image';
@@ -11,6 +11,8 @@ const keyIndicators: HealthMetric[] = [
   { name: 'Body Temperature', value: '36.8', unit: '°C', trend: 'stable', icon: Thermometer },
   { name: 'Weight', value: '70', unit: 'kg', trend: 'down', icon: Scale },
 ];
+
+const loremIpsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
 export default function DashboardPage() {
   return (
@@ -28,7 +30,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 mb-8">
         {keyIndicators.map((indicator) => (
           <Card key={indicator.name} className="shadow-md hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -50,8 +52,22 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        {[1, 2, 3, 4].map((item) => (
+          <Card key={`lorem-box-${item}`} className="shadow-lg">
+            <CardHeader>
+              <CardTitle>Informational Box {item}</CardTitle>
+              <CardDescription>Additional health insights</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{loremIpsumText}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
