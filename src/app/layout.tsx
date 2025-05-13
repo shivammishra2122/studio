@@ -30,8 +30,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col h-screen`}>
         
         <div className="flex flex-1 overflow-hidden"> {/* Container for sidebar and main content below header */}
-          <SidebarProvider>
-            <Sidebar>
+          <SidebarProvider> {/* defaultOpen is true by default in SidebarProvider */}
+            <Sidebar collapsible="icon"> {/* Changed to collapsible="icon" */}
               <SidebarNav />
             </Sidebar>
             <SidebarInset className="flex-1 overflow-y-auto bg-background"> {/* Ensure content area scrolls and has a background */}
