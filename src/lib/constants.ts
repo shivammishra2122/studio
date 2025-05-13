@@ -1,5 +1,6 @@
+
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, LineChart, CalendarDays, Pill } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react'; // Removed LineChart, CalendarDays, Pill
 
 export type NavItem = {
   href: string;
@@ -9,9 +10,9 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/health-data', label: 'Health Data', icon: LineChart },
-  { href: '/appointments', label: 'Appointments', icon: CalendarDays },
-  { href: '/medications', label: 'Medications', icon: Pill },
+  // { href: '/health-data', label: 'Health Data', icon: LineChart },
+  // { href: '/appointments', label: 'Appointments', icon: CalendarDays },
+  // { href: '/medications', label: 'Medications', icon: Pill },
 ];
 
 export type Appointment = {
@@ -51,3 +52,4 @@ export type HealthMetric = {
   trend?: 'up' | 'down' | 'stable';
   icon?: LucideIcon;
 };
+
