@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  User, Hospital, CalendarDays, Phone
+  User, Hospital, CalendarDays, Phone, FileText, Ban, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; 
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
@@ -197,37 +196,32 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center">
               <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
                 <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Appointments</span>
+                <span className="sr-only">Edit Problem</span>
               </Button>
               <Button variant="default" size="icon" className="h-7 w-7">
                 <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Schedule New Appointment</span>
+                <span className="sr-only">Add to Problem</span>
               </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
-              
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
                     <TableCell className="px-2 py-1">
                       <div className="flex items-center space-x-1.5">
-                        
                         <div>
                           <div className="font-medium text-xs">{appt.doctor}</div>
-                          
                         </div>
                       </div>
                     </TableCell>
-                    
-                    
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
             {appointments.length === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground">No upcoming appointments.</p>
+              <p className="py-4 text-center text-xs text-muted-foreground">No problems listed.</p>
             )}
           </CardContent>
         </Card>
@@ -252,17 +246,14 @@ export default function DashboardPage(): JSX.Element {
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
-              
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
                     <TableCell className="px-2 py-1">
                       <div>
                           <div className="font-medium text-xs">{med.name}</div>
-                          
                         </div>
                     </TableCell>
-                    
                   </TableRow>
                 ))}
               </TableBody>
@@ -273,20 +264,28 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Clinical Notes Card - Moved here */}
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div>
-                <CardTitle className="text-sm font-semibold">Clinical notes</CardTitle>
-                <CardDescription className="text-xs">Quick summary</CardDescription>
+              <div className="flex items-center space-x-1.5">
+                <FileText className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Clinical notes</CardTitle>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                  {pageCardSampleContent["Clinical notes"]?.length || 0}
+                </Badge>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Clinical notes</span>
-              </Button>
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Clinical notes</span>
+                </Button>
+                <Button variant="default" size="icon" className="h-7 w-7">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Clinical notes</span>
+                </Button>
+              </div>
             </ShadcnCardHeader>
-            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
-              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+              <ul className="p-2 space-y-1 text-xs text-muted-foreground list-disc list-inside">
                 {(pageCardSampleContent["Clinical notes"] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -294,20 +293,28 @@ export default function DashboardPage(): JSX.Element {
             </CardContent>
           </Card>
 
-        {/* Report Card - Moved here */}
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div>
-                <CardTitle className="text-sm font-semibold">Report</CardTitle>
-                <CardDescription className="text-xs">Quick summary</CardDescription>
+              <div className="flex items-center space-x-1.5">
+                <FileText className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Report</CardTitle>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                  {pageCardSampleContent["Report"]?.length || 0}
+                </Badge>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Report</span>
-              </Button>
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Report</span>
+                </Button>
+                <Button variant="default" size="icon" className="h-7 w-7">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Report</span>
+                </Button>
+              </div>
             </ShadcnCardHeader>
-            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
-              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+              <ul className="p-2 space-y-1 text-xs text-muted-foreground list-disc list-inside">
                 {(pageCardSampleContent["Report"] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -318,27 +325,46 @@ export default function DashboardPage(): JSX.Element {
       
       {/* Remaining informational cards */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
-        {informationalCardTitles.map((title) => (
-          <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div>
-                <CardTitle className="text-sm font-semibold">{title}</CardTitle>
-                <CardDescription className="text-xs">Quick summary</CardDescription>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit {title}</span>
-              </Button>
-            </ShadcnCardHeader>
-            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
-              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
-                {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
+        {informationalCardTitles.map((title) => {
+          let IconComponent;
+          switch (title) {
+            case "Allergies": IconComponent = Ban; break;
+            case "Radiology": IconComponent = ScanLine; break;
+            case "Encounter notes": IconComponent = ClipboardList; break;
+            case "Clinical reminder": IconComponent = BellRing; break;
+            default: IconComponent = FileText; 
+          }
+          return (
+            <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
+              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+                <div className="flex items-center space-x-1.5">
+                  <IconComponent className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-base">{title}</CardTitle>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                     {pageCardSampleContent[title]?.length || 0}
+                  </Badge>
+                </div>
+                <div className="flex items-center">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit {title}</span>
+                  </Button>
+                  <Button variant="default" size="icon" className="h-7 w-7">
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-only">Add to {title}</span>
+                  </Button>
+                </div>
+              </ShadcnCardHeader>
+              <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+                <ul className="p-2 space-y-1 text-xs text-muted-foreground list-disc list-inside">
+                  {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
     </div>
