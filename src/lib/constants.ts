@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react'; // Added Clock, PillIcon, Plus, MoreVertical
+import { LayoutDashboard, Clock, Pill as PillIcon, Plus, MoreVertical, User, VenetianMask, Building, CalendarDays, Smartphone, Hourglass } from 'lucide-react'; // Added User, VenetianMask, Building, CalendarDays, Smartphone, Hourglass
 
 export type NavItem = {
   href: string;
@@ -11,6 +11,30 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
 ];
+
+export type Patient = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  gender: string;
+  wardNo: string;
+  age: number;
+  admissionDate: string; // Keep as string, formatting in component
+  lengthOfStay: string; // e.g., "5 days"
+  mobileNumber: string;
+};
+
+export const MOCK_PATIENT: Patient = {
+  id: 'pat1',
+  name: 'Sarah Miller', // Example name
+  avatarUrl: 'https://placehold.co/100x100.png',
+  gender: 'Female',
+  wardNo: 'C-305',
+  age: 42,
+  admissionDate: '2024-07-15',
+  lengthOfStay: '5 days',
+  mobileNumber: '+1-555-0102',
+};
 
 export type Appointment = {
   id: string;
@@ -54,4 +78,4 @@ export type HealthMetric = {
 };
 
 // Icons for direct use in page.tsx if needed elsewhere
-export { Clock, PillIcon, Plus, MoreVertical };
+export { Clock, PillIcon, Plus, MoreVertical, User, VenetianMask, Building, CalendarDays, Smartphone, Hourglass };

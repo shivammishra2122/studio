@@ -4,12 +4,16 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
-import { Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
-import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS } from '@/lib/constants';
-// Removed Image and PageHeader imports as they are not used
+import { 
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
+  User as UserIcon, VenetianMask, Building, CalendarDays, Smartphone, Hourglass
+} from 'lucide-react';
+import type { HealthMetric, Appointment, Medication, Patient } from '@/lib/constants';
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT } from '@/lib/constants';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,9 +60,50 @@ const informationalCardTitles: string[] = [
 export default function DashboardPage(): JSX.Element {
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
   const medications: Medication[] = MOCK_MEDICATIONS;
+  const patient: Patient = MOCK_PATIENT;
 
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
+      
+      <Card className="shadow-lg">
+        <CardContent className="p-3 flex flex-col sm:flex-row items-center gap-3">
+          <Avatar className="h-24 w-24 border">
+            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
+            <AvatarFallback className="text-3xl">{patient.name.substring(0, 1)}</AvatarFallback>
+          </Avatar>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5 text-xs flex-1 w-full sm:w-auto">
+            <div className="flex items-center space-x-1.5">
+              <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-medium text-foreground">{patient.name}</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <VenetianMask className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground">{patient.gender}</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <UserIcon className="h-3.5 w-3.5 text-muted-foreground" /> {/* Re-using UserIcon for Age */}
+              <span className="text-foreground">{patient.age} years</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <Building className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground">Ward: {patient.wardNo}</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground">Admitted: {new Date(patient.admissionDate).toLocaleDateString()}</span>
+            </div>
+            <div className="flex items-center space-x-1.5">
+              <Hourglass className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground">Stay: {patient.lengthOfStay}</span>
+            </div>
+            <div className="flex items-center space-x-1.5 col-span-2 sm:col-span-1">
+              <Smartphone className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground">{patient.mobileNumber}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Container for Health Data Visualizations and Vitals */}
       <div className="flex flex-col md:flex-row gap-3">
         {/* Health Data Visualizations Card (Left Side) */}
