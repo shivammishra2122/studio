@@ -1,28 +1,31 @@
+
 'use client';
 
+// Removed PageHeader import as it's not used
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import type { ChartConfig } from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart'; // Keep this
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS } from '@/lib/constants';
-// Image import removed as it's not used
+// Removed Image import as it's not used
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
 
 const keyIndicators: HealthMetric[] = [
-  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: Droplet }, 
-  { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', icon: Activity },
-  { name: 'Body Temperature', value: '36.8', unit: '°C', icon: Thermometer },
+  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', trend: 'stable', icon: Droplet },
+  { name: 'Heart Rate', value: '72', unit: 'bpm', trend: 'stable', icon: HeartPulse },
+  { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', trend: 'stable', icon: Activity },
+  { name: 'Body Temperature', value: '36.8', unit: '°C', trend: 'stable', icon: Thermometer },
+  { name: 'Weight', value: '70', unit: 'kg', trend: 'down', icon: Scale },
 ];
 
-
-const loremIpsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; 
+const loremIpsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."; // Shortened
 
 const glucoseData = [
   { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
@@ -38,12 +41,10 @@ const ecgData = [
 
 const ctScanReadings = [
   { organ: 'Lungs', finding: 'Clear' }, { organ: 'Liver', finding: 'Normal' }, { organ: 'Kidneys', finding: 'Slight calcification' },
-  { organ: 'Brain', finding: 'Normal' }, { organ: 'Spleen', finding: 'Unremarkable' },
 ];
 
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
-
 
 const informationalCardTitles = [
   "Allergies",
@@ -64,14 +65,14 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row gap-4">
         {/* Health Data Visualizations Card (Left Side) */}
         <Card className="shadow-lg w-full md:w-[65%]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle>Health Data Visualizations</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 pt-3 px-4">
+            <CardTitle className="text-md font-semibold">Health Data Visualizations</CardTitle>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <Edit3 className="h-4 w-4" />
               <span className="sr-only">Edit Visualizations</span>
             </Button>
           </CardHeader>
-          <CardContent className="pt-2">
+          <CardContent className="pt-2 px-3 pb-3">
             <Tabs defaultValue="glucose">
               <TabsList className="grid w-full grid-cols-3 mb-2">
                 <TabsTrigger value="glucose">Glucose</TabsTrigger>
@@ -80,8 +81,8 @@ export default function DashboardPage() {
               </TabsList>
               <TabsContent value="glucose">
                 <Card>
-                  <CardContent className="p-2 max-h-[240px] overflow-y-auto">
-                    <ChartContainer config={glucoseChartConfig} className="h-[200px] w-full">
+                  <CardContent className="p-2 max-h-[200px] overflow-y-auto"> {/* Reduced height and padding */}
+                    <ChartContainer config={glucoseChartConfig} className="h-[180px] w-full"> {/* Reduced height */}
                       <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 12, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
@@ -95,8 +96,8 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ecg">
                 <Card>
-                  <CardContent className="p-2 max-h-[240px] overflow-y-auto">
-                    <ChartContainer config={ecgChartConfig} className="h-[200px] w-full">
+                  <CardContent className="p-2 max-h-[200px] overflow-y-auto"> {/* Reduced height and padding */}
+                    <ChartContainer config={ecgChartConfig} className="h-[180px] w-full"> {/* Reduced height */}
                       <RechartsLineChart data={ecgData} margin={{ left: 0, right: 12, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
@@ -110,7 +111,7 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ct-scan">
                 <Card>
-                  <CardContent className="p-3 max-h-[240px] overflow-y-auto space-y-1.5">
+                  <CardContent className="p-3 max-h-[200px] overflow-y-auto space-y-1.5"> {/* Reduced height and padding */}
                     <ul className="space-y-1.5">
                       {ctScanReadings.map((reading, index) => (
                         <li key={index} className="flex justify-between p-1.5 rounded-md bg-secondary/50 text-xs">
@@ -132,20 +133,20 @@ export default function DashboardPage() {
           <Card className="shadow-md h-full">
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-3 px-4">
               <CardTitle className="text-md font-semibold">Vitals</CardTitle>
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0"> {/* Smaller button */}
                 <Edit3 className="h-4 w-4" />
                 <span className="sr-only">Edit Vitals</span>
               </Button>
             </CardHeader>
-            <CardContent className="space-y-2 pt-2 px-3 pb-3 max-h-[calc(200px+3rem)] overflow-y-auto">
+            <CardContent className="space-y-2 pt-2 px-3 pb-3 max-h-[calc(200px+3rem)] overflow-y-auto"> {/* Max height and scroll */}
               {keyIndicators.map((indicator) => (
-                <div key={indicator.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                <div key={indicator.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50"> {/* Reduced padding */}
                   <div className="flex items-center">
-                    {indicator.icon && <indicator.icon className="h-5 w-5 text-primary mr-2" />}
+                    {indicator.icon && <indicator.icon className="h-5 w-5 text-primary mr-2" />} {/* Smaller icon */}
                     <span className="text-xs font-medium text-foreground">{indicator.name}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-bold text-foreground">{indicator.value}</span>
+                    <span className="text-sm font-bold text-foreground">{indicator.value}</span> {/* Font size consistency */}
                     <span className="text-xs text-muted-foreground ml-1">{indicator.unit}</span>
                   </div>
                 </div>
@@ -155,7 +156,7 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2"> {/* Reduced gap */}
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between pt-3 pb-2 px-4">
             <div className="flex items-center space-x-2">
@@ -164,17 +165,17 @@ export default function DashboardPage() {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{appointments.length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-8 w-8 mr-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 mr-1"> {/* Smaller buttons */}
                 <Edit3 className="h-4 w-4" />
                 <span className="sr-only">Edit Appointments</span>
               </Button>
-              <Button variant="default" size="icon" className="h-8 w-8">
+              <Button variant="default" size="icon" className="h-8 w-8"> {/* Smaller buttons */}
                 <Plus className="h-4 w-4" />
                 <span className="sr-only">Schedule New Appointment</span>
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0 max-h-[200px] overflow-y-auto">
+          <CardContent className="p-0 max-h-[200px] overflow-y-auto"> {/* Max height and scroll */}
             <Table>
               <TableHeader>
                 <TableRow>
@@ -187,9 +188,9 @@ export default function DashboardPage() {
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
-                    <TableCell className="px-3 py-1.5">
+                    <TableCell className="px-3 py-1.5"> {/* Reduced padding */}
                       <div className="flex items-center space-x-2">
-                        <Avatar className="h-7 w-7">
+                        <Avatar className="h-7 w-7"> {/* Smaller avatar */}
                           <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
                           <AvatarFallback className="text-xs">{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
@@ -202,7 +203,7 @@ export default function DashboardPage() {
                     <TableCell className="px-3 py-1.5 text-xs">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
                     <TableCell className="px-3 py-1.5 text-xs">{appt.time}</TableCell>
                     <TableCell className="text-right px-3 py-1.5">
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <Button variant="ghost" size="icon" className="h-7 w-7"> {/* Smaller button */}
                         <MoreVertical className="h-4 w-4" />
                         <span className="sr-only">More options</span>
                       </Button>
@@ -225,17 +226,17 @@ export default function DashboardPage() {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{medications.length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-8 w-8 mr-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 mr-1"> {/* Smaller buttons */}
                 <Edit3 className="h-4 w-4" />
                 <span className="sr-only">Edit Medications</span>
               </Button>
-              <Button variant="default" size="icon" className="h-8 w-8"> 
+              <Button variant="default" size="icon" className="h-8 w-8"> {/* Smaller buttons */}
                 <Plus className="h-4 w-4" />
                 <span className="sr-only">Add Medication</span>
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0 max-h-[200px] overflow-y-auto">
+          <CardContent className="p-0 max-h-[200px] overflow-y-auto"> {/* Max height and scroll */}
             <Table>
               <TableHeader>
                 <TableRow>
@@ -248,7 +249,7 @@ export default function DashboardPage() {
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
-                    <TableCell className="px-3 py-1.5">
+                    <TableCell className="px-3 py-1.5"> {/* Reduced padding */}
                       <div>
                           <div className="font-medium text-xs">{med.name}</div>
                           {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
@@ -257,7 +258,7 @@ export default function DashboardPage() {
                     <TableCell className="px-3 py-1.5 text-xs">{med.amount}</TableCell>
                     <TableCell className="px-3 py-1.5 text-xs">{med.timing}</TableCell>
                     <TableCell className="text-right px-3 py-1.5">
-                      <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} className="h-3.5 w-3.5" />
+                      <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} className="h-3.5 w-3.5" /> {/* Smaller checkbox */}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -270,21 +271,21 @@ export default function DashboardPage() {
         </Card>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> {/* Reduced gap */}
         {informationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between pt-3 pb-2 px-4">
+            <CardHeader className="flex flex-row items-center justify-between pt-3 pb-2 px-4"> {/* Flex header for edit icon */}
               <div>
                 <CardTitle className="text-md">{title}</CardTitle>
-                <CardDescription className="text-xs">Additional health insights</CardDescription>
+                <CardDescription className="text-xs">Additional health insights</CardDescription> {/* Reduced font */}
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8"> {/* Smaller button */}
                 <Edit3 className="h-4 w-4" />
                 <span className="sr-only">Edit {title}</span>
               </Button>
             </CardHeader>
-            <CardContent className="p-3 max-h-[100px] overflow-y-auto">
-              <p className="text-xs text-muted-foreground">{loremIpsumText}</p>
+            <CardContent className="p-3 max-h-[100px] overflow-y-auto"> {/* Reduced padding, max height and scroll */}
+              <p className="text-xs text-muted-foreground">{loremIpsumText}</p> {/* Reduced font */}
             </CardContent>
           </Card>
         ))}
@@ -293,3 +294,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
