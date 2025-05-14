@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarInset, SidebarRail, SidebarTrigger } from '@/components/ui/sidebar'; // Added SidebarRail and SidebarTrigger
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Toaster } from "@/components/ui/toaster";
 
@@ -29,12 +29,18 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col h-screen`}>
         
-        <div className="flex flex-1 overflow-hidden"> {/* Container for sidebar and main content below header */}
-          <SidebarProvider> {/* defaultOpen is true by default in SidebarProvider */}
-            <Sidebar collapsible="icon"> {/* Changed to collapsible="icon" */}
+        <div className="flex flex-1 overflow-hidden">
+          <SidebarProvider>
+            {/* Mobile-only trigger to open the sidebar */}
+            <div className="md:hidden fixed top-4 left-4 z-50">
+              <SidebarTrigger />
+            </div>
+            
+            <Sidebar collapsible="icon">
               <SidebarNav />
             </Sidebar>
-            <SidebarInset className="flex-1 overflow-y-auto bg-background"> {/* Ensure content area scrolls and has a background */}
+            <SidebarRail /> {/* Added for desktop edge-click toggle */}
+            <SidebarInset className="flex-1 overflow-y-auto bg-background">
               {children}
             </SidebarInset>
           </SidebarProvider>
