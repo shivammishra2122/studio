@@ -11,14 +11,13 @@ import {
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
   User, Hospital, CalendarDays, Phone
 } from 'lucide-react';
-import type { HealthMetric, Appointment, Medication, Patient } from '@/lib/constants';
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT } from '@/lib/constants';
+import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; // Patient type import might be removed if MOCK_PATIENT is used directly and its type is inferred
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; // Using pageCardSampleContent directly
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
-
 
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet },
@@ -27,7 +26,6 @@ const keyIndicators: HealthMetric[] = [
   { name: 'Body Temperature', value: '36.8', unit: '°C', icon: Thermometer },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale },
 ];
-
 
 const glucoseData: Array<{ date: string; level: number }> = [
   { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
@@ -57,50 +55,10 @@ const informationalCardTitles: string[] = [
   "Report"
 ];
 
-const pageCardSampleContent: Record<string, string[]> = {
-  "Allergies": [
-    "Pollen - Seasonal, causes sneezing.",
-    "Peanuts - Severe, requires EpiPen.",
-    "Dust Mites - Mild, managed with antihistamines.",
-    "Penicillin - Rash, hives.",
-  ],
-  "Clinical notes": [
-    "Patient presented with mild cough.",
-    "Advised rest and hydration.",
-    "Follow-up scheduled in 1 week if symptoms persist.",
-    "Routine check-up, vitals stable.",
-  ],
-  "Radiology": [
-    "Chest X-Ray: Clear, no abnormalities noted.",
-    "MRI Brain: Normal for age.",
-    "Ultrasound Abdomen: No acute findings.",
-    "CT Pelvis: Within normal limits.",
-  ],
-  "Encounter notes": [
-    "Discussed lab results from last visit.",
-    "Patient reported improved sleep quality.",
-    "Medication adherence reviewed.",
-    "Next appointment scheduled for follow-up.",
-  ],
-  "Clinical reminder": [
-    "Annual flu shot due in October.",
-    "Blood pressure check recommended.",
-    "Fasting lipid panel next month.",
-    "Follow up on specialist referral.",
-  ],
-  "Report": [
-    "Pathology report for biopsy reviewed.",
-    "Imaging report for CT abdomen available.",
-    "Consultation summary from Dr. Smith.",
-    "Discharge summary from recent hospitalization.",
-  ]
-};
-
-
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage() { // Removed explicit : JSX.Element return type
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
   const medications: Medication[] = MOCK_MEDICATIONS;
-  const patient: Patient = MOCK_PATIENT;
+  // const patient: Patient = MOCK_PATIENT; // Will use MOCK_PATIENT directly
 
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
@@ -112,7 +70,7 @@ export default function DashboardPage(): JSX.Element {
             {/* Health Data Visualizations Card (Charts ONLY) */}
             <Card className="shadow-lg w-full md:w-[65%]">
               <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-                <CardTitle className="text-base font-semibold">Health Data Visualizations</CardTitle>
+                <CardTitle className="text-sm font-semibold">Health Data Visualizations</CardTitle>
                 <Button variant="ghost" size="icon" className="h-7 w-7">
                   <Edit3 className="h-3.5 w-3.5" />
                   <span className="sr-only">Edit Health Data</span>
@@ -178,7 +136,7 @@ export default function DashboardPage(): JSX.Element {
             <div className="w-full md:w-[35%]">
               <Card className="shadow-md h-full">
                 <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-                  <CardTitle className="text-base font-semibold">Vitals</CardTitle>
+                  <CardTitle className="text-sm font-semibold">Vitals</CardTitle>
                   <Button variant="ghost" size="icon" className="h-7 w-7">
                     <Edit3 className="h-3.5 w-3.5" />
                     <span className="sr-only">Edit Vitals</span>
@@ -206,7 +164,7 @@ export default function DashboardPage(): JSX.Element {
         <div className="w-full lg:w-[35%]">
           <Card className="shadow-lg h-full">
             <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <CardTitle className="text-base font-semibold">Patient Details</CardTitle>
+              <CardTitle className="text-sm font-semibold">Patient Details</CardTitle>
               <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Patient Details</span>
@@ -215,20 +173,20 @@ export default function DashboardPage(): JSX.Element {
             <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[calc(170px+4rem)] overflow-y-auto"> {/* Match Vitals height approx */}
                 <div className="flex items-center space-x-3 mb-2">
                     <Avatar className="h-16 w-16">
-                        <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
-                        <AvatarFallback>{patient.name.substring(0,1)}</AvatarFallback>
+                        <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
+                        <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className="font-semibold text-sm text-foreground">{patient.name}</p>
+                        <p className="font-semibold text-sm text-foreground">{MOCK_PATIENT.name}</p>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-1">
-                    <div className="flex items-center"><User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Gender: {patient.gender}</div>
-                    <div className="flex items-center"><User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Age: {patient.age}</div>
-                    <div className="flex items-center col-span-2"><Hospital className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Ward No: {patient.wardNo}</div>
-                    <div className="flex items-center col-span-2"><CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Admission: {new Date(patient.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-                    <div className="flex items-center col-span-2"><Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Stay: {patient.lengthOfStay}</div>
-                    <div className="flex items-center col-span-2"><Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Mobile: {patient.mobile}</div>
+                    <div className="flex items-center"><User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Gender: {MOCK_PATIENT.gender}</div>
+                    <div className="flex items-center"><User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Age: {MOCK_PATIENT.age}</div>
+                    <div className="flex items-center col-span-2"><Hospital className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Ward No: {MOCK_PATIENT.wardNo}</div>
+                    <div className="flex items-center col-span-2"><CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    <div className="flex items-center col-span-2"><Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Stay: {MOCK_PATIENT.lengthOfStay}</div>
+                    <div className="flex items-center col-span-2"><Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Mobile: {MOCK_PATIENT.mobile}</div>
                 </div>
             </CardContent>
           </Card>
@@ -361,5 +319,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
-

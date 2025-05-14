@@ -1,7 +1,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 // Icons for direct use in page.tsx if needed elsewhere (Clock, PillIcon, Plus, MoreVertical were used by page.tsx directly)
-import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, Briefcase } from 'lucide-react';
+import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital } from 'lucide-react';
 
 
 export type Appointment = {
@@ -41,7 +41,6 @@ export type HealthMetric = {
   name: string;
   value: string;
   unit: string;
-  trend?: 'up' | 'down' | 'stable';
   icon?: LucideIcon;
 };
 
@@ -69,5 +68,44 @@ export const MOCK_PATIENT: Patient = {
   mobile: '+1-202-555-0182',
 };
 
+export const pageCardSampleContent: Record<string, string[]> = {
+    "Allergies": [
+      "Pollen - Seasonal, causes sneezing.",
+      "Peanuts - Severe, requires EpiPen.",
+      "Dust Mites - Mild, managed with antihistamines.",
+      "Penicillin - Rash, hives.",
+    ],
+    "Clinical notes": [
+      "Patient presented with mild cough.",
+      "Advised rest and hydration.",
+      "Follow-up scheduled in 1 week if symptoms persist.",
+      "Routine check-up, vitals stable.",
+    ],
+    "Radiology": [
+      "Chest X-Ray: Clear, no abnormalities noted.",
+      "MRI Brain: Normal for age.",
+      "Ultrasound Abdomen: No acute findings.",
+      "CT Pelvis: Within normal limits.",
+    ],
+    "Encounter notes": [
+      "Discussed lab results from last visit.",
+      "Patient reported improved sleep quality.",
+      "Medication adherence reviewed.",
+      "Next appointment scheduled for follow-up.",
+    ],
+    "Clinical reminder": [
+      "Annual flu shot due in October.",
+      "Blood pressure check recommended.",
+      "Fasting lipid panel next month.",
+      "Follow up on specialist referral.",
+    ],
+    "Report": [
+      "Pathology report for biopsy reviewed.",
+      "Imaging report for CT abdomen available.",
+      "Consultation summary from Dr. Smith.",
+      "Discharge summary from recent hospitalization.",
+    ]
+  };
 
-export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, Briefcase };
+
+export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital }; // Removed Briefcase
