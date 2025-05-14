@@ -46,6 +46,14 @@ const ctScanReadings = [
 const glucoseChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } } satisfies ChartConfig;
 const ecgChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } } satisfies ChartConfig;
 
+const informationalCardTitles = [
+  "Allergies",
+  "Clinical notes",
+  "Radiology",
+  "Encounter notes",
+  "Clinical reminder"
+];
+
 export default function DashboardPage() {
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
   const medications: Medication[] = MOCK_MEDICATIONS;
@@ -255,10 +263,10 @@ export default function DashboardPage() {
       </div>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <Card key={`lorem-box-${item}`} className="shadow-lg">
+        {informationalCardTitles.map((title) => (
+          <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
             <CardHeader>
-              <CardTitle>Informational Box {item}</CardTitle>
+              <CardTitle>{title}</CardTitle>
               <CardDescription>Additional health insights</CardDescription>
             </CardHeader>
             <CardContent>
