@@ -1,14 +1,13 @@
 
 'use client';
 
-import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
-import { Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
+import { Droplet, Activity, Thermometer, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS } from '@/lib/constants';
 import Image from 'next/image';
@@ -18,14 +17,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
 
 const keyIndicators: HealthMetric[] = [
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', trend: 'stable', icon: Droplet },
-  { name: 'Heart Rate', value: '72', unit: 'bpm', trend: 'stable', icon: HeartPulse },
-  { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', trend: 'stable', icon: Activity },
-  { name: 'Body Temperature', value: '36.8', unit: '°C', trend: 'stable', icon: Thermometer },
-  { name: 'Weight', value: '70', unit: 'kg', trend: 'down', icon: Scale },
+  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: Droplet },
+  { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', icon: Activity },
+  { name: 'Body Temperature', value: '36.8', unit: '°C', icon: Thermometer },
 ];
 
-const loremIpsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+const loremIpsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; // Shortened
 
 const glucoseData = [
   { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
@@ -46,6 +43,7 @@ const ctScanReadings = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+
 const informationalCardTitles = [
   "Allergies",
   "Clinical notes",
@@ -60,9 +58,9 @@ export default function DashboardPage() {
   const medications: Medication[] = MOCK_MEDICATIONS;
 
   return (
-    <div className="flex flex-1 flex-col p-4 md:p-6 space-y-6">
-      <PageHeader title="Dashboard" description="Overview of your current health status." />
-
+    <div className="flex flex-1 flex-col p-4 md:p-6 space-y-4"> {/* Reduced space-y */}
+      {/* PageHeader removed */}
+      
       {/* Container for Health Data Visualizations and Vitals */}
       <div className="flex flex-col md:flex-row gap-6">
         {/* Health Data Visualizations Card (Left Side) */}
@@ -70,7 +68,7 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Health Data Visualizations</CardTitle>
           </CardHeader>
-          <CardContent> {/* Removed flex classes, content is now just the Tabs */}
+          <CardContent>
             <Tabs defaultValue="glucose">
               <TabsList className="grid w-full grid-cols-3 mb-4">
                 <TabsTrigger value="glucose">Glucose Levels</TabsTrigger>
@@ -79,12 +77,12 @@ export default function DashboardPage() {
               </TabsList>
               <TabsContent value="glucose">
                 <Card>
-                  <CardContent>
-                    <ChartContainer config={glucoseChartConfig} className="h-[300px] w-full">
+                  <CardContent className="pt-4"> {/* Reduced top padding */}
+                    <ChartContainer config={glucoseChartConfig} className="h-[250px] w-full"> {/* Reduced height */}
                       <RechartsLineChart data={glucoseData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={2} dot={true} />
                       </RechartsLineChart>
@@ -94,12 +92,12 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ecg">
                 <Card>
-                  <CardContent>
-                    <ChartContainer config={ecgChartConfig} className="h-[300px] w-full">
+                  <CardContent className="pt-4"> {/* Reduced top padding */}
+                    <ChartContainer config={ecgChartConfig} className="h-[250px] w-full"> {/* Reduced height */}
                       <RechartsLineChart data={ecgData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="value" type="monotone" stroke="var(--color-value)" strokeWidth={2} dot={false} />
                       </RechartsLineChart>
@@ -109,16 +107,16 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ct-scan">
                 <Card>
-                  <CardContent>
-                    <ul className="space-y-2">
+                  <CardContent className="pt-4"> {/* Reduced top padding */}
+                    <ul className="space-y-1 text-sm"> {/* Reduced space and font */}
                       {ctScanReadings.map((reading, index) => (
-                        <li key={index} className="flex justify-between p-2 rounded-md bg-secondary/50">
+                        <li key={index} className="flex justify-between p-1.5 rounded-md bg-secondary/50"> {/* Reduced padding */}
                           <span className="font-medium text-secondary-foreground">{reading.organ}:</span>
                           <span className="text-muted-foreground">{reading.finding}</span>
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-4 text-sm text-muted-foreground">Note: This is a simplified summary. Always consult your doctor for detailed analysis.</p>
+                    <p className="mt-2 text-xs text-muted-foreground">Note: This is a simplified summary. Always consult your doctor for detailed analysis.</p> {/* Reduced margin and font */}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -127,21 +125,21 @@ export default function DashboardPage() {
         </Card>
 
         {/* Vitals Card (Right Side) */}
-        <div className="w-full md:w-[35%]"> {/* Removed md:pl-4, gap-6 on parent handles spacing */}
-          <Card className="shadow-md h-full"> {/* Added h-full to attempt vertical alignment with potentially taller charts card */}
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-semibold">Vitals</CardTitle>
+        <div className="w-full md:w-[35%]">
+          <Card className="shadow-md h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4"> {/* Reduced padding */}
+              <CardTitle className="text-base font-semibold">Vitals</CardTitle> {/* Reduced font size */}
               <Button variant="ghost" size="sm"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
             </CardHeader>
-            <CardContent className="space-y-4 pt-2">
+            <CardContent className="space-y-3 pt-2"> {/* Reduced space and padding */}
               {keyIndicators.map((indicator) => (
-                <div key={indicator.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <div key={indicator.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50"> {/* Reduced padding */}
                   <div className="flex items-center">
-                    {indicator.icon && <indicator.icon className="h-6 w-6 text-primary mr-3" />}
-                    <span className="text-sm font-medium text-foreground">{indicator.name}</span>
+                    {indicator.icon && <indicator.icon className="h-5 w-5 text-primary mr-2" />} {/* Reduced size and margin */}
+                    <span className="text-xs font-medium text-foreground">{indicator.name}</span> {/* Reduced font size */}
                   </div>
                   <div className="text-right">
-                    <span className="text-lg font-bold text-foreground">{indicator.value}</span>
+                    <span className="text-sm font-bold text-foreground">{indicator.value}</span> {/* Reduced font size */}
                     <span className="text-xs text-muted-foreground ml-1">{indicator.unit}</span>
                   </div>
                 </div>
@@ -151,49 +149,49 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2"> {/* Reduced gap */}
         <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Clock className="h-6 w-6 text-primary" />
-              <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
-              <Badge variant="secondary" className="text-sm">{appointments.length}</Badge>
+          <CardHeader className="flex flex-row items-center justify-between pt-4 pb-2"> {/* Reduced padding */}
+            <div className="flex items-center space-x-2"> {/* Reduced space */}
+              <Clock className="h-5 w-5 text-primary" /> {/* Reduced size */}
+              <CardTitle className="text-base">Upcoming Appointments</CardTitle> {/* Reduced font size */}
+              <Badge variant="secondary" className="text-xs">{appointments.length}</Badge> {/* Reduced font size */}
             </div>
-            <Button variant="default" size="icon">
-              <Plus className="h-5 w-5" />
+            <Button variant="default" size="icon" className="h-8 w-8"> {/* Reduced size */}
+              <Plus className="h-4 w-4" /> {/* Reduced size */}
               <span className="sr-only">Schedule New Appointment</span>
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2 pb-4"> {/* Reduced padding */}
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%]">Doctor</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="w-[40%] h-10 text-xs">Doctor</TableHead> {/* Reduced height and font */}
+                  <TableHead className="h-10 text-xs">Date</TableHead>
+                  <TableHead className="h-10 text-xs">Time</TableHead>
+                  <TableHead className="text-right h-10 text-xs">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
+                    <TableCell className="p-2"> {/* Reduced padding */}
+                      <div className="flex items-center space-x-2"> {/* Reduced space */}
+                        <Avatar className="h-8 w-8"> {/* Reduced size */}
                           <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
-                          <AvatarFallback>{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback>
+                          <AvatarFallback className="text-xs">{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback> {/* Reduced font size */}
                         </Avatar>
                         <div>
-                          <div className="font-medium">{appt.doctor}</div>
+                          <div className="font-medium text-xs">{appt.doctor}</div> {/* Reduced font size */}
                           <div className="text-xs text-muted-foreground">{appt.specialty}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
-                    <TableCell>{appt.time}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-5 w-5" />
+                    <TableCell className="p-2 text-xs">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell> {/* Reduced padding and font */}
+                    <TableCell className="p-2 text-xs">{appt.time}</TableCell> {/* Reduced padding and font */}
+                    <TableCell className="text-right p-2"> {/* Reduced padding */}
+                      <Button variant="ghost" size="icon" className="h-7 w-7"> {/* Reduced size */}
+                        <MoreVertical className="h-4 w-4" /> {/* Reduced size */}
                         <span className="sr-only">More options</span>
                       </Button>
                     </TableCell>
@@ -202,45 +200,45 @@ export default function DashboardPage() {
               </TableBody>
             </Table>
             {appointments.length === 0 && (
-              <p className="py-10 text-center text-muted-foreground">No upcoming appointments.</p>
+              <p className="py-6 text-center text-xs text-muted-foreground">No upcoming appointments.</p> {/* Reduced padding and font */}
             )}
           </CardContent>
         </Card>
 
         <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <PillIcon className="h-6 w-6 text-primary" />
-              <CardTitle className="text-lg">Your Medications</CardTitle>
-              <Badge variant="secondary" className="text-sm">{medications.length}</Badge>
+          <CardHeader className="flex flex-row items-center justify-between pt-4 pb-2"> {/* Reduced padding */}
+            <div className="flex items-center space-x-2"> {/* Reduced space */}
+              <PillIcon className="h-5 w-5 text-primary" /> {/* Reduced size */}
+              <CardTitle className="text-base">Your Medications</CardTitle> {/* Reduced font size */}
+              <Badge variant="secondary" className="text-xs">{medications.length}</Badge> {/* Reduced font size */}
             </div>
-            <Button variant="default" size="icon">
-              <Plus className="h-5 w-5" />
+            <Button variant="default" size="icon" className="h-8 w-8"> {/* Reduced size */}
+              <Plus className="h-4 w-4" /> {/* Reduced size */}
               <span className="sr-only">Add Medication</span>
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2 pb-4"> {/* Reduced padding */}
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%]">Medicines</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead className="w-[40%] h-10 text-xs">Medicines</TableHead> {/* Reduced height and font */}
+                  <TableHead className="h-10 text-xs">Amount</TableHead>
+                  <TableHead className="h-10 text-xs">Time</TableHead>
+                  <TableHead className="text-right h-10 text-xs">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
-                    <TableCell>
+                    <TableCell className="p-2"> {/* Reduced padding */}
                       <div>
-                          <div className="font-medium">{med.name}</div>
+                          <div className="font-medium text-xs">{med.name}</div> {/* Reduced font size */}
                           {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
                         </div>
                     </TableCell>
-                    <TableCell>{med.amount}</TableCell>
-                    <TableCell>{med.timing}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="p-2 text-xs">{med.amount}</TableCell> {/* Reduced padding and font */}
+                    <TableCell className="p-2 text-xs">{med.timing}</TableCell> {/* Reduced padding and font */}
+                    <TableCell className="text-right p-2"> {/* Reduced padding */}
                       <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} />
                     </TableCell>
                   </TableRow>
@@ -248,21 +246,27 @@ export default function DashboardPage() {
               </TableBody>
             </Table>
             {medications.length === 0 && (
-              <p className="py-10 text-center text-muted-foreground">No medications listed.</p>
+              <p className="py-6 text-center text-xs text-muted-foreground">No medications listed.</p> {/* Reduced padding and font */}
             )}
           </CardContent>
         </Card>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> {/* Reduced gap */}
         {informationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-            <CardHeader>
-              <CardTitle>{title}</CardTitle>
-              <CardDescription>Additional health insights</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between p-4"> {/* Adjusted padding & added flex for button */}
+              <div>
+                <CardTitle className="text-sm">{title}</CardTitle> {/* Reduced font size */}
+                <CardDescription className="text-xs">Additional health insights</CardDescription> {/* Reduced font size */}
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7"> {/* Reduced size */}
+                <Edit3 className="h-4 w-4" />
+                <span className="sr-only">Edit {title}</span>
+              </Button>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{loremIpsumText}</p>
+            <CardContent className="p-4 pt-0"> {/* Adjusted padding */}
+              <p className="text-xs text-muted-foreground">{loremIpsumText}</p> {/* Reduced font size */}
             </CardContent>
           </Card>
         ))}
@@ -271,3 +275,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
