@@ -12,6 +12,7 @@ import { Droplet, HeartPulse, Activity, Thermometer, Scale, CalendarPlus, FilePl
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS } from '@/lib/constants';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', trend: 'stable', icon: Droplet },
@@ -193,64 +194,80 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Health Data Section */}
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Glucose Levels Over Time</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={glucoseChartConfig} className="h-[300px] w-full">
-              <RechartsLineChart data={glucoseData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={2} dot={true} />
-              </RechartsLineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+      {/* Health Data Section with Tabs */}
+      <Card className="shadow-lg col-span-1 lg:col-span-2">
+        <CardHeader>
+          <CardTitle>Health Data Visualizations</CardTitle>
+          <CardDescription>Toggle between different health charts.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="glucose">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="glucose">Glucose Levels</TabsTrigger>
+              <TabsTrigger value="ecg">ECG Sample</TabsTrigger>
+            </TabsList>
+            <TabsContent value="glucose">
+              <Card> {/* Optional: Wrap chart in a sub-card for consistent styling */}
+                <CardHeader>
+                  <CardTitle>Glucose Levels Over Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={glucoseChartConfig} className="h-[300px] w-full">
+                    <RechartsLineChart data={glucoseData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                      <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
+                      <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                      <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={2} dot={true} />
+                    </RechartsLineChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="ecg">
+              <Card> {/* Optional: Wrap chart in a sub-card for consistent styling */}
+                <CardHeader>
+                  <CardTitle>Electrocardiogram (ECG) Sample</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={ecgChartConfig} className="h-[300px] w-full">
+                    <RechartsLineChart data={ecgData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                      <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} />
+                      <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                      <Line dataKey="value" type="monotone" stroke="var(--color-value)" strokeWidth={2} dot={false} />
+                    </RechartsLineChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Electrocardiogram (ECG) Sample</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={ecgChartConfig} className="h-[300px] w-full">
-              <RechartsLineChart data={ecgData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                <Line dataKey="value" type="monotone" stroke="var(--color-value)" strokeWidth={2} dot={false} />
-              </RechartsLineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-lg col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>CT Scan Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {ctScanReadings.map((reading, index) => (
-                <li key={index} className="flex justify-between p-2 rounded-md bg-secondary/50">
-                  <span className="font-medium text-secondary-foreground">{reading.organ}:</span>
-                  <span className="text-muted-foreground">{reading.finding}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Note: This is a simplified summary. Always consult your doctor for detailed analysis.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* CT Scan Summary - Positioned below the tabbed charts */}
+      <Card className="shadow-lg col-span-1 lg:col-span-2">
+        <CardHeader>
+          <CardTitle>CT Scan Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {ctScanReadings.map((reading, index) => (
+              <li key={index} className="flex justify-between p-2 rounded-md bg-secondary/50">
+                <span className="font-medium text-secondary-foreground">{reading.organ}:</span>
+                <span className="text-muted-foreground">{reading.finding}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Note: This is a simplified summary. Always consult your doctor for detailed analysis.
+          </p>
+        </CardContent>
+      </Card>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-        {[1, 2].map((item) => (
+        {[1, 2, 3, 4, 5, 6].map((item) => (
           <Card key={`lorem-box-${item}`} className="shadow-lg">
             <CardHeader>
               <CardTitle>Informational Box {item}</CardTitle>
@@ -271,7 +288,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="flex items-center space-x-4">
               <Image 
-                src="https://picsum.photos/150/150" 
+                src="https://placehold.co/100x100.png" 
                 alt="Fitness Activity" 
                 width={100} 
                 height={100} 
@@ -293,7 +310,7 @@ export default function DashboardPage() {
           <CardContent>
           <div className="flex items-center space-x-4">
               <Image 
-                src="https://picsum.photos/150/150" 
+                src="https://placehold.co/100x100.png" 
                 alt="Healthy Food" 
                 width={100} 
                 height={100} 
@@ -311,4 +328,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
