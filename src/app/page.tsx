@@ -3,21 +3,22 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import type { ChartConfig } from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
   User, Hospital, CalendarDays, Phone
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; 
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent as PCSC } from '@/lib/constants'; 
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
+
 
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet },
@@ -46,20 +47,19 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Report" is now handled separately in the top section
 const informationalCardTitles: string[] = [
   "Allergies",
   "Clinical notes",
   "Radiology",
   "Encounter notes",
   "Clinical reminder"
+  // "Report" is handled separately now
 ];
 
 
-export default function DashboardPage() {
+export default function DashboardPage(): JSX.Element {
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
   const medications: Medication[] = MOCK_MEDICATIONS;
-  
 
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
@@ -150,8 +150,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Right part of Top Row: Patient Details Card & Report Card */}
-        <div className="w-full lg:w-[35%] flex flex-col gap-3">
-          <Card className="shadow-lg">
+        <div className="w-full lg:w-[35%] flex flex-col md:flex-row gap-3">
+          <Card className="shadow-lg w-full md:w-1/2">
             {/* CardHeader removed */}
             <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[calc(170px+4rem)] overflow-y-auto"> 
                 <div className="flex items-center space-x-3 mb-2">
@@ -174,11 +174,11 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg w-full md:w-1/2">
             {/* CardHeader removed */}
             <CardContent className="p-2 max-h-[100px] overflow-y-auto no-scrollbar">
               <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
-                {(PCSC["Report"] || ["No data available."]).map((item, index) => (
+                {(pageCardSampleContent["Report"] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -208,13 +208,21 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
+              <ShadcnTableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%] px-2 py-1.5 text-xs">Doctor</TableHead>
+                  <TableHead className="px-2 py-1.5 text-xs">Date</TableHead>
+                  <TableHead className="px-2 py-1.5 text-xs">Time</TableHead>
+                  <TableHead className="text-right px-2 py-1.5 text-xs">Actions</TableHead>
+                </TableRow>
+              </ShadcnTableHeader>
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
                     <TableCell className="px-2 py-1">
                       <div className="flex items-center space-x-1.5">
                         <Avatar className="h-6 w-6">
-                          <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
+                          <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor"/>
                           <AvatarFallback>{appt.doctor.substring(0,1)}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -261,6 +269,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
+              <ShadcnTableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%] px-2 py-1.5 text-xs">Medicines</TableHead>
+                  <TableHead className="px-2 py-1.5 text-xs">Amount</TableHead>
+                  <TableHead className="px-2 py-1.5 text-xs">Time</TableHead>
+                  <TableHead className="text-right px-2 py-1.5 text-xs">Status</TableHead>
+                </TableRow>
+              </ShadcnTableHeader>
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
@@ -301,7 +317,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
               <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
-                {(PCSC[title] || ["No data available."]).map((item, index) => (
+                {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -313,3 +329,6 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
+
