@@ -12,7 +12,7 @@ import {
   User, Hospital, CalendarDays, Phone
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; 
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent as PCSC } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,6 +46,7 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+// "Report" is now handled separately in the top section
 const informationalCardTitles: string[] = [
   "Allergies",
   "Clinical notes",
@@ -69,13 +70,7 @@ export default function DashboardPage() {
         <div className="w-full lg:w-[65%] flex flex-col md:flex-row gap-3">
             {/* Health Data Visualizations Card (Charts ONLY) */}
             <Card className="shadow-lg w-full md:w-[65%]">
-              <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-                <CardTitle className="text-base font-semibold">Health Data Visualizations</CardTitle>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <Edit3 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Edit Health Data</span>
-                </Button>
-              </CardHeader>
+              {/* CardHeader removed */}
               <CardContent className="pt-1 px-2 pb-2">
                 <Tabs defaultValue="glucose">
                   <TabsList className="grid w-full grid-cols-3 mb-1.5 h-9">
@@ -135,11 +130,8 @@ export default function DashboardPage() {
             {/* Vitals Card */}
             <div className="w-full md:w-[35%]">
               <Card className="shadow-md h-full">
-                <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-                  <CardTitle className="text-base font-semibold">Vitals</CardTitle>
-                  <Button variant="ghost" size="icon" className="h-7 w-7"><Edit3 className="h-3.5 w-3.5" /><span className="sr-only">Edit Vitals</span></Button>
-                </CardHeader>
-                <CardContent className="space-y-1.5 pt-1 px-2 pb-2 max-h-[calc(170px+2.5rem)] overflow-y-auto no-scrollbar">
+                {/* CardHeader removed */}
+                <CardContent className="space-y-1.5 p-2 max-h-[calc(170px+2.5rem)] overflow-y-auto no-scrollbar">
                   {keyIndicators.map((indicator) => (
                     <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/50">
                       <div className="flex items-center">
@@ -160,10 +152,7 @@ export default function DashboardPage() {
         {/* Right part of Top Row: Patient Details Card & Report Card */}
         <div className="w-full lg:w-[35%] flex flex-col gap-3">
           <Card className="shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <CardTitle className="text-base font-semibold">Patient Details</CardTitle>
-              <Button variant="ghost" size="icon" className="h-7 w-7"><Edit3 className="h-3.5 w-3.5" /><span className="sr-only">Edit Patient Details</span></Button>
-            </CardHeader>
+            {/* CardHeader removed */}
             <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[calc(170px+4rem)] overflow-y-auto"> 
                 <div className="flex items-center space-x-3 mb-2">
                     <Avatar className="h-16 w-16">
@@ -186,19 +175,10 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div>
-                <CardTitle className="text-sm font-semibold">Report</CardTitle>
-                <CardDescription className="text-xs">Quick summary</CardDescription>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Report</span>
-              </Button>
-            </CardHeader>
-            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
+            {/* CardHeader removed */}
+            <CardContent className="p-2 max-h-[100px] overflow-y-auto no-scrollbar">
               <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
-                {(pageCardSampleContent["Report"] || ["No data available."]).map((item, index) => (
+                {(PCSC["Report"] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -321,7 +301,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
               <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
-                {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
+                {(PCSC[title] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
               </ul>
@@ -333,4 +313,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
