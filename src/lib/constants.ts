@@ -1,48 +1,17 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard, Clock, Pill as PillIcon, Plus, MoreVertical, User, VenetianMask, Building, CalendarDays, Smartphone, Hourglass } from 'lucide-react'; // Added User, VenetianMask, Building, CalendarDays, Smartphone, Hourglass
+// Icons for direct use in page.tsx if needed elsewhere (Clock, PillIcon, Plus, MoreVertical were used by page.tsx directly)
+import { Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
 
-export type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-};
-
-export const NAV_ITEMS: NavItem[] = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-];
-
-export type Patient = {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  gender: string;
-  wardNo: string;
-  age: number;
-  admissionDate: string; // Keep as string, formatting in component
-  lengthOfStay: string; // e.g., "5 days"
-  mobileNumber: string;
-};
-
-export const MOCK_PATIENT: Patient = {
-  id: 'pat1',
-  name: 'Sarah Miller', // Example name
-  avatarUrl: 'https://placehold.co/100x100.png',
-  gender: 'Female',
-  wardNo: 'C-305',
-  age: 42,
-  admissionDate: '2024-07-15',
-  lengthOfStay: '5 days',
-  mobileNumber: '+1-555-0102',
-};
+export const LOREM_IPSUM_TEXT: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 export type Appointment = {
   id: string;
   doctor: string;
   specialty: string;
-  date: string; // Keep as string, formatting will be done in component
+  date: string; 
   time: string;
-  location: string; // This might be shown in "Details"
+  location: string; 
   avatarUrl: string;
 };
 
@@ -56,9 +25,9 @@ export const MOCK_APPOINTMENTS: Appointment[] = [
 export type Medication = {
   id: string;
   name: string;
-  reason?: string; // e.g., "Heart"
-  amount: string; // e.g., "1x2"
-  timing: string; // e.g., "before eating"
+  reason?: string; 
+  amount: string; 
+  timing: string; 
   taken: boolean;
 };
 
@@ -77,5 +46,4 @@ export type HealthMetric = {
   icon?: LucideIcon;
 };
 
-// Icons for direct use in page.tsx if needed elsewhere
-export { Clock, PillIcon, Plus, MoreVertical, User, VenetianMask, Building, CalendarDays, Smartphone, Hourglass };
+export { Clock, PillIcon, Plus, MoreVertical };

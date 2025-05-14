@@ -11,7 +11,7 @@ import {
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS } from '@/lib/constants';
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, LOREM_IPSUM_TEXT } from '@/lib/constants';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,8 +25,6 @@ const keyIndicators: HealthMetric[] = [
   { name: 'Body Temperature', value: '36.8', unit: '°C', trend: 'stable', icon: Thermometer },
   { name: 'Weight', value: '70', unit: 'kg', trend: 'down', icon: Scale },
 ];
-
-const loremIpsumText: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 const glucoseData: Array<{ date: string; level: number }> = [
   { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
@@ -47,10 +45,7 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-const informationalCardTitles: string[] = [
-  "Allergies",
-  "Clinical notes",
-  "Radiology",
+const pageInformationalCardTitles: string[] = [
   "Encounter notes",
   "Clinical reminder",
   "Report"
@@ -274,7 +269,7 @@ export default function DashboardPage(): JSX.Element {
       </div>
       
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {informationalCardTitles.map((title) => (
+        {pageInformationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div>
@@ -287,7 +282,7 @@ export default function DashboardPage(): JSX.Element {
               </Button>
             </CardHeader>
             <CardContent className="p-2 max-h-[80px] overflow-y-auto">
-              <p className="text-xs text-muted-foreground">{loremIpsumText}</p>
+              <p className="text-xs text-muted-foreground">{LOREM_IPSUM_TEXT}</p>
             </CardContent>
           </Card>
         ))}
