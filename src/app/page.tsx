@@ -43,8 +43,8 @@ const ctScanReadings = [
   { organ: 'Lungs', finding: 'Clear' }, { organ: 'Liver', finding: 'Normal' }, { organ: 'Kidneys', finding: 'Slight calcification' },
 ];
 
-const glucoseChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } } satisfies ChartConfig;
-const ecgChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } } satisfies ChartConfig;
+const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
+const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
 const informationalCardTitles = [
   "Allergies",
@@ -63,14 +63,14 @@ export default function DashboardPage() {
     <div className="flex flex-1 flex-col p-4 md:p-6 space-y-6">
       <PageHeader title="Dashboard" description="Overview of your current health status." />
 
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Health Data Visualizations</CardTitle>
-          
-        </CardHeader>
-        <CardContent className="flex flex-col md:flex-row gap-6">
-          <div className="w-full md:w-[65%]">
+      {/* Container for Health Data Visualizations and Vitals */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Health Data Visualizations Card (Left Side) */}
+        <Card className="shadow-lg w-full md:w-[65%]">
+          <CardHeader>
+            <CardTitle>Health Data Visualizations</CardTitle>
+          </CardHeader>
+          <CardContent> {/* Removed flex classes, content is now just the Tabs */}
             <Tabs defaultValue="glucose">
               <TabsList className="grid w-full grid-cols-3 mb-4">
                 <TabsTrigger value="glucose">Glucose Levels</TabsTrigger>
@@ -79,7 +79,6 @@ export default function DashboardPage() {
               </TabsList>
               <TabsContent value="glucose">
                 <Card>
-                  
                   <CardContent>
                     <ChartContainer config={glucoseChartConfig} className="h-[300px] w-full">
                       <RechartsLineChart data={glucoseData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
@@ -95,7 +94,6 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ecg">
                 <Card>
-                  
                   <CardContent>
                     <ChartContainer config={ecgChartConfig} className="h-[300px] w-full">
                       <RechartsLineChart data={ecgData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
@@ -111,7 +109,6 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ct-scan">
                 <Card>
-                  
                   <CardContent>
                     <ul className="space-y-2">
                       {ctScanReadings.map((reading, index) => (
@@ -126,31 +123,33 @@ export default function DashboardPage() {
                 </Card>
               </TabsContent>
             </Tabs>
-          </div>
-          <div className="w-full md:w-[35%] md:pl-4">
-            <Card className="shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-semibold">Vitals</CardTitle>
-                <Button variant="ghost" size="sm"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-2">
-                {keyIndicators.map((indicator) => (
-                  <div key={indicator.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="flex items-center">
-                      {indicator.icon && <indicator.icon className="h-6 w-6 text-primary mr-3" />}
-                      <span className="text-sm font-medium text-foreground">{indicator.name}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-lg font-bold text-foreground">{indicator.value}</span>
-                      <span className="text-xs text-muted-foreground ml-1">{indicator.unit}</span>
-                    </div>
+          </CardContent>
+        </Card>
+
+        {/* Vitals Card (Right Side) */}
+        <div className="w-full md:w-[35%]"> {/* Removed md:pl-4, gap-6 on parent handles spacing */}
+          <Card className="shadow-md h-full"> {/* Added h-full to attempt vertical alignment with potentially taller charts card */}
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg font-semibold">Vitals</CardTitle>
+              <Button variant="ghost" size="sm"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-2">
+              {keyIndicators.map((indicator) => (
+                <div key={indicator.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center">
+                    {indicator.icon && <indicator.icon className="h-6 w-6 text-primary mr-3" />}
+                    <span className="text-sm font-medium text-foreground">{indicator.name}</span>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
+                  <div className="text-right">
+                    <span className="text-lg font-bold text-foreground">{indicator.value}</span>
+                    <span className="text-xs text-muted-foreground ml-1">{indicator.unit}</span>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-lg">
