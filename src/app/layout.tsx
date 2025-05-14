@@ -72,7 +72,7 @@ export default function RootLayout({
                     <span className="sr-only">Edit {title}</span>
                   </Button>
                 </CardHeader>
-                <CardContent className="p-2 max-h-[100px] overflow-y-auto no-scrollbar">
+                <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
                   <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
                     {(cardSampleContent[title] || ["No data available."]).map((item, index) => (
                       <li key={index}>{item}</li>
