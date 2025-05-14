@@ -8,11 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
-import { Droplet, HeartPulse, Activity, Thermometer, Scale, CalendarPlus, FilePlus2, Edit3 } from 'lucide-react';
+import { Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS } from '@/lib/constants';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from '@/components/ui/badge';
 
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', trend: 'stable', icon: Droplet },
@@ -24,14 +27,9 @@ const keyIndicators: HealthMetric[] = [
 
 const loremIpsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
-// Data for charts
 const glucoseData = [
-  { date: '2024-07-01', level: 95 },
-  { date: '2024-07-02', level: 102 },
-  { date: '2024-07-03', level: 98 },
-  { date: '2024-07-04', level: 110 },
-  { date: '2024-07-05', level: 105 },
-  { date: '2024-07-06', level: 99 },
+  { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
+  { date: '2024-07-04', level: 110 }, { date: '2024-07-05', level: 105 }, { date: '2024-07-06', level: 99 },
   { date: '2024-07-07', level: 108 },
 ];
 
@@ -42,25 +40,11 @@ const ecgData = [
 ];
 
 const ctScanReadings = [
-  { organ: 'Lungs', finding: 'Clear' },
-  { organ: 'Liver', finding: 'Normal' },
-  { organ: 'Kidneys', finding: 'Slight calcification' },
+  { organ: 'Lungs', finding: 'Clear' }, { organ: 'Liver', finding: 'Normal' }, { organ: 'Kidneys', finding: 'Slight calcification' },
 ];
 
-const glucoseChartConfig = {
-  level: {
-    label: 'Glucose (mg/dL)',
-    color: 'hsl(var(--chart-1))',
-  },
-} satisfies ChartConfig;
-
-const ecgChartConfig = {
-  value: {
-    label: 'ECG (mV)',
-    color: 'hsl(var(--chart-2))',
-  },
-} satisfies ChartConfig;
-
+const glucoseChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } } satisfies ChartConfig;
+const ecgChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } } satisfies ChartConfig;
 
 export default function DashboardPage() {
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
@@ -79,14 +63,12 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Health Data Section with Tabs and Vitals */}
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Health Data Visualizations</CardTitle>
           <CardDescription>Charts and key health indicators.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-6">
-          {/* Left Column: Charts */}
           <div className="w-full md:w-[65%]">
             <Tabs defaultValue="glucose">
               <TabsList className="grid w-full grid-cols-3 mb-4">
@@ -96,9 +78,7 @@ export default function DashboardPage() {
               </TabsList>
               <TabsContent value="glucose">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Glucose Levels Over Time</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Glucose Levels Over Time</CardTitle></CardHeader>
                   <CardContent>
                     <ChartContainer config={glucoseChartConfig} className="h-[300px] w-full">
                       <RechartsLineChart data={glucoseData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
@@ -114,9 +94,7 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ecg">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Electrocardiogram (ECG) Sample</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>Electrocardiogram (ECG) Sample</CardTitle></CardHeader>
                   <CardContent>
                     <ChartContainer config={ecgChartConfig} className="h-[300px] w-full">
                       <RechartsLineChart data={ecgData} margin={{ left: 12, right: 12, top: 5, bottom: 5 }}>
@@ -132,9 +110,7 @@ export default function DashboardPage() {
               </TabsContent>
               <TabsContent value="ct-scan">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>CT Scan Summary</CardTitle>
-                  </CardHeader>
+                  <CardHeader><CardTitle>CT Scan Summary</CardTitle></CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
                       {ctScanReadings.map((reading, index) => (
@@ -144,23 +120,17 @@ export default function DashboardPage() {
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-4 text-sm text-muted-foreground">
-                      Note: This is a simplified summary. Always consult your doctor for detailed analysis.
-                    </p>
+                    <p className="mt-4 text-sm text-muted-foreground">Note: This is a simplified summary. Always consult your doctor for detailed analysis.</p>
                   </CardContent>
                 </Card>
               </TabsContent>
             </Tabs>
           </div>
-
-          {/* Right Column: Vitals */}
           <div className="w-full md:w-[35%] md:pl-4">
             <Card className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-semibold">Vitals</CardTitle>
-                <Button variant="ghost" size="sm">
-                  <Edit3 className="h-4 w-4 mr-1" /> Edit
-                </Button>
+                <Button variant="ghost" size="sm"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
               </CardHeader>
               <CardContent className="space-y-4 pt-2">
                 {keyIndicators.map((indicator) => (
@@ -181,42 +151,50 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      {/* Appointments Section */}
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Upcoming Appointments</CardTitle>
-            <CardDescription>
-              You have {appointments.length} upcoming appointment{appointments.length === 1 ? '' : 's'}.
-            </CardDescription>
+          <div className="flex items-center space-x-3">
+            <Clock className="h-6 w-6 text-primary" />
+            <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
+            <Badge variant="secondary" className="text-sm">x{appointments.length}</Badge>
           </div>
-          <Button>
-            <CalendarPlus className="mr-2 h-4 w-4" />
-            Schedule New
+          <Button variant="default" size="icon">
+            <Plus className="h-5 w-5" />
+            <span className="sr-only">Schedule New Appointment</span>
           </Button>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Doctor</TableHead>
-                <TableHead>Specialty</TableHead>
+                <TableHead className="w-[40%]">Doctor</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Time</TableHead>
-                <TableHead className="hidden md:table-cell">Location</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {appointments.map((appt) => (
                 <TableRow key={appt.id}>
-                  <TableCell className="font-medium">{appt.doctor}</TableCell>
-                  <TableCell>{appt.specialty}</TableCell>
-                  <TableCell>{new Date(appt.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <Avatar>
+                        <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
+                        <AvatarFallback>{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{appt.doctor}</div>
+                        <div className="text-xs text-muted-foreground">{appt.specialty}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
                   <TableCell>{appt.time}</TableCell>
-                  <TableCell className="hidden md:table-cell">{appt.location}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm">Details</Button>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-5 w-5" />
+                      <span className="sr-only">More options</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -228,40 +206,41 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Medications Section */}
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Your Medications</CardTitle>
-            <CardDescription>
-              You are currently taking {medications.length} medication{medications.length === 1 ? '' : 's'}.
-            </CardDescription>
+          <div className="flex items-center space-x-3">
+            <PillIcon className="h-6 w-6 text-primary" />
+            <CardTitle className="text-lg">Medical Supplies for Today</CardTitle>
+            {/* <Badge variant="secondary" className="text-sm">x{medications.length}</Badge> PRD said "Your Medications" and "you are taking X medications"*/}
           </div>
-          <Button>
-            <FilePlus2 className="mr-2 h-4 w-4" />
-            Add Medication
+          <Button variant="default" size="icon">
+            <Plus className="h-5 w-5" />
+             <span className="sr-only">Add Medication</span>
           </Button>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Dosage</TableHead>
-                <TableHead>Frequency</TableHead>
-                <TableHead className="hidden md:table-cell">Reason</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[40%]">Medicines</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead className="text-right">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {medications.map((med) => (
                 <TableRow key={med.id}>
-                  <TableCell className="font-medium">{med.name}</TableCell>
-                  <TableCell>{med.dosage}</TableCell>
-                  <TableCell>{med.frequency}</TableCell>
-                  <TableCell className="hidden md:table-cell">{med.reason}</TableCell>
+                  <TableCell>
+                     <div>
+                        <div className="font-medium">{med.name}</div>
+                        {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
+                      </div>
+                  </TableCell>
+                  <TableCell>{med.amount}</TableCell>
+                  <TableCell>{med.timing}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm">Details</Button>
+                    <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -289,19 +268,10 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
           <CardContent>
             <div className="flex items-center space-x-4">
-              <Image 
-                src="https://placehold.co/100x100.png" 
-                alt="Fitness Activity" 
-                width={100} 
-                height={100} 
-                className="rounded-lg"
-                data-ai-hint="fitness activity" 
-              />
+              <Image src="https://placehold.co/100x100.png" alt="Fitness Activity" width={100} height={100} className="rounded-lg" data-ai-hint="fitness activity" />
               <div>
                 <h3 className="font-semibold">Morning Run</h3>
                 <p className="text-sm text-muted-foreground">Completed 5km in 30 minutes.</p>
@@ -311,19 +281,10 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Health Tip of the Day</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Health Tip of the Day</CardTitle></CardHeader>
           <CardContent>
-          <div className="flex items-center space-x-4">
-              <Image 
-                src="https://placehold.co/100x100.png" 
-                alt="Healthy Food" 
-                width={100} 
-                height={100} 
-                className="rounded-lg"
-                data-ai-hint="healthy food"
-              />
+            <div className="flex items-center space-x-4">
+              <Image src="https://placehold.co/100x100.png" alt="Healthy Food" width={100} height={100} className="rounded-lg" data-ai-hint="healthy food" />
               <div>
                 <h3 className="font-semibold">Stay Hydrated</h3>
                 <p className="text-sm text-muted-foreground">Remember to drink at least 8 glasses of water today for optimal health and energy levels.</p>

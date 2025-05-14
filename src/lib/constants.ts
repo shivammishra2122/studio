@@ -1,6 +1,6 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { LayoutDashboard } from 'lucide-react'; // Removed LineChart, CalendarDays, Pill
+import { LayoutDashboard, Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react'; // Added Clock, PillIcon, Plus, MoreVertical
 
 export type NavItem = {
   href: string;
@@ -10,39 +10,39 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  // { href: '/health-data', label: 'Health Data', icon: LineChart },
-  // { href: '/appointments', label: 'Appointments', icon: CalendarDays },
-  // { href: '/medications', label: 'Medications', icon: Pill },
 ];
 
 export type Appointment = {
   id: string;
   doctor: string;
   specialty: string;
-  date: string;
+  date: string; // Keep as string, formatting will be done in component
   time: string;
-  location: string;
+  location: string; // This might be shown in "Details"
+  avatarUrl: string;
 };
 
 export const MOCK_APPOINTMENTS: Appointment[] = [
-  { id: '1', doctor: 'Dr. Emily Carter', specialty: 'Cardiology', date: '2024-08-15', time: '10:00 AM', location: 'Heartbeat Clinic, Room 203' },
-  { id: '2', doctor: 'Dr. John Smith', specialty: 'General Practice', date: '2024-08-22', time: '02:30 PM', location: 'City General Hospital, Wing A' },
-  { id: '3', doctor: 'Dr. Sarah Lee', specialty: 'Endocrinology', date: '2024-09-05', time: '11:15 AM', location: 'Wellness Center, Suite 10' },
+  { id: '1', doctor: 'Frederica Zegno', specialty: 'Doctor cardiologist', date: '2024-06-22', time: '3 pm', location: 'Heartbeat Clinic, Room 203', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '2', doctor: 'Rosa Mann', specialty: 'Doctor neurologist', date: '2024-06-27', time: '9 am', location: 'City General Hospital, Wing A', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '3', doctor: 'Simon Sparcs', specialty: 'Doctor Orthologist', date: '2024-07-03', time: '5 pm', location: 'Wellness Center, Suite 10', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '4', doctor: 'Dr. Angela Lee', specialty: 'Pediatrician', date: '2024-07-10', time: '11 am', location: 'Children s Wellness, Suite 5', avatarUrl: 'https://placehold.co/40x40.png' },
 ];
 
 export type Medication = {
   id: string;
   name: string;
-  dosage: string;
-  frequency: string;
-  reason: string;
+  reason?: string; // e.g., "Heart"
+  amount: string; // e.g., "1x2"
+  timing: string; // e.g., "before eating"
+  taken: boolean;
 };
 
 export const MOCK_MEDICATIONS: Medication[] = [
-  { id: '1', name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', reason: 'High Blood Pressure' },
-  { id: '2', name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', reason: 'Type 2 Diabetes' },
-  { id: '3', name: 'Atorvastatin', dosage: '20mg', frequency: 'Once daily at night', reason: 'High Cholesterol' },
-  { id: '4', name: 'Amoxicillin', dosage: '250mg', frequency: 'Three times daily', reason: 'Bacterial Infection (current)' },
+  { id: '1', name: 'UltraVit OMEGA + DHA', reason: 'Heart', amount: '1x2', timing: 'before eating', taken: true },
+  { id: '2', name: 'Clopidogrel', reason: 'Heart', amount: '2x1', timing: 'after eating', taken: false },
+  { id: '3', name: 'Ticagrelor', reason: 'Heart', amount: '3x/3', timing: 'after eating', taken: false },
+  { id: '4', name: 'Aspirin', reason: 'Pain Relief', amount: '1 tablet', timing: 'as needed', taken: true },
 ];
 
 export type HealthMetric = {
@@ -53,3 +53,5 @@ export type HealthMetric = {
   icon?: LucideIcon;
 };
 
+// Icons for direct use in page.tsx if needed elsewhere
+export { Clock, PillIcon, Plus, MoreVertical };
