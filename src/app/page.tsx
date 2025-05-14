@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -302,7 +301,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
       
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
         {informationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
@@ -331,4 +330,5 @@ export default function DashboardPage(): JSX.Element {
 }
 
     
+
 
