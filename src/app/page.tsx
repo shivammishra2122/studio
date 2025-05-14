@@ -198,16 +198,17 @@ export default function DashboardPage() {
       <Card className="shadow-lg col-span-1 lg:col-span-2">
         <CardHeader>
           <CardTitle>Health Data Visualizations</CardTitle>
-          <CardDescription>Toggle between different health charts.</CardDescription>
+          <CardDescription>Toggle between different health charts and summaries.</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="glucose">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="grid w-full grid-cols-3 mb-4"> {/* Changed to grid-cols-3 */}
               <TabsTrigger value="glucose">Glucose Levels</TabsTrigger>
               <TabsTrigger value="ecg">ECG Sample</TabsTrigger>
+              <TabsTrigger value="ct-scan">CT Scan Summary</TabsTrigger> {/* New Trigger */}
             </TabsList>
             <TabsContent value="glucose">
-              <Card> {/* Optional: Wrap chart in a sub-card for consistent styling */}
+              <Card>
                 <CardHeader>
                   <CardTitle>Glucose Levels Over Time</CardTitle>
                 </CardHeader>
@@ -225,7 +226,7 @@ export default function DashboardPage() {
               </Card>
             </TabsContent>
             <TabsContent value="ecg">
-              <Card> {/* Optional: Wrap chart in a sub-card for consistent styling */}
+              <Card>
                 <CardHeader>
                   <CardTitle>Electrocardiogram (ECG) Sample</CardTitle>
                 </CardHeader>
@@ -242,27 +243,27 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </TabsContent>
+            <TabsContent value="ct-scan"> {/* New Content for CT Scan */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>CT Scan Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {ctScanReadings.map((reading, index) => (
+                      <li key={index} className="flex justify-between p-2 rounded-md bg-secondary/50">
+                        <span className="font-medium text-secondary-foreground">{reading.organ}:</span>
+                        <span className="text-muted-foreground">{reading.finding}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Note: This is a simplified summary. Always consult your doctor for detailed analysis.
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* CT Scan Summary - Positioned below the tabbed charts */}
-      <Card className="shadow-lg col-span-1 lg:col-span-2">
-        <CardHeader>
-          <CardTitle>CT Scan Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {ctScanReadings.map((reading, index) => (
-              <li key={index} className="flex justify-between p-2 rounded-md bg-secondary/50">
-                <span className="font-medium text-secondary-foreground">{reading.organ}:</span>
-                <span className="text-muted-foreground">{reading.finding}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Note: This is a simplified summary. Always consult your doctor for detailed analysis.
-          </p>
         </CardContent>
       </Card>
       
