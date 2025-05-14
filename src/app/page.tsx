@@ -51,7 +51,8 @@ const informationalCardTitles = [
   "Clinical notes",
   "Radiology",
   "Encounter notes",
-  "Clinical reminder"
+  "Clinical reminder",
+  "Report"
 ];
 
 export default function DashboardPage() {
@@ -276,33 +277,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="shadow-lg">
-          <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4">
-              <Image src="https://placehold.co/100x100.png" alt="Fitness Activity" width={100} height={100} className="rounded-lg" data-ai-hint="fitness activity" />
-              <div>
-                <h3 className="font-semibold">Morning Run</h3>
-                <p className="text-sm text-muted-foreground">Completed 5km in 30 minutes.</p>
-                <p className="text-xs text-muted-foreground">Yesterday</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg">
-          <CardHeader><CardTitle>Health Tip of the Day</CardTitle></CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4">
-              <Image src="https://placehold.co/100x100.png" alt="Healthy Food" width={100} height={100} className="rounded-lg" data-ai-hint="healthy food" />
-              <div>
-                <h3 className="font-semibold">Stay Hydrated</h3>
-                <p className="text-sm text-muted-foreground">Remember to drink at least 8 glasses of water today for optimal health and energy levels.</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
+
+    
