@@ -72,19 +72,12 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen)
     const open = openProp ?? _open
     
     const setOpen = React.useCallback(
       (value: boolean | ((currentOpen: boolean) => boolean)) => {
-        let newOpenState = typeof value === "function" ? value(open) : value;
-
-        // If on desktop, prevent collapsing (force open to true)
-        if (!isMobile && !newOpenState) {
-          newOpenState = true;
-        }
+        const newOpenState = typeof value === "function" ? value(open) : value;
 
         if (setOpenProp) {
           setOpenProp(newOpenState);
@@ -92,25 +85,20 @@ const SidebarProvider = React.forwardRef<
           _setOpen(newOpenState);
         }
 
-        // This sets the cookie to keep the sidebar state.
-        // On desktop, it will always save 'true' due to the logic above.
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${newOpenState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
-      [setOpenProp, open, isMobile] // Added isMobile to dependencies
+      [setOpenProp, open] // Removed isMobile from dependencies
     );
 
-    // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
       if (isMobile) {
         setOpenMobile((currentOpenMobile) => !currentOpenMobile);
       } else {
-        // For desktop, setOpen will handle forcing it to stay open
-        setOpen((currentOpen) => !currentOpen);
+        setOpen((currentOpen) => !currentOpen); // This will now toggle on desktop
       }
     }, [isMobile, setOpen, setOpenMobile]);
 
 
-    // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
@@ -126,9 +114,7 @@ const SidebarProvider = React.forwardRef<
       return () => window.removeEventListener("keydown", handleKeyDown)
     }, [toggleSidebar])
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
-    const state = open ? "expanded" : "collapsed" // On desktop, 'open' will always be true, so state is 'expanded'
+    const state = open ? "expanded" : "collapsed"
 
     const contextValue = React.useMemo<SidebarContext>(
       () => ({
@@ -230,18 +216,16 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className="group peer hidden md:block text-sidebar-foreground"
-        data-state={state} // On desktop, state will always be "expanded" due to provider changes
-        data-collapsible={state === "collapsed" ? collapsible : ""} // This will be empty on desktop
+        data-state={state} 
+        data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
       >
-        {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
             "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0", // Not relevant if always expanded
+            "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
-            // Since state is always 'expanded' on desktop, this icon-specific width won't apply. It will use full width.
             variant === "floating" || variant === "inset"
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
@@ -251,9 +235,8 @@ const Sidebar = React.forwardRef<
           className={cn(
             "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
             side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]" // Not relevant
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]", // Not relevant
-            // Adjust the padding for floating and inset variants. Icon-specific width not relevant for expanded state.
+              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]" 
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
@@ -598,8 +581,6 @@ const SidebarMenuButton = React.forwardRef<
         <TooltipContent
           side="right"
           align="center"
-          // Tooltip should show if state is 'collapsed' (icon only) AND not on mobile.
-          // Since desktop state is now always 'expanded', this effectively hides tooltip on desktop.
           hidden={state !== "collapsed" || isMobile} 
           {...tooltip}
         />
@@ -778,3 +759,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
