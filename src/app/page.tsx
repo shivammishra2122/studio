@@ -151,108 +151,110 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      <Card className="shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Clock className="h-6 w-6 text-primary" />
-            <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
-            <Badge variant="secondary" className="text-sm">x{appointments.length}</Badge>
-          </div>
-          <Button variant="default" size="icon">
-            <Plus className="h-5 w-5" />
-            <span className="sr-only">Schedule New Appointment</span>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[40%]">Doctor</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {appointments.map((appt) => (
-                <TableRow key={appt.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
-                        <AvatarFallback>{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{appt.doctor}</div>
-                        <div className="text-xs text-muted-foreground">{appt.specialty}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
-                  <TableCell>{appt.time}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-5 w-5" />
-                      <span className="sr-only">More options</span>
-                    </Button>
-                  </TableCell>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Clock className="h-6 w-6 text-primary" />
+              <CardTitle className="text-lg">Upcoming Appointments</CardTitle>
+              <Badge variant="secondary" className="text-sm">{appointments.length}</Badge>
+            </div>
+            <Button variant="default" size="icon">
+              <Plus className="h-5 w-5" />
+              <span className="sr-only">Schedule New Appointment</span>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%]">Doctor</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-           {appointments.length === 0 && (
-            <p className="py-10 text-center text-muted-foreground">No upcoming appointments.</p>
-          )}
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {appointments.map((appt) => (
+                  <TableRow key={appt.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar>
+                          <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
+                          <AvatarFallback>{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{appt.doctor}</div>
+                          <div className="text-xs text-muted-foreground">{appt.specialty}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
+                    <TableCell>{appt.time}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-5 w-5" />
+                        <span className="sr-only">More options</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {appointments.length === 0 && (
+              <p className="py-10 text-center text-muted-foreground">No upcoming appointments.</p>
+            )}
+          </CardContent>
+        </Card>
 
-      <Card className="shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <PillIcon className="h-6 w-6 text-primary" />
-            <CardTitle className="text-lg">Medical Supplies for Today</CardTitle>
-            {/* <Badge variant="secondary" className="text-sm">x{medications.length}</Badge> PRD said "Your Medications" and "you are taking X medications"*/}
-          </div>
-          <Button variant="default" size="icon">
-            <Plus className="h-5 w-5" />
-             <span className="sr-only">Add Medication</span>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[40%]">Medicines</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead className="text-right">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {medications.map((med) => (
-                <TableRow key={med.id}>
-                  <TableCell>
-                     <div>
-                        <div className="font-medium">{med.name}</div>
-                        {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
-                      </div>
-                  </TableCell>
-                  <TableCell>{med.amount}</TableCell>
-                  <TableCell>{med.timing}</TableCell>
-                  <TableCell className="text-right">
-                    <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} />
-                  </TableCell>
+        <Card className="shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <PillIcon className="h-6 w-6 text-primary" />
+              <CardTitle className="text-lg">Your Medications</CardTitle>
+              <Badge variant="secondary" className="text-sm">{medications.length}</Badge>
+            </div>
+            <Button variant="default" size="icon">
+              <Plus className="h-5 w-5" />
+              <span className="sr-only">Add Medication</span>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%]">Medicines</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead className="text-right">Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {medications.length === 0 && (
-            <p className="py-10 text-center text-muted-foreground">No medications listed.</p>
-          )}
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {medications.map((med) => (
+                  <TableRow key={med.id}>
+                    <TableCell>
+                      <div>
+                          <div className="font-medium">{med.name}</div>
+                          {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
+                        </div>
+                    </TableCell>
+                    <TableCell>{med.amount}</TableCell>
+                    <TableCell>{med.timing}</TableCell>
+                    <TableCell className="text-right">
+                      <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {medications.length === 0 && (
+              <p className="py-10 text-center text-muted-foreground">No medications listed.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((item) => (
           <Card key={`lorem-box-${item}`} className="shadow-lg">
             <CardHeader>
