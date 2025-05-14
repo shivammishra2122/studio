@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -190,7 +191,7 @@ export default function DashboardPage(): JSX.Element {
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <Clock className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Upcoming Appointments</CardTitle>
+              <CardTitle className="text-base">Problem</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{appointments.length}</Badge>
             </div>
             <div className="flex items-center">
@@ -206,37 +207,21 @@ export default function DashboardPage(): JSX.Element {
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
-              <ShadcnTableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%] px-2 py-1.5 text-xs">Doctor</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Date</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Time</TableHead>
-                  <TableHead className="text-right px-2 py-1.5 text-xs">Actions</TableHead>
-                </TableRow>
-              </ShadcnTableHeader>
+              
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
                     <TableCell className="px-2 py-1">
                       <div className="flex items-center space-x-1.5">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor"/>
-                          <AvatarFallback>{appt.doctor.substring(0,1)}</AvatarFallback>
-                        </Avatar>
+                        
                         <div>
                           <div className="font-medium text-xs">{appt.doctor}</div>
-                          <div className="text-xs text-muted-foreground">{appt.specialty}</div>
+                          
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs px-2 py-1">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</TableCell>
-                    <TableCell className="text-xs px-2 py-1">{appt.time}</TableCell>
-                    <TableCell className="text-right px-2 py-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                        <span className="sr-only">More options</span>
-                      </Button>
-                    </TableCell>
+                    
+                    
                   </TableRow>
                 ))}
               </TableBody>
@@ -267,28 +252,17 @@ export default function DashboardPage(): JSX.Element {
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
-              <ShadcnTableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%] px-2 py-1.5 text-xs">Medicines</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Amount</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Time</TableHead>
-                  <TableHead className="text-right px-2 py-1.5 text-xs">Status</TableHead>
-                </TableRow>
-              </ShadcnTableHeader>
+              
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
                     <TableCell className="px-2 py-1">
                       <div>
                           <div className="font-medium text-xs">{med.name}</div>
-                          {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
+                          
                         </div>
                     </TableCell>
-                    <TableCell className="text-xs px-2 py-1">{med.amount}</TableCell>
-                    <TableCell className="text-xs px-2 py-1">{med.timing}</TableCell>
-                    <TableCell className="text-right px-2 py-1">
-                      <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} className="h-4 w-4" />
-                    </TableCell>
+                    
                   </TableRow>
                 ))}
               </TableBody>
