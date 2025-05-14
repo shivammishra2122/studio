@@ -49,12 +49,33 @@ const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', col
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
 const informationalCardTitles: string[] = [
+  "Allergies",
+  "Clinical notes",
+  "Radiology",
   "Encounter notes",
   "Clinical reminder",
   "Report"
 ];
 
 const pageCardSampleContent: Record<string, string[]> = {
+  "Allergies": [
+    "Pollen - Seasonal, causes sneezing.",
+    "Peanuts - Severe, requires EpiPen.",
+    "Dust Mites - Mild, managed with antihistamines.",
+    "Penicillin - Rash, hives.",
+  ],
+  "Clinical notes": [
+    "Patient presented with mild cough.",
+    "Advised rest and hydration.",
+    "Follow-up scheduled in 1 week if symptoms persist.",
+    "Routine check-up, vitals stable.",
+  ],
+  "Radiology": [
+    "Chest X-Ray: Clear, no abnormalities noted.",
+    "MRI Brain: Normal for age.",
+    "Ultrasound Abdomen: No acute findings.",
+    "CT Pelvis: Within normal limits.",
+  ],
   "Encounter notes": [
     "Discussed lab results from last visit.",
     "Patient reported improved sleep quality.",
@@ -318,20 +339,18 @@ export default function DashboardPage(): JSX.Element {
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div>
-                <CardTitle className="text-base">{title}</CardTitle>
+                <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+                <CardDescription className="text-xs">Quick summary</CardDescription>
               </div>
               <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit {title}</span>
               </Button>
             </CardHeader>
-            <CardContent className="p-2 pt-1 max-h-[80px] overflow-y-auto no-scrollbar">
+            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
               <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
                 {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
                   <li key={index}>{item}</li>
-                ))}
-                 {(!pageCardSampleContent[title] || pageCardSampleContent[title].length < 4) && Array(4 - (pageCardSampleContent[title]?.length || 0)).fill(null).map((_, i) => (
-                  <li key={`placeholder-${i}`}>Sample item for {title.toLowerCase()} {i + (pageCardSampleContent[title]?.length || 0) + 1}.</li>
                 ))}
               </ul>
             </CardContent>
