@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -46,13 +46,12 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+// "Clinical notes" and "Report" are removed as they will be placed explicitly
 const informationalCardTitles: string[] = [
   "Allergies",
-  "Clinical notes",
   "Radiology",
   "Encounter notes",
   "Clinical reminder"
-  // "Report" is handled separately now
 ];
 
 
@@ -186,9 +185,9 @@ export default function DashboardPage(): JSX.Element {
         </div>
       </div>
       
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <Clock className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Upcoming Appointments</CardTitle>
@@ -204,7 +203,7 @@ export default function DashboardPage(): JSX.Element {
                 <span className="sr-only">Schedule New Appointment</span>
               </Button>
             </div>
-          </CardHeader>
+          </ShadcnCardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
               <ShadcnTableHeader>
@@ -249,7 +248,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         <Card className="shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Medications History</CardTitle>
@@ -265,7 +264,7 @@ export default function DashboardPage(): JSX.Element {
                 <span className="sr-only">Add Medication</span>
               </Button>
             </div>
-          </CardHeader>
+          </ShadcnCardHeader>
           <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
               <ShadcnTableHeader>
@@ -299,12 +298,55 @@ export default function DashboardPage(): JSX.Element {
             )}
           </CardContent>
         </Card>
+
+        {/* Clinical Notes Card - Moved here */}
+        <Card className="shadow-lg">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <div>
+                <CardTitle className="text-sm font-semibold">Clinical notes</CardTitle>
+                <CardDescription className="text-xs">Quick summary</CardDescription>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Edit3 className="h-3.5 w-3.5" />
+                <span className="sr-only">Edit Clinical notes</span>
+              </Button>
+            </ShadcnCardHeader>
+            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
+              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+                {(pageCardSampleContent["Clinical notes"] || ["No data available."]).map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+        {/* Report Card - Moved here */}
+        <Card className="shadow-lg">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <div>
+                <CardTitle className="text-sm font-semibold">Report</CardTitle>
+                <CardDescription className="text-xs">Quick summary</CardDescription>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Edit3 className="h-3.5 w-3.5" />
+                <span className="sr-only">Edit Report</span>
+              </Button>
+            </ShadcnCardHeader>
+            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
+              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+                {(pageCardSampleContent["Report"] || ["No data available."]).map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
       </div>
       
+      {/* Remaining informational cards */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
         {informationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div>
                 <CardTitle className="text-sm font-semibold">{title}</CardTitle>
                 <CardDescription className="text-xs">Quick summary</CardDescription>
@@ -313,7 +355,7 @@ export default function DashboardPage(): JSX.Element {
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit {title}</span>
               </Button>
-            </CardHeader>
+            </ShadcnCardHeader>
             <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
               <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
                 {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
@@ -328,7 +370,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
-    
-
-
