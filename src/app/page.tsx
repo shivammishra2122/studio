@@ -11,8 +11,8 @@ import {
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
   User, Hospital, CalendarDays, Phone
 } from 'lucide-react';
-import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; // Patient type import might be removed if MOCK_PATIENT is used directly and its type is inferred
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; // Using pageCardSampleContent directly
+import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; 
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,29 +51,29 @@ const informationalCardTitles: string[] = [
   "Clinical notes",
   "Radiology",
   "Encounter notes",
-  "Clinical reminder",
-  "Report"
+  "Clinical reminder"
 ];
 
-export default function DashboardPage() { // Removed explicit : JSX.Element return type
+
+export default function DashboardPage() {
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
   const medications: Medication[] = MOCK_MEDICATIONS;
-  // const patient: Patient = MOCK_PATIENT; // Will use MOCK_PATIENT directly
+  
 
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
       
-      {/* Top Row: Charts/Vitals + Patient Details */}
+      {/* Top Row: Charts/Vitals + Patient Details/Report */}
       <div className="flex flex-col lg:flex-row gap-3">
         {/* Left part of Top Row: Health Data Viz (Charts + Vitals) */}
         <div className="w-full lg:w-[65%] flex flex-col md:flex-row gap-3">
             {/* Health Data Visualizations Card (Charts ONLY) */}
             <Card className="shadow-lg w-full md:w-[65%]">
               <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-                <CardTitle className="text-sm font-semibold">Health Data Visualizations</CardTitle>
+                <CardTitle className="text-base font-semibold">Health Data Visualizations</CardTitle>
                 <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Health Data</span>
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit Health Data</span>
                 </Button>
               </CardHeader>
               <CardContent className="pt-1 px-2 pb-2">
@@ -136,13 +136,10 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
             <div className="w-full md:w-[35%]">
               <Card className="shadow-md h-full">
                 <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-                  <CardTitle className="text-sm font-semibold">Vitals</CardTitle>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <Edit3 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Edit Vitals</span>
-                  </Button>
+                  <CardTitle className="text-base font-semibold">Vitals</CardTitle>
+                  <Button variant="ghost" size="icon" className="h-7 w-7"><Edit3 className="h-3.5 w-3.5" /><span className="sr-only">Edit Vitals</span></Button>
                 </CardHeader>
-                <CardContent className="space-y-1.5 pt-1 px-2 pb-2 max-h-[calc(170px+2.5rem)] overflow-y-auto no-scrollbar"> {/* Adjusted max-h slightly */}
+                <CardContent className="space-y-1.5 pt-1 px-2 pb-2 max-h-[calc(170px+2.5rem)] overflow-y-auto no-scrollbar">
                   {keyIndicators.map((indicator) => (
                     <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/50">
                       <div className="flex items-center">
@@ -160,17 +157,14 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
             </div>
         </div>
 
-        {/* Right part of Top Row: Patient Details Card */}
-        <div className="w-full lg:w-[35%]">
-          <Card className="shadow-lg h-full">
+        {/* Right part of Top Row: Patient Details Card & Report Card */}
+        <div className="w-full lg:w-[35%] flex flex-col gap-3">
+          <Card className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <CardTitle className="text-sm font-semibold">Patient Details</CardTitle>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Patient Details</span>
-              </Button>
+              <CardTitle className="text-base font-semibold">Patient Details</CardTitle>
+              <Button variant="ghost" size="icon" className="h-7 w-7"><Edit3 className="h-3.5 w-3.5" /><span className="sr-only">Edit Patient Details</span></Button>
             </CardHeader>
-            <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[calc(170px+4rem)] overflow-y-auto"> {/* Match Vitals height approx */}
+            <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[calc(170px+4rem)] overflow-y-auto"> 
                 <div className="flex items-center space-x-3 mb-2">
                     <Avatar className="h-16 w-16">
                         <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
@@ -188,6 +182,26 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
                     <div className="flex items-center col-span-2"><Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Stay: {MOCK_PATIENT.lengthOfStay}</div>
                     <div className="flex items-center col-span-2"><Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Mobile: {MOCK_PATIENT.mobile}</div>
                 </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <div>
+                <CardTitle className="text-sm font-semibold">Report</CardTitle>
+                <CardDescription className="text-xs">Quick summary</CardDescription>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Edit3 className="h-3.5 w-3.5" />
+                <span className="sr-only">Edit Report</span>
+              </Button>
+            </CardHeader>
+            <CardContent className="p-2 pt-1 max-h-[100px] overflow-y-auto no-scrollbar">
+              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+                {(pageCardSampleContent["Report"] || ["No data available."]).map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         </div>
@@ -219,9 +233,9 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
                   <TableRow key={appt.id}>
                     <TableCell className="px-2 py-1">
                       <div className="flex items-center space-x-1.5">
-                        <Avatar className="h-7 w-7">
-                            <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
-                            <AvatarFallback>{appt.doctor.substring(0,1)}</AvatarFallback>
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
+                          <AvatarFallback>{appt.doctor.substring(0,1)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="font-medium text-xs">{appt.doctor}</div>
@@ -229,8 +243,8 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="px-2 py-1 text-xs">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
-                    <TableCell className="px-2 py-1 text-xs">{appt.time}</TableCell>
+                    <TableCell className="text-xs px-2 py-1">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</TableCell>
+                    <TableCell className="text-xs px-2 py-1">{appt.time}</TableCell>
                     <TableCell className="text-right px-2 py-1">
                       <Button variant="ghost" size="icon" className="h-6 w-6">
                         <MoreVertical className="h-3.5 w-3.5" />
@@ -276,10 +290,10 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
                           {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
                         </div>
                     </TableCell>
-                    <TableCell className="px-2 py-1 text-xs">{med.amount}</TableCell>
-                    <TableCell className="px-2 py-1 text-xs">{med.timing}</TableCell>
+                    <TableCell className="text-xs px-2 py-1">{med.amount}</TableCell>
+                    <TableCell className="text-xs px-2 py-1">{med.timing}</TableCell>
                     <TableCell className="text-right px-2 py-1">
-                       <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} className="h-3.5 w-3.5" />
+                      <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} className="h-4 w-4" />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -319,3 +333,4 @@ export default function DashboardPage() { // Removed explicit : JSX.Element retu
     </div>
   );
 }
+
