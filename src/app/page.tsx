@@ -10,13 +10,15 @@ import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } fro
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical
 } from 'lucide-react';
-import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, LOREM_IPSUM_TEXT } from '@/lib/constants';
+import type { HealthMetric, Appointment, Medication, Patient } from '@/lib/constants';
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT } from '@/lib/constants';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
+import { Phone, CalendarDays, User, Hospital, Briefcase } from 'lucide-react';
+
 
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', trend: 'stable', icon: Droplet },
@@ -25,6 +27,7 @@ const keyIndicators: HealthMetric[] = [
   { name: 'Body Temperature', value: '36.8', unit: '°C', trend: 'stable', icon: Thermometer },
   { name: 'Weight', value: '70', unit: 'kg', trend: 'down', icon: Scale },
 ];
+
 
 const glucoseData: Array<{ date: string; level: number }> = [
   { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
@@ -45,15 +48,38 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-const pageInformationalCardTitles: string[] = [
+const informationalCardTitles: string[] = [
   "Encounter notes",
   "Clinical reminder",
   "Report"
 ];
 
+const pageCardSampleContent: Record<string, string[]> = {
+  "Encounter notes": [
+    "Discussed lab results from last visit.",
+    "Patient reported improved sleep quality.",
+    "Medication adherence reviewed.",
+    "Next appointment scheduled for follow-up.",
+  ],
+  "Clinical reminder": [
+    "Annual flu shot due in October.",
+    "Blood pressure check recommended.",
+    "Fasting lipid panel next month.",
+    "Follow up on specialist referral.",
+  ],
+  "Report": [
+    "Pathology report for biopsy reviewed.",
+    "Imaging report for CT abdomen available.",
+    "Consultation summary from Dr. Smith.",
+    "Discharge summary from recent hospitalization.",
+  ]
+};
+
+
 export default function DashboardPage(): JSX.Element {
   const appointments: Appointment[] = MOCK_APPOINTMENTS;
   const medications: Medication[] = MOCK_MEDICATIONS;
+  const patient: Patient = MOCK_PATIENT;
 
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
@@ -62,11 +88,11 @@ export default function DashboardPage(): JSX.Element {
       <div className="flex flex-col md:flex-row gap-3">
         {/* Health Data Visualizations Card (Left Side) */}
         <Card className="shadow-lg w-full md:w-[65%]">
-          <CardHeader className="flex flex-row items-center justify-between pb-1 pt-2 px-3">
-            <CardTitle className="text-base font-semibold">Health Data Visualizations</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+            <CardTitle className="text-base">Health Data Visualizations</CardTitle>
             <Button variant="ghost" size="icon" className="h-7 w-7">
               <Edit3 className="h-3.5 w-3.5" />
-              <span className="sr-only">Edit Visualizations</span>
+              <span className="sr-only">Edit Health Data</span>
             </Button>
           </CardHeader>
           <CardContent className="pt-1 px-2 pb-2">
@@ -78,7 +104,7 @@ export default function DashboardPage(): JSX.Element {
               </TabsList>
               <TabsContent value="glucose">
                 <Card>
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto">
+                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
                     <ChartContainer config={glucoseChartConfig} className="h-[160px] w-full">
                       <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -93,7 +119,7 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="ecg">
                 <Card>
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto">
+                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
                     <ChartContainer config={ecgChartConfig} className="h-[160px] w-full">
                       <RechartsLineChart data={ecgData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -108,7 +134,7 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="ct-scan">
                 <Card>
-                  <CardContent className="p-2 max-h-[170px] overflow-y-auto space-y-1">
+                  <CardContent className="p-2 max-h-[170px] overflow-y-auto no-scrollbar space-y-1">
                     <ul className="space-y-1">
                       {ctScanReadings.map((reading, index) => (
                         <li key={index} className="flex justify-between p-1 rounded-md bg-secondary/50 text-xs">
@@ -128,14 +154,14 @@ export default function DashboardPage(): JSX.Element {
         {/* Vitals Card (Right Side) */}
         <div className="w-full md:w-[35%]">
           <Card className="shadow-md h-full">
-            <CardHeader className="flex flex-row items-center justify-between pb-1 pt-2 px-3">
-              <CardTitle className="text-base font-semibold">Vitals</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <CardTitle className="text-base">Vitals</CardTitle>
               <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Vitals</span>
               </Button>
             </CardHeader>
-            <CardContent className="space-y-1.5 pt-1 px-2 pb-2 max-h-[calc(170px+4rem)] overflow-y-auto">
+            <CardContent className="space-y-1.5 pt-1 px-2 pb-2 max-h-[calc(170px+4rem)] overflow-y-auto no-scrollbar">
               {keyIndicators.map((indicator) => (
                 <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/50">
                   <div className="flex items-center">
@@ -172,25 +198,15 @@ export default function DashboardPage(): JSX.Element {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0 max-h-[180px] overflow-y-auto">
+          <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%] px-2 py-1.5 text-xs">Doctor</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Date</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Time</TableHead>
-                  <TableHead className="text-right px-2 py-1.5 text-xs">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+              
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
                     <TableCell className="px-2 py-1">
                       <div className="flex items-center space-x-1.5">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
-                          <AvatarFallback className="text-xs">{appt.doctor.substring(0, 2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
+                        
                         <div>
                           <div className="font-medium text-xs">{appt.doctor}</div>
                           <div className="text-xs text-muted-foreground">{appt.specialty}</div>
@@ -233,16 +249,9 @@ export default function DashboardPage(): JSX.Element {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0 max-h-[180px] overflow-y-auto">
+          <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%] px-2 py-1.5 text-xs">Medicines</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Amount</TableHead>
-                  <TableHead className="px-2 py-1.5 text-xs">Time</TableHead>
-                  <TableHead className="text-right px-2 py-1.5 text-xs">Status</TableHead>
-                </TableRow>
-              </TableHeader>
+              
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
@@ -254,9 +263,7 @@ export default function DashboardPage(): JSX.Element {
                     </TableCell>
                     <TableCell className="px-2 py-1 text-xs">{med.amount}</TableCell>
                     <TableCell className="px-2 py-1 text-xs">{med.timing}</TableCell>
-                    <TableCell className="text-right px-2 py-1">
-                      <Checkbox checked={med.taken} aria-label={med.taken ? 'Taken' : 'Not taken'} className="h-3 w-3" />
-                    </TableCell>
+                    
                   </TableRow>
                 ))}
               </TableBody>
@@ -269,20 +276,27 @@ export default function DashboardPage(): JSX.Element {
       </div>
       
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {pageInformationalCardTitles.map((title) => (
+        {informationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div>
                 <CardTitle className="text-base">{title}</CardTitle>
-                <CardDescription className="text-xs">Additional health insights</CardDescription>
+                
               </div>
               <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit {title}</span>
               </Button>
             </CardHeader>
-            <CardContent className="p-2 max-h-[80px] overflow-y-auto">
-              <p className="text-xs text-muted-foreground">{LOREM_IPSUM_TEXT}</p>
+            <CardContent className="p-2 max-h-[80px] overflow-y-auto no-scrollbar">
+              <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
+                {(pageCardSampleContent[title] || ["No data available."]).map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+                 {(!pageCardSampleContent[title] || pageCardSampleContent[title].length < 4) && Array(4 - (pageCardSampleContent[title]?.length || 0)).fill(null).map((_, i) => (
+                  <li key={`placeholder-${i}`}>Sample item for {title.toLowerCase()} {i + (pageCardSampleContent[title]?.length || 0) + 1}.</li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         ))}

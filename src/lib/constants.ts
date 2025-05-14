@@ -1,9 +1,8 @@
 
 import type { LucideIcon } from 'lucide-react';
 // Icons for direct use in page.tsx if needed elsewhere (Clock, PillIcon, Plus, MoreVertical were used by page.tsx directly)
-import { Clock, Pill as PillIcon, Plus, MoreVertical } from 'lucide-react';
+import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, Briefcase } from 'lucide-react';
 
-export const LOREM_IPSUM_TEXT: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 export type Appointment = {
   id: string;
@@ -46,4 +45,29 @@ export type HealthMetric = {
   icon?: LucideIcon;
 };
 
-export { Clock, PillIcon, Plus, MoreVertical };
+export type Patient = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  gender: string;
+  age: number;
+  wardNo: string;
+  admissionDate: string;
+  lengthOfStay: string;
+  mobile: string;
+};
+
+export const MOCK_PATIENT: Patient = {
+  id: 'pat123',
+  name: 'Johnathan Doe',
+  avatarUrl: 'https://placehold.co/100x100.png',
+  gender: 'Male',
+  age: 45,
+  wardNo: 'C-302',
+  admissionDate: '2024-07-15',
+  lengthOfStay: '5 days',
+  mobile: '+1-202-555-0182',
+};
+
+
+export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, Briefcase };
