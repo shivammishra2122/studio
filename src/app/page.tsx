@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -10,9 +9,9 @@ import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  User, Hospital, CalendarDays, Phone, Trash2, FileText, Ban, ScanLine, ClipboardList, BellRing
+  Trash2, FileText, Ban, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
-import type { HealthMetric, Medication, Problem } from '@/lib/constants'; // Changed Appointment to Problem
+import type { HealthMetric, Problem, Medication } from '@/lib/constants'; // Changed Appointment to Problem
 import { MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; // Added MOCK_PROBLEMS
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -144,48 +143,15 @@ export default function DashboardPage(): JSX.Element {
       [cardTitle]: (prev[cardTitle] || []).filter((_, idx) => idx !== itemIndex)
     }));
   };
-
-  const reportButtonLabels = [
-    "Pathology", "Imaging", "Consults", "Discharge", 
-    "Lab Work", "Notes", "Procedures", "Referrals",
-    "Orders", "Care Plan", "Consent", "Allergens"
-  ];
   
 
   return (
     <div className="flex flex-1 flex-col p-3 space-y-3 bg-background">
       
-      {/* Top Row: Patient, Report, Charts, Vitals */}
+      {/* Top Row: Charts, Vitals */}
       <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 gap-3">
-        {/* Patient Details Card */}
-        <Card className="shadow-lg md:col-span-6 lg:col-span-3 h-full">
-          <CardContent className="p-3 flex items-center space-x-3 text-xs"> 
-              <Avatar className="h-10 w-10">
-                  <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
-                  <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
-              </Avatar>
-              <div>
-                  <p className="font-semibold text-sm text-foreground">{MOCK_PATIENT.name}</p>
-                  <p className="text-xs text-muted-foreground">{MOCK_PATIENT.gender.charAt(0).toUpperCase()} {MOCK_PATIENT.age}</p>
-              </div>
-          </CardContent>
-        </Card>
-
-        {/* Report Card (Buttons) */}
-        <Card className="shadow-lg md:col-span-6 lg:col-span-2 h-full">
-          <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar">
-            <div className="grid grid-cols-2 gap-1.5">
-              {reportButtonLabels.map((label) => (
-                <Button key={label} variant="outline" size="sm" className="text-xs h-8">
-                  {label}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        
         {/* Health Data Visualizations Card (Charts ONLY) */}
-        <Card className="shadow-lg md:col-span-8 lg:col-span-5 h-full">
+        <Card className="shadow-lg md:col-span-8 lg:col-span-8 h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs defaultValue="heart-rate">
               <TabsList className="grid w-full grid-cols-3 mb-2 h-8">
@@ -243,7 +209,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         {/* Vitals Card */}
-        <div className="md:col-span-4 lg:col-span-2 h-full">
+        <div className="md:col-span-4 lg:col-span-4 h-full">
           <Card className="shadow-lg h-full">
             <CardContent className="space-y-1.5 p-2 max-h-[calc(150px+2rem)] overflow-y-auto no-scrollbar">
               {keyIndicators.map((indicator) => (
