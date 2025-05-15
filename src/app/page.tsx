@@ -52,7 +52,7 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Report" and "Clinical notes" are handled explicitly in the layout
+// "Clinical notes" and "Report" are handled explicitly in the layout
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
@@ -151,7 +151,7 @@ export default function DashboardPage(): JSX.Element {
       {/* Row 1: Report (Info) & Charts & Vitals */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
         <Card className="lg:col-span-3 shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
                   <FileText className="h-4 w-4 text-primary" />
                   <CardTitle className="text-base">Report</CardTitle>
@@ -263,7 +263,7 @@ export default function DashboardPage(): JSX.Element {
       {/* Row 2: Problem, Medications History, Clinical Notes */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
         <Card className="md:col-span-1 shadow-lg"> {/* Problem Card - 20% */}
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <Clock className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Problem</CardTitle>
@@ -317,7 +317,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
         
         <Card className="md:col-span-2 shadow-lg"> {/* Medications History Card - 40% */}
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Medications History</CardTitle>
@@ -371,7 +371,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         <Card className="md:col-span-2 shadow-lg"> {/* Clinical Notes Card - 40% */}
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
                 <FileText className="h-4 w-4 text-primary" />
                 <CardTitle className="text-base">Clinical notes</CardTitle>
@@ -412,7 +412,7 @@ export default function DashboardPage(): JSX.Element {
           const IconComponent = infoCardIcons[title] || Edit3; 
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
                 <div className="flex items-center space-x-1.5">
                   <IconComponent className="h-4 w-4 text-primary" />
                   <CardTitle className="text-base">{title}</CardTitle>
