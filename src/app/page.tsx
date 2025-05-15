@@ -27,10 +27,10 @@ const keyIndicators: HealthMetric[] = [
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale },
 ];
 
-const glucoseData: Array<{ date: string; level: number }> = [
-  { date: '2024-07-01', level: 95 }, { date: '2024-07-02', level: 102 }, { date: '2024-07-03', level: 98 },
-  { date: '2024-07-04', level: 110 }, { date: '2024-07-05', level: 105 }, { date: '2024-07-06', level: 99 },
-  { date: '2024-07-07', level: 108 },
+const heartRateMonitorData: Array<{ time: string; bpm: number }> = [
+  { time: '08:00', bpm: 65 }, { time: '09:00', bpm: 70 }, { time: '10:00', bpm: 72 },
+  { time: '11:00', bpm: 68 }, { time: '12:00', bpm: 75 }, { time: '13:00', bpm: 73 },
+  { time: '14:00', bpm: 70 },
 ];
 
 const ecgData: Array<{ time: string; value: number }> = [
@@ -43,20 +43,21 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
   { organ: 'Lungs', finding: 'Clear' }, { organ: 'Liver', finding: 'Normal' }, { organ: 'Kidneys', finding: 'Slight calcification' },
 ];
 
-const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
+const heartRateMonitorChartConfig: ChartConfig = { bpm: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-4))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-const reportButtonLabels: string[] = [
-  "Pathology", "Imaging", "Consults", "Discharge", 
-  "Lab Work", "Notes", "Procedures", "Med Admin",
-  "Orders", "Care Plan", "Allergies Sum", "Vitals Chart"
-];
-
+// "Clinical notes" and "Report (Details)" were moved to the middle row
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
   "Encounter notes",
   "Clinical reminder"
+];
+
+const reportButtonLabels: string[] = [
+  "Pathology", "Imaging", "Consults", "Discharge", 
+  "Lab Work", "Notes", "Procedures", "Med Admin",
+  "Orders", "Care Plan", "Allergies Sum", "Vitals Chart"
 ];
 
 
@@ -115,22 +116,22 @@ export default function DashboardPage(): JSX.Element {
         {/* Item 3: Health Data Visualizations (Charts ONLY) */}
         <Card className="shadow-lg md:col-span-8 lg:col-span-5">
           <CardContent className="pt-1 px-2 pb-2">
-            <Tabs defaultValue="glucose">
+            <Tabs defaultValue="heart-rate">
               <TabsList className="grid w-full grid-cols-3 mb-1.5 h-9">
-                <TabsTrigger value="glucose" className="text-xs px-2 py-1">Glucose</TabsTrigger>
+                <TabsTrigger value="heart-rate" className="text-xs px-2 py-1">Heart Rate</TabsTrigger>
                 <TabsTrigger value="ecg" className="text-xs px-2 py-1">ECG</TabsTrigger>
                 <TabsTrigger value="ct-scan" className="text-xs px-2 py-1">CT Scan</TabsTrigger>
               </TabsList>
-              <TabsContent value="glucose">
+              <TabsContent value="heart-rate">
                 <Card>
                   <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={glucoseChartConfig} className="h-[160px] w-full">
-                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
+                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[160px] w-full">
+                      <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
                         <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                        <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={1.5} dot={{r: 2}} />
+                        <Line dataKey="bpm" type="monotone" stroke="var(--color-bpm)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
@@ -291,7 +292,7 @@ export default function DashboardPage(): JSX.Element {
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
                <div className="flex items-center space-x-1.5">
                     <FileText className="h-4 w-4 text-primary" />
-                    <CardTitle className="text-base">Report (Details)</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
+                    <CardTitle className="text-base">Report (Details)</CardTitle>
                     <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                       {pageCardSampleContent["Report (Details)"]?.length || 0} 
                     </Badge>
