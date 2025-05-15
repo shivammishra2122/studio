@@ -9,8 +9,7 @@ import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  User, Hospital, CalendarDays, Phone, BedDouble, BriefcaseMedical, FileQuestion,
-  FileText, Ban, ScanLine, ClipboardList, BellRing
+  FileText, Ban, ScanLine, ClipboardList, BellRing 
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; 
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
@@ -48,17 +47,17 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+const reportButtonLabels: string[] = [
+  "Pathology", "Imaging", "Consults", "Discharge", 
+  "Lab Work", "Notes", "Procedures", "Med Admin",
+  "Orders", "Care Plan", "Allergies Sum", "Vitals Chart"
+];
+
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
   "Encounter notes",
   "Clinical reminder"
-];
-
-const reportButtonLabels: string[] = [
-  "Pathology", "Imaging", "Consults", "Discharge", 
-  "Lab Work", "Notes", "Procedures", "Med Admin",
-  "Orders", "Care Plan", "Allergies Sum", "Vitals Chart"
 ];
 
 
@@ -87,13 +86,13 @@ export default function DashboardPage(): JSX.Element {
               </div>
             </div>
             <div className="space-y-1 text-xs">
-              <div className="flex items-center"><Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Mobile: {MOCK_PATIENT.mobile}</div>
-              <div className="flex items-center"><BedDouble className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Bed: {MOCK_PATIENT.bedDetails}</div>
-              <div className="flex items-center"><CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-              <div className="flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Stay: {MOCK_PATIENT.lengthOfStay}</div>
-              <div className="flex items-center"><BriefcaseMedical className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Consultant: {MOCK_PATIENT.primaryConsultant}</div>
-              <div className="flex items-center"><Hospital className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Provider: {MOCK_PATIENT.encounterProvider}</div>
-              <div className="flex items-center"><FileQuestion className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Reason: {MOCK_PATIENT.reasonForVisit}</div>
+              <div>Mobile: {MOCK_PATIENT.mobile}</div>
+              <div>Bed: {MOCK_PATIENT.bedDetails}</div>
+              <div>Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+              <div>Stay: {MOCK_PATIENT.lengthOfStay}</div>
+              <div>Consultant: {MOCK_PATIENT.primaryConsultant}</div>
+              <div>Provider: {MOCK_PATIENT.encounterProvider}</div>
+              <div>Reason: {MOCK_PATIENT.reasonForVisit}</div>
             </div>
           </CardContent>
         </Card>
@@ -295,7 +294,7 @@ export default function DashboardPage(): JSX.Element {
                     <FileText className="h-4 w-4 text-primary" />
                     <CardTitle className="text-base">Report (Details)</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
                     <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                      {pageCardSampleContent["Report"]?.length || 0} 
+                      {pageCardSampleContent["Report (Details)"]?.length || 0} 
                     </Badge>
                 </div>
               <Button variant="ghost" size="icon" className="h-7 w-7">
@@ -306,7 +305,7 @@ export default function DashboardPage(): JSX.Element {
             <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
                <Table>
                 <TableBody>
-                  {(pageCardSampleContent["Report"] || []).map((item, index) => ( 
+                  {(pageCardSampleContent["Report (Details)"] || []).map((item, index) => ( 
                     <TableRow key={index}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
@@ -315,7 +314,7 @@ export default function DashboardPage(): JSX.Element {
                   ))}
                 </TableBody>
               </Table>
-              {(pageCardSampleContent["Report"]?.length || 0) === 0 && ( 
+              {(pageCardSampleContent["Report (Details)"]?.length || 0) === 0 && ( 
                 <p className="py-4 text-center text-xs text-muted-foreground">No report details listed.</p>
               )}
             </CardContent>
@@ -374,3 +373,4 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
