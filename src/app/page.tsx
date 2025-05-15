@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -11,8 +12,9 @@ import {
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
   Trash2, FileText, Ban, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
-import type { HealthMetric, Problem, Medication } from '@/lib/constants'; // Changed Appointment to Problem
-import { MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; // Added MOCK_PROBLEMS
+import type { LucideIcon } from 'lucide-react';
+import type { HealthMetric, Problem, Medication } from '@/lib/constants';
+import { MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -50,11 +52,12 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+// "Report" and "Clinical notes" are removed as they will be placed explicitly
 const informationalCardTitles: string[] = [
-  "Allergies", // Icon: Ban
-  "Radiology", // Icon: ScanLine
-  "Encounter notes", // Icon: ClipboardList
-  "Clinical reminder" // Icon: BellRing
+  "Allergies",
+  "Radiology",
+  "Encounter notes",
+  "Clinical reminder"
 ];
 
 const infoCardIcons: Record<string, LucideIcon> = {
@@ -62,8 +65,8 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Radiology": ScanLine,
   "Encounter notes": ClipboardList,
   "Clinical reminder": BellRing,
-  "Clinical notes": FileText, // Kept for direct use
-  "Report": FileText, // Kept for direct use (buttons)
+  "Clinical notes": FileText, 
+  "Report": FileText, 
 };
 
 
@@ -72,15 +75,12 @@ export default function DashboardPage(): JSX.Element {
   const [medications, setMedications] = useState<Medication[]>(MOCK_MEDICATIONS);
   const [dynamicPageCardSampleContent, setDynamicPageCardSampleContent] = useState<Record<string, string[]>>(() => JSON.parse(JSON.stringify(pageCardSampleContent)));
   
-  // Dialog states for problems
   const [isAddProblemDialogOpen, setIsAddProblemDialogOpen] = useState(false);
   const [newProblemInput, setNewProblemInput] = useState('');
 
-  // Dialog states for medications
   const [isAddMedicationDialogOpen, setIsAddMedicationDialogOpen] = useState(false);
   const [newMedicationInput, setNewMedicationInput] = useState('');
   
-  // Dialog states for informational cards
   const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
   const [editingInfoCardTitle, setEditingInfoCardTitle] = useState<string | null>(null);
   const [newItemInput, setNewItemInput] = useState('');
@@ -148,10 +148,44 @@ export default function DashboardPage(): JSX.Element {
   return (
     <div className="flex flex-1 flex-col p-3 space-y-3 bg-background">
       
-      {/* Top Row: Charts, Vitals */}
-      <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 gap-3">
-        {/* Health Data Visualizations Card (Charts ONLY) */}
-        <Card className="shadow-lg md:col-span-8 lg:col-span-8 h-full">
+      {/* Row 1: Report (Info) & Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
+        <Card className="lg:col-span-3 shadow-lg">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <div className="flex items-center space-x-1.5">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-base">Report</CardTitle>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Report</span>
+              </Button>
+            </ShadcnCardHeader>
+            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+              <Table>
+                <TableBody>
+                  {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="px-2 py-1">
+                        <div className="font-medium text-xs">{item}</div>
+                      </TableCell>
+                      <TableCell className="text-right px-1.5 py-1 w-10">
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Report", index)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">No report items.</p>
+              )}
+            </CardContent>
+        </Card>
+        
+        <Card className="shadow-lg lg:col-span-9 h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs defaultValue="heart-rate">
               <TabsList className="grid w-full grid-cols-3 mb-2 h-8">
@@ -207,35 +241,56 @@ export default function DashboardPage(): JSX.Element {
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* Vitals Card */}
-        <div className="md:col-span-4 lg:col-span-4 h-full">
-          <Card className="shadow-lg h-full">
-            <CardContent className="space-y-1.5 p-2 max-h-[calc(150px+2rem)] overflow-y-auto no-scrollbar">
-              {keyIndicators.map((indicator) => (
-                <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
-                  <div className="flex items-center">
-                    {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
-                    <span className="text-xs font-medium text-foreground">{indicator.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
-                    <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
       </div>
-      
-      {/* Middle Row: Problem, Medications, Clinical notes, Report (Details) */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {/* Problem Card */}
+
+      {/* Row 2: Patient Details, Vitals, Problem */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
+        <Card className="shadow-lg">
+          <CardContent className="p-3 space-y-1.5 text-xs no-scrollbar max-h-[220px] overflow-y-auto">
+            <div className="flex items-center space-x-2 mb-1.5">
+                <Avatar className="h-10 w-10">
+                    <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
+                    <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-semibold text-sm text-foreground">{MOCK_PATIENT.name}</p>
+                    <p className="text-xs text-muted-foreground">{MOCK_PATIENT.gender.charAt(0).toUpperCase()} {MOCK_PATIENT.age}</p>
+                </div>
+            </div>
+            <div className="space-y-1 pt-1">
+                <p>Ward No: {MOCK_PATIENT.wardNo}</p>
+                <p>Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                <p>Stay: {MOCK_PATIENT.lengthOfStay}</p>
+                <p>Mobile: {MOCK_PATIENT.mobile}</p>
+                <p>Bed: {MOCK_PATIENT.bedDetails}</p>
+                <p>Consultant: {MOCK_PATIENT.primaryConsultant}</p>
+                <p>Provider: {MOCK_PATIENT.encounterProvider}</p>
+                <p>Reason: {MOCK_PATIENT.reasonForVisit}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg h-full">
+          <CardContent className="space-y-1.5 p-2 max-h-[calc(220px)] overflow-y-auto no-scrollbar">
+            {keyIndicators.map((indicator) => (
+              <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
+                <div className="flex items-center">
+                  {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
+                  <span className="text-xs font-medium text-foreground">{indicator.name}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
+                  <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        
         <Card className="shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
-              <Clock className="h-4 w-4 text-primary" /> {/* Or a more problem-specific icon */}
+              <Clock className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Problem</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
             </div>
@@ -285,8 +340,10 @@ export default function DashboardPage(): JSX.Element {
             )}
           </CardContent>
         </Card>
-
-        {/* Medications History Card */}
+      </div>
+      
+      {/* Row 3: Medications History & Clinical Notes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
         <Card className="shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
@@ -341,7 +398,6 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Clinical Notes Card */}
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div className="flex items-center space-x-1.5">
@@ -376,48 +432,12 @@ export default function DashboardPage(): JSX.Element {
               )}
             </CardContent>
         </Card>
-
-        {/* Report (Details) Card */}
-        <Card className="shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div className="flex items-center space-x-1.5">
-                <FileText className="h-4 w-4 text-primary" /> {/* Placeholder icon, same as Clinical Notes */}
-                <CardTitle className="text-base">Report (Details)</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Report Item</span>
-              </Button>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
-              <Table>
-                <TableBody>
-                  {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="px-2 py-1">
-                        <div className="font-medium text-xs">{item}</div>
-                      </TableCell>
-                      <TableCell className="text-right px-1.5 py-1 w-10">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Report", index)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No report items.</p>
-              )}
-            </CardContent>
-          </Card>
       </div>
       
-      {/* Remaining informational cards */}
+      {/* Bottom Row: Remaining informational cards */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
         {informationalCardTitles.map((title) => {
-          const IconComponent = infoCardIcons[title] || Edit3; // Fallback to Edit3 if no icon defined
+          const IconComponent = infoCardIcons[title] || Edit3; 
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
               <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
