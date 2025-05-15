@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -86,8 +85,8 @@ export default function DashboardPage(): JSX.Element {
               </div>
             </div>
             <div className="space-y-1 text-xs">
-              <div>Mobile: {MOCK_PATIENT.mobile}</div>
-              <div>Bed: {MOCK_PATIENT.bedDetails}</div>
+              <div>{MOCK_PATIENT.mobile}</div>
+              <div>{MOCK_PATIENT.bedDetails}</div>
               <div>Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
               <div>Stay: {MOCK_PATIENT.lengthOfStay}</div>
               <div>Consultant: {MOCK_PATIENT.primaryConsultant}</div>
