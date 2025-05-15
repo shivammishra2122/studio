@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -46,7 +47,7 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Report" is handled separately now. "Clinical notes" moved to middle row.
+// "Clinical notes" and "Report" are handled explicitly now.
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
@@ -68,34 +69,22 @@ export default function DashboardPage(): JSX.Element {
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
       
-      {/* Top Section: Patient Details, Report, Charts, Vitals in a single line on lg+ screens */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* Top Section: Patient Details, Report, Charts, Vitals */}
+      <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 gap-3">
         {/* Item 1: Patient Details */}
-        <Card className="shadow-lg">
-          <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[220px] overflow-y-auto"> {/* Adjusted max-h for consistency */}
-              <div className="flex items-center space-x-3 mb-2">
-                  <Avatar className="h-16 w-16">
-                      <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
-                      <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                      <p className="font-semibold text-sm text-foreground">{MOCK_PATIENT.name}</p>
-                  </div>
-              </div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 pt-1">
-                  <div className="flex items-center"><User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Gender: {MOCK_PATIENT.gender}</div>
-                  <div className="flex items-center"><User className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Age: {MOCK_PATIENT.age}</div>
-                  <div className="flex items-center col-span-2"><Hospital className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Ward No: {MOCK_PATIENT.wardNo}</div>
-                  <div className="flex items-center col-span-2"><CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-                  <div className="flex items-center col-span-2"><Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Stay: {MOCK_PATIENT.lengthOfStay}</div>
-                  <div className="flex items-center col-span-2"><Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Mobile: {MOCK_PATIENT.mobile}</div>
-              </div>
+        <Card className="shadow-lg md:col-span-6 lg:col-span-3">
+          <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[220px] overflow-y-auto flex flex-col items-center justify-center"> {/* Centering content */}
+              <Avatar className="h-24 w-24 mb-2"> {/* Larger Avatar */}
+                  <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
+                  <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
+              </Avatar>
+              <p className="font-semibold text-base text-foreground text-center">{MOCK_PATIENT.name}</p> {/* Larger, centered name */}
           </CardContent>
         </Card>
 
         {/* Item 2: Report Card - Bento Grid Style */}
-        <Card className="shadow-lg">
-          <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar"> {/* Adjusted max-h for consistency */}
+        <Card className="shadow-lg md:col-span-6 lg:col-span-2">
+          <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar">
             <div className="grid grid-cols-3 gap-1.5">
               {reportButtonLabels.map((label, index) => (
                 <Button key={index} variant="outline" size="sm" className="text-xs w-full h-auto py-1.5">
@@ -110,7 +99,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
         
         {/* Item 3: Health Data Visualizations (Charts ONLY) */}
-        <Card className="shadow-lg">
+        <Card className="shadow-lg md:col-span-8 lg:col-span-5">
           <CardContent className="pt-1 px-2 pb-2">
             <Tabs defaultValue="glucose">
               <TabsList className="grid w-full grid-cols-3 mb-1.5 h-9">
@@ -168,8 +157,8 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         {/* Item 4: Vitals Card */}
-        <Card className="shadow-md h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-[220px] overflow-y-auto no-scrollbar"> {/* Adjusted max-h for consistency */}
+        <Card className="shadow-md h-full md:col-span-4 lg:col-span-2">
+          <CardContent className="space-y-1.5 p-2 max-h-[220px] overflow-y-auto no-scrollbar">
             {keyIndicators.map((indicator) => (
               <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/50">
                 <div className="flex items-center">
@@ -302,26 +291,26 @@ export default function DashboardPage(): JSX.Element {
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div className="flex items-center space-x-1.5">
                 <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Report</CardTitle>
+                <CardTitle className="text-base">Report</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                  {pageCardSampleContent["Report"]?.length || 0}
+                  {pageCardSampleContent["Report (Details)"]?.length || 0} 
                 </Badge>
               </div>
               <div className="flex items-center">
                 <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
                   <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Report</span>
+                  <span className="sr-only">Edit Report Details</span>
                 </Button>
                 <Button variant="default" size="icon" className="h-7 w-7">
                   <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add to Report</span>
+                  <span className="sr-only">Add to Report Details</span>
                 </Button>
               </div>
             </ShadcnCardHeader>
             <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
                <Table>
                 <TableBody>
-                  {(pageCardSampleContent["Report"] || []).map((item, index) => (
+                  {(pageCardSampleContent["Report (Details)"] || []).map((item, index) => ( 
                     <TableRow key={index}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
@@ -330,8 +319,8 @@ export default function DashboardPage(): JSX.Element {
                   ))}
                 </TableBody>
               </Table>
-              {(pageCardSampleContent["Report"]?.length || 0) === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No report data listed.</p>
+              {(pageCardSampleContent["Report (Details)"]?.length || 0) === 0 && ( 
+                <p className="py-4 text-center text-xs text-muted-foreground">No report details listed.</p>
               )}
             </CardContent>
           </Card>
@@ -393,3 +382,5 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
+
