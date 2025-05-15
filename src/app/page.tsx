@@ -46,7 +46,6 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { bpm: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-4))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Clinical notes" and "Report (Details)" were moved to the middle row
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
@@ -129,7 +128,7 @@ export default function DashboardPage(): JSX.Element {
                       <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} domain={[60, 120]} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="bpm" type="monotone" stroke="var(--color-bpm)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
