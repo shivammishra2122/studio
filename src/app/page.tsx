@@ -1,9 +1,8 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'; // Changed ShadcnTableHeader to TableHeader for consistency
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
@@ -16,7 +15,7 @@ import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleConten
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// Checkbox import is removed as it's not used in the new table format for medications
+// Checkbox import removed as it's not used for the standardized list format for medications
 import { Badge } from '@/components/ui/badge';
 
 
@@ -52,7 +51,6 @@ const informationalCardTitles: string[] = [
   "Radiology",
   "Encounter notes",
   "Clinical reminder"
-  // "Clinical notes" and "Report" are handled explicitly in the layout
 ];
 
 
@@ -63,8 +61,8 @@ export default function DashboardPage(): JSX.Element {
   return (
     <div className="flex flex-1 flex-col p-3 md:p-4 space-y-3">
       
-      {/* Top Section: Patient Details, Report, Charts, Vitals in a 2x2 grid on md+ screens */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Top Section: Patient Details, Report, Charts, Vitals in a single line on lg+ screens */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Item 1: Patient Details */}
         <Card className="shadow-lg">
           <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[220px] overflow-y-auto"> {/* Adjusted max-h for consistency */}
@@ -90,26 +88,7 @@ export default function DashboardPage(): JSX.Element {
 
         {/* Item 2: Report Card */}
         <Card className="shadow-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-            <div className="flex items-center space-x-1.5">
-              <FileText className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Report</CardTitle>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {pageCardSampleContent["Report"]?.length || 0}
-              </Badge>
-            </div>
-            <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Report</span>
-              </Button>
-              <Button variant="default" size="icon" className="h-7 w-7">
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add to Report</span>
-              </Button>
-            </div>
-          </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+          <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar"> {/* Adjusted max-h for consistency */}
             <Table>
               <TableBody>
                 {(pageCardSampleContent["Report"] || []).map((item, index) => (
@@ -204,8 +183,8 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
       
-      {/* Middle Row: Problem, Medications, Clinical Notes */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      {/* Middle Row: Problem, Medications, Clinical Notes, Report */}
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
@@ -315,6 +294,44 @@ export default function DashboardPage(): JSX.Element {
               )}
             </CardContent>
           </Card>
+
+          <Card className="shadow-lg">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <div className="flex items-center space-x-1.5">
+                <FileText className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Report</CardTitle>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                  {pageCardSampleContent["Report"]?.length || 0}
+                </Badge>
+              </div>
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Report</span>
+                </Button>
+                <Button variant="default" size="icon" className="h-7 w-7">
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Report</span>
+                </Button>
+              </div>
+            </ShadcnCardHeader>
+            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+               <Table>
+                <TableBody>
+                  {(pageCardSampleContent["Report"] || []).map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="px-2 py-1">
+                        <div className="font-medium text-xs">{item}</div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {(pageCardSampleContent["Report"]?.length || 0) === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">No report data listed.</p>
+              )}
+            </CardContent>
+          </Card>
       </div>
       
       {/* Bottom Row: Remaining informational cards */}
@@ -373,4 +390,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
