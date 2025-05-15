@@ -15,14 +15,14 @@ import { AppLogo } from '@/components/icons/app-logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MOCK_PATIENT } from '@/lib/constants';
 import type { Patient } from '@/lib/constants';
-import { LayoutGrid, User as UserIcon, CalendarDays, BriefcaseMedical, PhoneCall, Home, Hourglass } from 'lucide-react'; // Using specific icon names
+import { LayoutGrid, User as UserIcon, CalendarDays, Home, Hourglass, PhoneCall } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
 const patientDetails = [
   { label: 'Gender', value: patient.gender, icon: UserIcon },
-  { label: 'Age', value: `${patient.age} years`, icon: UserIcon }, // Re-using UserIcon for Age
-  { label: 'Ward', value: patient.wardNo, icon: Home }, // Using Home for Ward
+  { label: 'Age', value: `${patient.age} years`, icon: UserIcon },
+  { label: 'Ward', value: patient.wardNo, icon: Home },
   { label: 'Admitted', value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }), icon: CalendarDays },
   { label: 'Stay', value: patient.lengthOfStay, icon: Hourglass },
   { label: 'Mobile', value: patient.mobile, icon: PhoneCall },
@@ -34,10 +34,7 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
-          <AppLogo className="size-7 text-primary" />
-          <h1 className="text-xl font-semibold text-sidebar-foreground">HealthView</h1>
-        </div>
+        {/* Logo and title removed as per user request */}
       </SidebarHeader>
 
       <SidebarContent className="p-4 space-y-4">
