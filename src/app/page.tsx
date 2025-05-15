@@ -52,7 +52,7 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Report" and "Clinical notes" are removed as they will be placed explicitly
+// "Report" and "Clinical notes" are handled explicitly in the layout
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
@@ -148,7 +148,7 @@ export default function DashboardPage(): JSX.Element {
   return (
     <div className="flex flex-1 flex-col p-3 space-y-3 bg-background">
       
-      {/* Row 1: Report (Info) & Charts */}
+      {/* Row 1: Report (Info) & Charts & Vitals */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
         <Card className="lg:col-span-3 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
@@ -185,7 +185,7 @@ export default function DashboardPage(): JSX.Element {
             </CardContent>
         </Card>
         
-        <Card className="shadow-lg lg:col-span-9 h-full">
+        <Card className="shadow-lg lg:col-span-6 h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs defaultValue="heart-rate">
               <TabsList className="grid w-full grid-cols-3 mb-2 h-8">
@@ -241,37 +241,9 @@ export default function DashboardPage(): JSX.Element {
             </Tabs>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Row 2: Patient Details, Vitals, Problem */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">
-        <Card className="shadow-lg">
-          <CardContent className="p-3 space-y-1.5 text-xs no-scrollbar max-h-[220px] overflow-y-auto">
-            <div className="flex items-center space-x-2 mb-1.5">
-                <Avatar className="h-10 w-10">
-                    <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
-                    <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <p className="font-semibold text-sm text-foreground">{MOCK_PATIENT.name}</p>
-                    <p className="text-xs text-muted-foreground">{MOCK_PATIENT.gender.charAt(0).toUpperCase()} {MOCK_PATIENT.age}</p>
-                </div>
-            </div>
-            <div className="space-y-1 pt-1">
-                <p>Ward No: {MOCK_PATIENT.wardNo}</p>
-                <p>Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                <p>Stay: {MOCK_PATIENT.lengthOfStay}</p>
-                <p>Mobile: {MOCK_PATIENT.mobile}</p>
-                <p>Bed: {MOCK_PATIENT.bedDetails}</p>
-                <p>Consultant: {MOCK_PATIENT.primaryConsultant}</p>
-                <p>Provider: {MOCK_PATIENT.encounterProvider}</p>
-                <p>Reason: {MOCK_PATIENT.reasonForVisit}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-lg h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-[calc(220px)] overflow-y-auto no-scrollbar">
+        <Card className="shadow-lg lg:col-span-3 h-full">
+          <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> {/* Adjusted max-h to roughly match chart area */}
             {keyIndicators.map((indicator) => (
               <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
                 <div className="flex items-center">
@@ -286,8 +258,11 @@ export default function DashboardPage(): JSX.Element {
             ))}
           </CardContent>
         </Card>
-        
-        <Card className="shadow-lg">
+      </div>
+
+      {/* Row 2: Problem, Medications History, Clinical Notes */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+        <Card className="md:col-span-1 shadow-lg"> {/* Problem Card - 20% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <Clock className="h-4 w-4 text-primary" />
@@ -340,11 +315,8 @@ export default function DashboardPage(): JSX.Element {
             )}
           </CardContent>
         </Card>
-      </div>
-      
-      {/* Row 3: Medications History & Clinical Notes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-        <Card className="shadow-lg">
+        
+        <Card className="md:col-span-2 shadow-lg"> {/* Medications History Card - 40% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
@@ -398,7 +370,7 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg">
+        <Card className="md:col-span-2 shadow-lg"> {/* Clinical Notes Card - 40% */}
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div className="flex items-center space-x-1.5">
                 <FileText className="h-4 w-4 text-primary" />
