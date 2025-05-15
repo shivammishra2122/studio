@@ -1,9 +1,8 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
@@ -16,7 +15,7 @@ import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleConten
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// Checkbox import removed as it's not used for the standardized list format for medications
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
 
 
@@ -85,7 +84,7 @@ export default function DashboardPage(): JSX.Element {
         {/* Item 2: Report Card - Bento Grid Style */}
         <Card className="shadow-lg md:col-span-6 lg:col-span-2">
           <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar">
-            <div className="grid grid-cols-2 gap-1.5"> {/* Changed from grid-cols-3 to grid-cols-2 */}
+            <div className="grid grid-cols-2 gap-1.5">
               {reportButtonLabels.map((label, index) => (
                 <Button key={index} variant="outline" size="sm" className="text-xs w-full h-auto py-1.5">
                   {label}
@@ -185,13 +184,9 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{appointments.length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+              <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Problem</span>
-              </Button>
-              <Button variant="default" size="icon" className="h-7 w-7">
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add to Problem</span>
               </Button>
             </div>
           </ShadcnCardHeader>
@@ -221,13 +216,9 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{medications.length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+              <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Medications</span>
-              </Button>
-              <Button variant="default" size="icon" className="h-7 w-7">
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Medication</span>
               </Button>
             </div>
           </ShadcnCardHeader>
@@ -259,13 +250,9 @@ export default function DashboardPage(): JSX.Element {
                 </Badge>
               </div>
               <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                <Button variant="ghost" size="icon" className="h-7 w-7">
                   <Edit3 className="h-3.5 w-3.5" />
                   <span className="sr-only">Edit Clinical notes</span>
-                </Button>
-                <Button variant="default" size="icon" className="h-7 w-7">
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add to Clinical notes</span>
                 </Button>
               </div>
             </ShadcnCardHeader>
@@ -297,13 +284,9 @@ export default function DashboardPage(): JSX.Element {
                 </Badge>
               </div>
               <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                <Button variant="ghost" size="icon" className="h-7 w-7">
                   <Edit3 className="h-3.5 w-3.5" />
                   <span className="sr-only">Edit Report Details</span>
-                </Button>
-                <Button variant="default" size="icon" className="h-7 w-7">
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add to Report Details</span>
                 </Button>
               </div>
             </ShadcnCardHeader>
@@ -348,13 +331,9 @@ export default function DashboardPage(): JSX.Element {
                   </Badge>
                 </div>
                 <div className="flex items-center">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
                     <Edit3 className="h-3.5 w-3.5" />
                     <span className="sr-only">Edit {title}</span>
-                  </Button>
-                  <Button variant="default" size="icon" className="h-7 w-7">
-                    <Plus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Add to {title}</span>
                   </Button>
                 </div>
               </ShadcnCardHeader>
@@ -382,5 +361,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
-
