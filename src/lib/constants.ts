@@ -1,7 +1,7 @@
 
 import type { LucideIcon } from 'lucide-react';
-// Icons for direct use in page.tsx if needed elsewhere (Clock, PillIcon, Plus, MoreVertical were used by page.tsx directly)
-import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital } from 'lucide-react';
+// Icons for direct use in page.tsx if needed elsewhere
+import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing } from 'lucide-react';
 
 
 export type Appointment = {
@@ -44,19 +44,7 @@ export type HealthMetric = {
   icon?: LucideIcon;
 };
 
-export type Patient = {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  gender: string;
-  age: number;
-  wardNo: string;
-  admissionDate: string;
-  lengthOfStay: string;
-  mobile: string;
-};
-
-export const MOCK_PATIENT: Patient = {
+export const MOCK_PATIENT = {
   id: 'pat123',
   name: 'Johnathan Doe',
   avatarUrl: 'https://placehold.co/100x100.png',
@@ -67,45 +55,47 @@ export const MOCK_PATIENT: Patient = {
   lengthOfStay: '5 days',
   mobile: '+1-202-555-0182',
 };
+export type Patient = typeof MOCK_PATIENT;
+
 
 export const pageCardSampleContent: Record<string, string[]> = {
     "Allergies": [
-      "Pollen - Seasonal, causes sneezing.",
-      "Peanuts - Severe, requires EpiPen.",
-      "Dust Mites - Mild, managed with antihistamines.",
-      "Penicillin - Rash, hives.",
+      "Pollen Allergy",
+      "Peanut Allergy",
+      "Dust Mite Allergy",
+      "Penicillin Allergy",
     ],
     "Clinical notes": [
       "Patient presented with mild cough.",
-      "Advised rest and hydration.",
-      "Follow-up scheduled in 1 week if symptoms persist.",
+      "Advised rest and increased fluid intake.",
+      "Follow-up scheduled in one week.",
       "Routine check-up, vitals stable.",
     ],
     "Radiology": [
-      "Chest X-Ray: Clear, no abnormalities noted.",
-      "MRI Brain: Normal for age.",
-      "Ultrasound Abdomen: No acute findings.",
+      "Chest X-Ray: No acute findings.",
+      "MRI Brain: Consistent with age.",
+      "Abdominal Ultrasound: Unremarkable.",
       "CT Pelvis: Within normal limits.",
     ],
     "Encounter notes": [
-      "Discussed lab results from last visit.",
-      "Patient reported improved sleep quality.",
-      "Medication adherence reviewed.",
-      "Next appointment scheduled for follow-up.",
+      "Discussed recent lab results.",
+      "Patient reports improved sleep quality.",
+      "Medication adherence reviewed and confirmed.",
+      "Next appointment scheduled for routine follow-up.",
     ],
     "Clinical reminder": [
-      "Annual flu shot due in October.",
-      "Blood pressure check recommended.",
-      "Fasting lipid panel next month.",
-      "Follow up on specialist referral.",
+      "Annual flu vaccination due in October.",
+      "Blood pressure check recommended quarterly.",
+      "Fasting lipid panel due next month.",
+      "Follow up on specialist referral initiated.",
     ],
     "Report": [
-      "Pathology report for biopsy reviewed.",
-      "Imaging report for CT abdomen available.",
-      "Consultation summary from Dr. Smith.",
-      "Discharge summary from recent hospitalization.",
+      "Pathology Report (Biopsy #12345): Benign.",
+      "Imaging Report (CT Abdomen #67890): NAD.",
+      "Consultation Summary (Dr. Smith): Stable.",
+      "Discharge Summary (Visit #54321): Recovered.",
     ]
   };
 
 
-export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital }; // Removed Briefcase
+export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing };
