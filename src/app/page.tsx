@@ -8,12 +8,12 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus,
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, Trash2,
   FileText, Ban, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { HealthMetric, Appointment, Medication, Problem } from '@/lib/constants'; // Added Problem type
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; // Added MOCK_PROBLEMS
+import type { HealthMetric, Appointment, Medication, Problem } from '@/lib/constants'; 
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -95,7 +95,6 @@ export default function DashboardPage(): JSX.Element {
     setIsAddProblemDialogOpen(false);
   };
 
-  // handleDeleteProblem removed
 
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
@@ -112,7 +111,6 @@ export default function DashboardPage(): JSX.Element {
     setIsAddMedicationDialogOpen(false);
   };
 
-  // handleDeleteMedication removed
 
   const handleOpenAddItemDialog = (title: string) => {
     setEditingInfoCardTitle(title);
@@ -131,14 +129,13 @@ export default function DashboardPage(): JSX.Element {
     setEditingInfoCardTitle(null);
   };
 
-  // handleDeleteInfoItem removed
   
 
   return (
-    <div className="flex flex-1 flex-col p-3 space-y-3 bg-background">
+    <div className="flex flex-1 flex-col p-3 bg-background">
       
       {/* Row 1: Report & Charts & Vitals */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
         <Card className="lg:col-span-3 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
@@ -159,7 +156,6 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
-                      {/* Delete button cell removed */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -246,7 +242,7 @@ export default function DashboardPage(): JSX.Element {
       </div>
 
       {/* Row 2: Problem, Medications History, Clinical Notes */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-2">
         <Card className="md:col-span-1 shadow-lg"> {/* Problem Card - 20% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
@@ -286,7 +282,6 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{problem.description}</div>
                     </TableCell>
-                    {/* Delete button cell removed */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -336,7 +331,6 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
                     </TableCell>
-                    {/* Delete button cell removed */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -367,7 +361,6 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
-                      {/* Delete button cell removed */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -404,7 +397,6 @@ export default function DashboardPage(): JSX.Element {
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
                         </TableCell>
-                        {/* Delete button cell removed */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -447,4 +439,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
