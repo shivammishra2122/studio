@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'; // Changed ShadcnTableHeader to TableHeader for consistency
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
@@ -85,7 +85,7 @@ export default function DashboardPage(): JSX.Element {
         {/* Item 2: Report Card - Bento Grid Style */}
         <Card className="shadow-lg md:col-span-6 lg:col-span-2">
           <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar">
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5"> {/* Changed from grid-cols-3 to grid-cols-2 */}
               {reportButtonLabels.map((label, index) => (
                 <Button key={index} variant="outline" size="sm" className="text-xs w-full h-auto py-1.5">
                   {label}
@@ -291,7 +291,7 @@ export default function DashboardPage(): JSX.Element {
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
               <div className="flex items-center space-x-1.5">
                 <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Report</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
+                <CardTitle className="text-base">Report (Details)</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                   {pageCardSampleContent["Report (Details)"]?.length || 0} 
                 </Badge>
