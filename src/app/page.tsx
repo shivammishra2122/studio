@@ -46,12 +46,15 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+// "Report" is handled separately now. "Clinical notes" moved to middle row.
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
   "Encounter notes",
   "Clinical reminder"
 ];
+
+const reportButtonLabels: string[] = ["Pathology", "Imaging", "Consults", "Discharge", "Lab Work", "Notes", "Procedures"];
 
 
 export default function DashboardPage(): JSX.Element {
@@ -86,22 +89,18 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Item 2: Report Card */}
+        {/* Item 2: Report Card - Bento Grid Style */}
         <Card className="shadow-lg">
           <CardContent className="p-2 max-h-[220px] overflow-y-auto no-scrollbar"> {/* Adjusted max-h for consistency */}
-            <Table>
-              <TableBody>
-                {(pageCardSampleContent["Report"] || []).map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="px-2 py-1">
-                      <div className="font-medium text-xs">{item}</div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-             {(pageCardSampleContent["Report"]?.length || 0) === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground">No report data listed.</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {reportButtonLabels.map((label, index) => (
+                <Button key={index} variant="outline" size="sm" className="text-xs w-full h-auto py-1.5">
+                  {label}
+                </Button>
+              ))}
+            </div>
+             {reportButtonLabels.length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">No report items listed.</p>
             )}
           </CardContent>
         </Card>
@@ -390,3 +389,4 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
