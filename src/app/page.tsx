@@ -4,16 +4,16 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  Trash2, FileText, Ban, ScanLine, ClipboardList, BellRing
+  Trash2 // Added Trash2 for delete functionality
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants';
-import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, LOREM_IPSUM_TEXT } from '@/lib/constants';
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, LOREM_IPSUM_TEXT } from '@/lib/constants'; // LOREM_IPSUM_TEXT imported
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -54,45 +54,30 @@ const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(va
 const informationalCardTitles: string[] = [
   "Allergies",
   "Clinical notes",
-  "Radiology",
-  "Encounter notes",
-  "Clinical reminder",
-  "Report" 
+  "Radiology"
 ];
-
-const initialPageCardSampleContent: Record<string, string[]> = {
-  "Allergies": ["Pollen", "Peanuts", "Dust Mites", "Penicillin"],
-  "Clinical notes": ["Mild cough noted.", "Rest advised.", "Follow-up in 1 week.", "Vitals stable."],
-  "Radiology": ["Chest X-Ray: NAD.", "MRI Brain: Age-consistent.", "US Abdomen: Normal.", "CT Pelvis: WNL."],
-  "Encounter notes": ["Discussed lab results.", "Improved sleep reported.", "Medication adherence good.", "Next F/U scheduled."],
-  "Clinical reminder": ["Flu shot due Oct.", "BP check quarterly.", "Lipid panel next month.", "Specialist referral pending."],
-  "Report": ["Pathology #123: Benign.", "Imaging #678: NAD.", "Consult (Smith): Stable.", "Discharge Sum: Recovered."]
-};
 
 
 export default function DashboardPage(): JSX.Element {
   const [appointments, setAppointments] = useState<Appointment[]>(MOCK_APPOINTMENTS);
   const [medications, setMedications] = useState<Medication[]>(MOCK_MEDICATIONS);
   
-  // For informational cards, we'll use LOREM_IPSUM_TEXT for content based on the image
-  // The specific items per card are not shown in the image for these, so lorem ipsum is a good placeholder.
-
-  // Dialog states
+  // Dialog states for appointments
   const [isAddAppointmentDialogOpen, setIsAddAppointmentDialogOpen] = useState(false);
   const [newAppointmentInput, setNewAppointmentInput] = useState('');
+
+  // Dialog states for medications
   const [isAddMedicationDialogOpen, setIsAddMedicationDialogOpen] = useState(false);
   const [newMedicationInput, setNewMedicationInput] = useState('');
-  
-  // We don't need state for informational card content if it's just lorem ipsum and not editable items.
 
   const handleAddAppointment = () => {
     if (!newAppointmentInput.trim()) return;
     const newAppt: Appointment = {
       id: Date.now().toString(),
       doctor: newAppointmentInput,
-      specialty: 'Specialty', // Placeholder
-      date: new Date().toISOString().split('T')[0], // Today's date
-      time: 'N/A', // Placeholder
+      specialty: 'Specialty', 
+      date: new Date().toISOString().split('T')[0], 
+      time: 'N/A', 
       location: 'N/A',
       avatarUrl: 'https://placehold.co/40x40.png',
     };
@@ -110,7 +95,7 @@ export default function DashboardPage(): JSX.Element {
     const newMed: Medication = {
       id: Date.now().toString(),
       name: newMedicationInput,
-      reason: 'General', // Placeholder
+      reason: 'General',
       amount: 'N/A',
       timing: 'N/A',
       taken: false,
@@ -126,30 +111,29 @@ export default function DashboardPage(): JSX.Element {
   
 
   return (
-    <div className="flex flex-1 flex-col p-6 space-y-6 bg-background"> {/* Added bg-background based on image */}
+    <div className="flex flex-1 flex-col p-3 space-y-3 bg-background"> {/* Reduced padding and space */}
       
       {/* Top Row: Charts/Vitals */}
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-3"> {/* Reduced gap */}
         {/* Health Data Visualizations Card (Charts ONLY) */}
         <Card className="shadow-lg w-full md:w-[65%] rounded-lg">
-          {/* CardHeader removed as per image */}
-          <CardContent className="pt-4 px-4 pb-4"> {/* Adjusted padding based on image */}
+          <CardContent className="pt-2 px-2 pb-2"> {/* Reduced padding */}
             <Tabs defaultValue="glucose">
-              <TabsList className="grid w-full grid-cols-3 mb-4 h-10">
-                <TabsTrigger value="glucose" className="text-sm px-3 py-2">Glucose</TabsTrigger>
-                <TabsTrigger value="ecg" className="text-sm px-3 py-2">ECG</TabsTrigger>
-                <TabsTrigger value="ct-scan" className="text-sm px-3 py-2">CT Scan</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 mb-2 h-8"> {/* Reduced height and margin */}
+                <TabsTrigger value="glucose" className="text-xs px-2 py-1">Glucose</TabsTrigger> {/* Reduced font size and padding */}
+                <TabsTrigger value="ecg" className="text-xs px-2 py-1">ECG</TabsTrigger> {/* Reduced font size and padding */}
+                <TabsTrigger value="ct-scan" className="text-xs px-2 py-1">CT Scan</TabsTrigger> {/* Reduced font size and padding */}
               </TabsList>
               <TabsContent value="glucose">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-0 max-h-[200px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={glucoseChartConfig} className="h-[180px] w-full">
-                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced padding and max-height */}
+                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full"> {/* Reduced height */}
+                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={6} fontSize={10} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={10} domain={[30, 120]} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} /> {/* Reduced font size and margin */}
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} domain={[0, 120]} /> {/* Reduced font size and margin */}
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                        <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={2} dot={{r: 3}} />
+                        <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
@@ -157,14 +141,14 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="ecg">
                  <Card className="border-0 shadow-none">
-                  <CardContent className="p-0 max-h-[200px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={ecgChartConfig} className="h-[180px] w-full">
-                      <RechartsLineChart data={ecgData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced padding and max-height */}
+                    <ChartContainer config={ecgChartConfig} className="h-[140px] w-full"> {/* Reduced height */}
+                      <RechartsLineChart data={ecgData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={6} fontSize={10} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={10} />
+                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} /> {/* Reduced font size and margin */}
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} /> {/* Reduced font size and margin */}
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                        <Line dataKey="value" type="monotone" stroke="var(--color-value)" strokeWidth={2} dot={false} />
+                        <Line dataKey="value" type="monotone" stroke="var(--color-value)" strokeWidth={1.5} dot={false} />
                       </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
@@ -172,16 +156,16 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="ct-scan">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-2 max-h-[200px] overflow-y-auto no-scrollbar space-y-1.5">
-                    <ul className="space-y-1.5">
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar space-y-0.5"> {/* Reduced padding, max-height and space */}
+                    <ul className="space-y-0.5"> {/* Reduced space */}
                       {ctScanReadings.map((reading, index) => (
-                        <li key={index} className="flex justify-between p-1.5 rounded-md bg-muted/70 text-sm">
+                        <li key={index} className="flex justify-between p-1 rounded-md bg-muted/70 text-xs"> {/* Reduced padding */}
                           <span className="font-medium text-foreground">{reading.organ}:</span>
                           <span className="text-muted-foreground">{reading.finding}</span>
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-2 text-xs text-muted-foreground">Note: Simplified. Consult doctor for details.</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Note: Simplified. Consult doctor for details.</p> {/* Reduced margin */}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -192,16 +176,15 @@ export default function DashboardPage(): JSX.Element {
         {/* Vitals Card */}
         <div className="w-full md:w-[35%]">
           <Card className="shadow-lg h-full rounded-lg">
-            {/* CardHeader removed as per image */}
-            <CardContent className="space-y-2 p-4 max-h-[calc(200px+3rem)] overflow-y-auto no-scrollbar">
+            <CardContent className="space-y-1.5 p-2 max-h-[calc(150px+2rem)] overflow-y-auto no-scrollbar"> {/* Reduced padding, space, and max-height */}
               {keyIndicators.map((indicator) => (
-                <div key={indicator.name} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/70">
+                <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70"> {/* Reduced padding */}
                   <div className="flex items-center">
-                    {indicator.icon && <indicator.icon className="h-5 w-5 text-primary mr-2" />}
-                    <span className="text-sm font-medium text-foreground">{indicator.name}</span>
+                    {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />} {/* Reduced icon size and margin */}
+                    <span className="text-xs font-medium text-foreground">{indicator.name}</span> {/* Reduced font size */}
                   </div>
                   <div className="text-right">
-                    <span className="text-base font-semibold text-foreground">{indicator.value}</span>
+                    <span className="text-sm font-semibold text-foreground">{indicator.value}</span> {/* Reduced font size */}
                     <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
                   </div>
                 </div>
@@ -212,19 +195,19 @@ export default function DashboardPage(): JSX.Element {
       </div>
       
       {/* Middle Row: Appointments & Medications */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2"> {/* Reduced gap */}
         <Card className="shadow-lg rounded-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-3 pb-2 px-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-5 w-5 text-primary" />
-              <CardTitle className="text-md font-semibold">Upcoming Appointments</CardTitle>
-              <Badge variant="secondary" className="text-xs px-2 py-0.5">{appointments.length}</Badge>
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-2"> {/* Reduced padding */}
+            <div className="flex items-center space-x-1.5"> {/* Reduced space */}
+              <Clock className="h-4 w-4 text-primary" /> {/* Reduced icon size */}
+              <CardTitle className="text-sm font-semibold">Upcoming Appointments</CardTitle> {/* Reduced font size */}
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{appointments.length}</Badge>
             </div>
             <div className="flex items-center space-x-1">
               <Dialog open={isAddAppointmentDialogOpen} onOpenChange={setIsAddAppointmentDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Edit3 className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="h-7 w-7"> {/* Reduced button size */}
+                    <Edit3 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -243,33 +226,33 @@ export default function DashboardPage(): JSX.Element {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
-               <Button variant="default" size="icon" className="h-8 w-8" onClick={() => setIsAddAppointmentDialogOpen(true)}>
-                <Plus className="h-4 w-4" />
+               <Button variant="default" size="icon" className="h-7 w-7" onClick={() => setIsAddAppointmentDialogOpen(true)}> {/* Reduced button size */}
+                <Plus className="h-3.5 w-3.5" /> {/* Reduced icon size */}
               </Button>
             </div>
           </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-[250px] overflow-y-auto no-scrollbar">
+          <CardContent className="p-0 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced max-height */}
             <Table>
               <TableBody>
                 {appointments.map((appt) => (
                   <TableRow key={appt.id}>
-                    <TableCell className="px-3 py-2.5">
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
+                    <TableCell className="px-1.5 py-1"> {/* Reduced padding */}
+                      <div className="flex items-center space-x-1.5"> {/* Reduced space */}
+                        <Avatar className="h-7 w-7"> {/* Reduced avatar size */}
                           <AvatarImage src={appt.avatarUrl} alt={appt.doctor} data-ai-hint="person doctor" />
                           <AvatarFallback>{appt.doctor.substring(0,1)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium text-sm">{appt.doctor}</div>
+                          <div className="font-medium text-xs">{appt.doctor}</div>
                           <div className="text-xs text-muted-foreground">{appt.specialty}</div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 text-xs">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell>
-                    <TableCell className="px-3 py-2.5 text-xs">{appt.time}</TableCell>
-                    <TableCell className="text-right px-3 py-2.5">
-                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteAppointment(appt.id)}>
-                        <MoreVertical className="h-4 w-4" />
+                    <TableCell className="px-1.5 py-1 text-xs">{new Date(appt.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</TableCell> {/* Reduced padding */}
+                    <TableCell className="px-1.5 py-1 text-xs">{appt.time}</TableCell> {/* Reduced padding */}
+                    <TableCell className="text-right px-1.5 py-1"> {/* Reduced padding */}
+                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteAppointment(appt.id)}> {/* Reduced button size */}
+                        <Trash2 className="h-3.5 w-3.5" /> {/* Changed to Trash2, reduced icon size */}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -277,23 +260,23 @@ export default function DashboardPage(): JSX.Element {
               </TableBody>
             </Table>
             {appointments.length === 0 && (
-              <p className="py-6 text-center text-sm text-muted-foreground">No upcoming appointments.</p>
+              <p className="py-4 text-center text-xs text-muted-foreground">No upcoming appointments.</p>
             )}
           </CardContent>
         </Card>
 
         <Card className="shadow-lg rounded-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-3 pb-2 px-4">
-            <div className="flex items-center space-x-2">
-              <PillIcon className="h-5 w-5 text-primary" />
-              <CardTitle className="text-md font-semibold">Medications History</CardTitle>
-              <Badge variant="secondary" className="text-xs px-2 py-0.5">{medications.length}</Badge>
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-2"> {/* Reduced padding */}
+            <div className="flex items-center space-x-1.5"> {/* Reduced space */}
+              <PillIcon className="h-4 w-4 text-primary" /> {/* Reduced icon size */}
+              <CardTitle className="text-sm font-semibold">Medications History</CardTitle> {/* Reduced font size */}
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{medications.length}</Badge>
             </div>
              <div className="flex items-center space-x-1">
                 <Dialog open={isAddMedicationDialogOpen} onOpenChange={setIsAddMedicationDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit3 className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="h-7 w-7"> {/* Reduced button size */}
+                            <Edit3 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
@@ -312,27 +295,27 @@ export default function DashboardPage(): JSX.Element {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-                <Button variant="default" size="icon" className="h-8 w-8" onClick={() => setIsAddMedicationDialogOpen(true)}>
-                    <Plus className="h-4 w-4" />
+                <Button variant="default" size="icon" className="h-7 w-7" onClick={() => setIsAddMedicationDialogOpen(true)}> {/* Reduced button size */}
+                    <Plus className="h-3.5 w-3.5" /> {/* Reduced icon size */}
                 </Button>
             </div>
           </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-[250px] overflow-y-auto no-scrollbar">
+          <CardContent className="p-0 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced max-height */}
             <Table>
               <TableBody>
                 {medications.map((med) => (
                   <TableRow key={med.id}>
-                    <TableCell className="px-3 py-2.5">
+                    <TableCell className="px-1.5 py-1"> {/* Reduced padding */}
                       <div>
-                          <div className="font-medium text-sm">{med.name}</div>
+                          <div className="font-medium text-xs">{med.name}</div>
                           {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
                         </div>
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 text-xs">{med.amount}</TableCell>
-                    <TableCell className="px-3 py-2.5 text-xs">{med.timing}</TableCell>
-                     <TableCell className="text-right px-3 py-2.5">
-                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteMedication(med.id)}>
-                        <MoreVertical className="h-4 w-4" />
+                    <TableCell className="px-1.5 py-1 text-xs">{med.amount}</TableCell> {/* Reduced padding */}
+                    <TableCell className="px-1.5 py-1 text-xs">{med.timing}</TableCell> {/* Reduced padding */}
+                     <TableCell className="text-right px-1.5 py-1"> {/* Reduced padding */}
+                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteMedication(med.id)}> {/* Reduced button size */}
+                        <Trash2 className="h-3.5 w-3.5" /> {/* Changed to Trash2, reduced icon size */}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -340,28 +323,27 @@ export default function DashboardPage(): JSX.Element {
               </TableBody>
             </Table>
             {medications.length === 0 && (
-              <p className="py-6 text-center text-sm text-muted-foreground">No medications listed.</p>
+              <p className="py-4 text-center text-xs text-muted-foreground">No medications listed.</p>
             )}
           </CardContent>
         </Card>
       </div>
       
       {/* Bottom Row: Informational Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3"> {/* Reduced gap */}
         {informationalCardTitles.map((title) => (
           <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg rounded-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-3 pb-2 px-4">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-2"> {/* Reduced padding */}
               <div>
-                <CardTitle className="text-md font-semibold">{title}</CardTitle>
+                <CardTitle className="text-sm font-semibold">{title}</CardTitle> {/* Reduced font size */}
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Edit3 className="h-4 w-4" />
-                {/* This edit button for informational cards is not functional for adding/deleting items in this iteration */}
+              <Button variant="ghost" size="icon" className="h-7 w-7"> {/* Reduced button size */}
+                <Edit3 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
                 <span className="sr-only">Edit {title}</span>
               </Button>
             </ShadcnCardHeader>
-            <CardContent className="p-3 pt-2 max-h-[150px] overflow-y-auto no-scrollbar">
-              <p className="text-sm text-muted-foreground leading-relaxed">{LOREM_IPSUM_TEXT}</p>
+            <CardContent className="p-1.5 pt-1 max-h-[100px] overflow-y-auto no-scrollbar"> {/* Reduced padding and max-height */}
+              <p className="text-xs text-muted-foreground leading-normal">{LOREM_IPSUM_TEXT}</p> {/* Reduced font size and leading */}
             </CardContent>
           </Card>
         ))}
@@ -369,3 +351,4 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
