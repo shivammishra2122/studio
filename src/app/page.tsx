@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -8,7 +9,8 @@ import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  User, Hospital, CalendarDays, Phone, FileText, Ban, ScanLine, ClipboardList, BellRing
+  User, Hospital, CalendarDays, Phone, BedDouble, BriefcaseMedical, FileQuestion,
+  FileText, Ban, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
 import type { HealthMetric, Appointment, Medication } from '@/lib/constants'; 
 import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
@@ -46,7 +48,6 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Clinical notes" and "Report" are handled explicitly now.
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
@@ -72,12 +73,28 @@ export default function DashboardPage(): JSX.Element {
       <div className="grid grid-cols-1 md:grid-cols-12 lg:grid-cols-12 gap-3">
         {/* Item 1: Patient Details */}
         <Card className="shadow-lg md:col-span-6 lg:col-span-3">
-          <CardContent className="p-3 space-y-2 text-xs no-scrollbar max-h-[220px] overflow-y-auto flex flex-col items-center justify-center"> {/* Centering content */}
-              <Avatar className="h-24 w-24 mb-2"> {/* Larger Avatar */}
-                  <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
-                  <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
+          <CardContent className="p-3 space-y-1.5 text-xs no-scrollbar max-h-[220px] overflow-y-auto">
+            <div className="flex items-center space-x-2 mb-2">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={MOCK_PATIENT.avatarUrl} alt={MOCK_PATIENT.name} data-ai-hint="person patient"/>
+                <AvatarFallback>{MOCK_PATIENT.name.substring(0,1)}</AvatarFallback>
               </Avatar>
-              <p className="font-semibold text-base text-foreground text-center">{MOCK_PATIENT.name}</p> {/* Larger, centered name */}
+              <div>
+                <p className="font-semibold text-sm text-foreground">{MOCK_PATIENT.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {MOCK_PATIENT.gender.substring(0,1)} {MOCK_PATIENT.age}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-1 text-xs">
+              <div className="flex items-center"><Phone className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Mobile: {MOCK_PATIENT.mobile}</div>
+              <div className="flex items-center"><BedDouble className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Bed: {MOCK_PATIENT.bedDetails}</div>
+              <div className="flex items-center"><CalendarDays className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Admission: {new Date(MOCK_PATIENT.admissionDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+              <div className="flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Stay: {MOCK_PATIENT.lengthOfStay}</div>
+              <div className="flex items-center"><BriefcaseMedical className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Consultant: {MOCK_PATIENT.primaryConsultant}</div>
+              <div className="flex items-center"><Hospital className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Provider: {MOCK_PATIENT.encounterProvider}</div>
+              <div className="flex items-center"><FileQuestion className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />Reason: {MOCK_PATIENT.reasonForVisit}</div>
+            </div>
           </CardContent>
         </Card>
 
@@ -174,7 +191,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
       
-      {/* Middle Row: Problem, Medications, Clinical Notes, Report */}
+      {/* Middle Row: Problem, Medications, Clinical Notes, Report (Details) */}
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
@@ -242,19 +259,17 @@ export default function DashboardPage(): JSX.Element {
 
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div className="flex items-center space-x-1.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Clinical notes</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                  {pageCardSampleContent["Clinical notes"]?.length || 0}
-                </Badge>
-              </div>
-              <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Clinical notes</span>
-                </Button>
-              </div>
+                <div className="flex items-center space-x-1.5">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-base">Clinical notes</CardTitle>
+                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                      {pageCardSampleContent["Clinical notes"]?.length || 0}
+                    </Badge>
+                </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Edit3 className="h-3.5 w-3.5" />
+                <span className="sr-only">Edit Clinical notes</span>
+              </Button>
             </ShadcnCardHeader>
             <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
                <Table>
@@ -276,24 +291,22 @@ export default function DashboardPage(): JSX.Element {
 
           <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div className="flex items-center space-x-1.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Report (Details)</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                  {pageCardSampleContent["Report (Details)"]?.length || 0} 
-                </Badge>
-              </div>
-              <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Report Details</span>
-                </Button>
-              </div>
+               <div className="flex items-center space-x-1.5">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-base">Report (Details)</CardTitle> {/* This is the "Report" from the middle row, not the top bento one */}
+                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                      {pageCardSampleContent["Report"]?.length || 0} 
+                    </Badge>
+                </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Edit3 className="h-3.5 w-3.5" />
+                <span className="sr-only">Edit Report Details</span>
+              </Button>
             </ShadcnCardHeader>
             <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
                <Table>
                 <TableBody>
-                  {(pageCardSampleContent["Report (Details)"] || []).map((item, index) => ( 
+                  {(pageCardSampleContent["Report"] || []).map((item, index) => ( 
                     <TableRow key={index}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
@@ -302,7 +315,7 @@ export default function DashboardPage(): JSX.Element {
                   ))}
                 </TableBody>
               </Table>
-              {(pageCardSampleContent["Report (Details)"]?.length || 0) === 0 && ( 
+              {(pageCardSampleContent["Report"]?.length || 0) === 0 && ( 
                 <p className="py-4 text-center text-xs text-muted-foreground">No report details listed.</p>
               )}
             </CardContent>

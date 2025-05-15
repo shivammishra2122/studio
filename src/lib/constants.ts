@@ -54,6 +54,10 @@ export const MOCK_PATIENT = {
   admissionDate: '2024-07-15',
   lengthOfStay: '5 days',
   mobile: '+1-202-555-0182',
+  bedDetails: 'Room 301, Bed A',
+  primaryConsultant: 'Dr. Emily Carter',
+  encounterProvider: 'City General Hospital',
+  reasonForVisit: 'Routine Check-up & Consultation',
 };
 export type Patient = typeof MOCK_PATIENT;
 
@@ -89,7 +93,7 @@ export const pageCardSampleContent: Record<string, string[]> = {
       "Fasting lipid panel due next month.",
       "Follow up on specialist referral initiated.",
     ],
-    "Report": [
+    "Report": [ // This content is used for the Report card in the top section now
       "Pathology Report (Biopsy #12345): Benign.",
       "Imaging Report (CT Abdomen #67890): NAD.",
       "Consultation Summary (Dr. Smith): Stable.",
