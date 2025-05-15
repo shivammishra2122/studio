@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -9,12 +8,12 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  Trash2, FileText, Ban, ScanLine, ClipboardList, BellRing
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus,
+  FileText, Ban, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { HealthMetric, Problem, Medication } from '@/lib/constants';
-import { MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants';
+import type { HealthMetric, Appointment, Medication, Problem } from '@/lib/constants'; // Added Problem type
+import { MOCK_APPOINTMENTS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; // Added MOCK_PROBLEMS
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -52,7 +51,6 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Clinical notes" and "Report" are handled explicitly in the layout
 const informationalCardTitles: string[] = [
   "Allergies",
   "Radiology",
@@ -97,9 +95,7 @@ export default function DashboardPage(): JSX.Element {
     setIsAddProblemDialogOpen(false);
   };
 
-  const handleDeleteProblem = (id: string) => {
-    setProblems(prev => prev.filter(prob => prob.id !== id));
-  };
+  // handleDeleteProblem removed
 
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
@@ -116,9 +112,7 @@ export default function DashboardPage(): JSX.Element {
     setIsAddMedicationDialogOpen(false);
   };
 
-  const handleDeleteMedication = (id: string) => {
-    setMedications(prev => prev.filter(med => med.id !== id));
-  };
+  // handleDeleteMedication removed
 
   const handleOpenAddItemDialog = (title: string) => {
     setEditingInfoCardTitle(title);
@@ -137,18 +131,13 @@ export default function DashboardPage(): JSX.Element {
     setEditingInfoCardTitle(null);
   };
 
-  const handleDeleteInfoItem = (cardTitle: string, itemIndex: number) => {
-    setDynamicPageCardSampleContent(prev => ({
-      ...prev,
-      [cardTitle]: (prev[cardTitle] || []).filter((_, idx) => idx !== itemIndex)
-    }));
-  };
+  // handleDeleteInfoItem removed
   
 
   return (
     <div className="flex flex-1 flex-col p-3 space-y-3 bg-background">
       
-      {/* Row 1: Report (Info) & Charts & Vitals */}
+      {/* Row 1: Report & Charts & Vitals */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
         <Card className="lg:col-span-3 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -170,11 +159,7 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
-                      <TableCell className="text-right px-1.5 py-1 w-10">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Report", index)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </TableCell>
+                      {/* Delete button cell removed */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -243,7 +228,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         <Card className="shadow-lg lg:col-span-3 h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> {/* Adjusted max-h to roughly match chart area */}
+          <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> 
             {keyIndicators.map((indicator) => (
               <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
                 <div className="flex items-center">
@@ -301,11 +286,7 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{problem.description}</div>
                     </TableCell>
-                    <TableCell className="text-right px-1.5 py-1 w-10">
-                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteProblem(problem.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </TableCell>
+                    {/* Delete button cell removed */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -355,11 +336,7 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
                     </TableCell>
-                    <TableCell className="text-right px-1.5 py-1 w-10">
-                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteMedication(med.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </TableCell>
+                    {/* Delete button cell removed */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -390,11 +367,7 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
-                      <TableCell className="text-right px-1.5 py-1 w-10">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Clinical notes", index)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </TableCell>
+                      {/* Delete button cell removed */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -431,11 +404,7 @@ export default function DashboardPage(): JSX.Element {
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
                         </TableCell>
-                        <TableCell className="text-right px-1.5 py-1 w-10">
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem(title, index)}>
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </TableCell>
+                        {/* Delete button cell removed */}
                       </TableRow>
                     ))}
                   </TableBody>
