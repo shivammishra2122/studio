@@ -35,14 +35,19 @@ body {
     --chart-4: 160 60% 45%; /* Greenish */
     --chart-5: 30 80% 55%; /* Orangeish */
 
-    --sidebar-background: 220 20% 97%; /* Very light grey, almost white but distinct from main background */
-    --sidebar-foreground: 215 28% 17%; /* Dark Grey for text */
-    --sidebar-primary: 180 100% 25%; /* Teal for active items */
+    /* Sidebar theme based on image (darker) */
+    --sidebar-background: 220 15% 25%; /* Dark grayish blue */
+    --sidebar-foreground: 0 0% 95%; /* Light grey/white text */
+    --sidebar-primary: 180 100% 35%; /* Brighter Teal for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White for text on active items */
-    --sidebar-accent: 190 67% 90%; /* Light Blue for hover on sidebar items */
-    --sidebar-accent-foreground: 180 100% 15%; /* Darker Teal for text on hover */
-    --sidebar-border: 220 15% 90%; /* Slightly darker grey for border */
-    --sidebar-ring: 180 100% 25%; /* Teal */
+    --sidebar-accent: 190 50% 40%; /* Slightly lighter dark blue for hover */
+    --sidebar-accent-foreground: 0 0% 98%; /* Light text on hover */
+    --sidebar-border: 220 15% 20%; /* Darker border for sidebar */
+    --sidebar-ring: 180 100% 35%; /* Teal */
+    
+    /* Specific for active sidebar menu item background from image */
+    --sidebar-menu-item-active-background: 190 70% 50%; /* Light blue from image */
+    --sidebar-menu-item-active-foreground: 0 0% 100%; /* White text */
   }
 
   .dark {
@@ -72,14 +77,18 @@ body {
     --chart-4: 160 60% 55%;
     --chart-5: 30 80% 65%;
 
-    --sidebar-background: 220 20% 13%; /* Darker base for sidebar */
-    --sidebar-foreground: 0 0% 95%; /* Light text */
-    --sidebar-primary: 180 100% 35%; /* Brighter Teal */
+    /* Dark mode sidebar, ensure it contrasts with main dark theme */
+    --sidebar-background: 220 20% 18%; /* Darker base for sidebar in dark mode */
+    --sidebar-foreground: 0 0% 90%; /* Light text */
+    --sidebar-primary: 180 100% 40%; /* Brighter Teal */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 190 50% 30%; /* Darker Light Blue for hover */
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 220 20% 18%;
-    --sidebar-ring: 180 100% 35%;
+    --sidebar-accent: 190 50% 35%; /* Darker Light Blue for hover */
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 20% 23%;
+    --sidebar-ring: 180 100% 40%;
+
+    --sidebar-menu-item-active-background: 190 70% 60%; 
+    --sidebar-menu-item-active-foreground: 0 0% 10%; 
   }
 }
 

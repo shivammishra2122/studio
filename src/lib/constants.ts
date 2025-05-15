@@ -1,7 +1,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 // Icons for direct use in page.tsx if needed elsewhere
-import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing } from 'lucide-react';
+import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing, Edit3, BedDouble, BriefcaseMedical, FileQuestion, LayoutGrid } from 'lucide-react';
 
 
 export type Appointment = {
@@ -46,14 +46,14 @@ export type HealthMetric = {
 
 export const MOCK_PATIENT = {
   id: 'pat123',
-  name: 'Johnathan Doe',
-  avatarUrl: 'https://placehold.co/100x100.png',
-  gender: 'Male',
-  age: 45,
-  wardNo: 'C-302',
+  name: 'Sarah Miller', // Updated to match image
+  avatarUrl: 'https://placehold.co/100x100.png', // Placeholder for image
+  gender: 'Female',
+  age: 42,
+  wardNo: 'C-305',
   admissionDate: '2024-07-15',
   lengthOfStay: '5 days',
-  mobile: '+1-202-555-0182',
+  mobile: '+1-555-0102',
   bedDetails: 'Room 301, Bed A',
   primaryConsultant: 'Dr. Emily Carter',
   encounterProvider: 'City General Hospital',
@@ -61,45 +61,7 @@ export const MOCK_PATIENT = {
 };
 export type Patient = typeof MOCK_PATIENT;
 
-
-export const pageCardSampleContent: Record<string, string[]> = {
-    "Allergies": [
-      "Pollen Allergy",
-      "Peanut Allergy",
-      "Dust Mite Allergy",
-      "Penicillin Allergy",
-    ],
-    "Clinical notes": [
-      "Patient presented with mild cough.",
-      "Advised rest and increased fluid intake.",
-      "Follow-up scheduled in one week.",
-      "Routine check-up, vitals stable.",
-    ],
-    "Radiology": [
-      "Chest X-Ray: No acute findings.",
-      "MRI Brain: Consistent with age.",
-      "Abdominal Ultrasound: Unremarkable.",
-      "CT Pelvis: Within normal limits.",
-    ],
-    "Encounter notes": [
-      "Discussed recent lab results.",
-      "Patient reports improved sleep quality.",
-      "Medication adherence reviewed and confirmed.",
-      "Next appointment scheduled for routine follow-up.",
-    ],
-    "Clinical reminder": [
-      "Annual flu vaccination due in October.",
-      "Blood pressure check recommended quarterly.",
-      "Fasting lipid panel due next month.",
-      "Follow up on specialist referral initiated.",
-    ],
-    "Report": [ // This content is used for the Report card in the top section now
-      "Pathology Report (Biopsy #12345): Benign.",
-      "Imaging Report (CT Abdomen #67890): NAD.",
-      "Consultation Summary (Dr. Smith): Stable.",
-      "Discharge Summary (Visit #54321): Recovered.",
-    ]
-  };
+export const LOREM_IPSUM_TEXT: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 
-export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing };
+export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing, Edit3, BedDouble, BriefcaseMedical, FileQuestion, LayoutGrid };

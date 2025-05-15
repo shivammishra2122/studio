@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-// Removed Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Edit3 as they are no longer directly used in this layout for the left panel.
-// If Toaster or children require them, they'd be imported by those components.
+import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarNav } from '@/components/layout/sidebar-nav';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -21,8 +21,6 @@ export const metadata: Metadata = {
   description: 'Your personal health dashboard.',
 };
 
-// Removed leftPanelCardTitles and cardSampleContent
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,15 +29,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
-        
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left Panel Removed */}
-
-          {/* Main Content Area */}
-          <main className="flex-1 overflow-y-auto bg-background no-scrollbar">
-            {children}
-          </main>
-        </div>
+        <SidebarProvider>
+          <div className="flex flex-1 overflow-hidden">
+            <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+              <SidebarNav />
+            </Sidebar>
+            <SidebarInset className="flex-1 overflow-y-auto bg-background no-scrollbar">
+              <main className="flex-1 p-0 no-scrollbar"> {/* Adjusted padding to 0, page.tsx will handle its own padding */}
+                {children}
+              </main>
+            </SidebarInset>
+          </div>
+        </SidebarProvider>
         <Toaster />
       </body>
     </html>
