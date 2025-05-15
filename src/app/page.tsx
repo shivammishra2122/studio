@@ -54,7 +54,11 @@ const informationalCardTitles: string[] = [
   "Clinical reminder"
 ];
 
-const reportButtonLabels: string[] = ["Pathology", "Imaging", "Consults", "Discharge", "Lab Work", "Notes", "Procedures"];
+const reportButtonLabels: string[] = [
+  "Pathology", "Imaging", "Consults", "Discharge", 
+  "Lab Work", "Notes", "Procedures", "Med Admin",
+  "Orders", "Care Plan", "Allergies Sum", "Vitals Chart"
+];
 
 
 export default function DashboardPage(): JSX.Element {
@@ -389,4 +393,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
