@@ -17,13 +17,17 @@ import {
   FileText, 
   BriefcaseMedical, 
   FileQuestion,
-  User // Added User icon import
+  User,
+  Ban,
+  Edit3,
+  Search
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed'; // wardAndBed is a composite key
+  key: keyof Patient | 'wardAndBed'; 
   label: string;
   value: string;
   icon?: LucideIcon;
@@ -33,23 +37,23 @@ const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
-    label: 'DOB',
+    label: 'DOB', // Only DOB will show its label explicitly
     value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays
   },
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admissionDate',
-    label: '',
+    label: 'AD', // Changed label
     value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays,
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
-  { key: 'primaryConsultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
-  { key: 'encounterProvider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
-  { key: 'finalDiagnosis', label: 'Diagnosis', value: patient.finalDiagnosis, icon: FileText },
-  { key: 'posting', label: 'Posting', value: patient.posting, icon: BriefcaseMedical },
-  { key: 'reasonForVisit', label: 'Reason', value: patient.reasonForVisit, icon: FileQuestion },
+  { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User }, // Label removed
+  { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
+  { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
+  { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical }, // Label removed
+  { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
 ];
 
 
@@ -58,15 +62,14 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarContent className="p-3 space-y-3">
+      <SidebarContent className="p-3 space-y-3 flex flex-col">
         <div className="flex flex-col items-center space-y-1">
           <Avatar className="h-14 w-14 mb-1">
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex items-center text-center"> 
+          <div className="text-center"> 
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
-            <span className="text-sidebar-foreground mx-1">/</span> {/* Separator */}
             <p className="text-xs text-sidebar-foreground">
               {genderInitial} {patient.age}
             </p>
@@ -78,17 +81,31 @@ export function SidebarNav() {
             (detail) => (
               <li key={detail.key} className="flex items-start space-x-1.5">
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
-                <div className="flex-1">
-                  {detail.label && detail.label !== 'DOB' && <span className="font-medium">{detail.label}: </span>}
-                  {detail.label === 'DOB' && <span className="font-medium">DOB: </span>}
+                <div className="flex-1 min-w-0"> {/* Added min-w-0 for wrapping */}
+                  {detail.label && <span className="font-medium">{detail.label}: </span>}
                   <span className="font-normal">{detail.value}</span>
                 </div>
               </li>
             )
           )}
         </ul>
+        
+        {/* Footer Icons */}
+        <div className="mt-auto flex items-center justify-around p-2 border-t border-sidebar-border">
+          <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
+            <Ban className="h-5 w-5" />
+            <span className="sr-only">Ban</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
+            <Edit3 className="h-5 w-5" />
+            <span className="sr-only">Edit</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
+            <Search className="h-5 w-5" />
+            <span className="sr-only">Search</span>
+          </Button>
+        </div>
       </SidebarContent>
     </>
   );
 }
-
