@@ -38,24 +38,22 @@ export function SidebarNav() {
       </SidebarHeader>
 
       <SidebarContent className="p-4 space-y-3"> {/* Reduced space-y for overall compactness */}
-        <div className="flex flex-col space-y-2"> {/* Changed from items-center and adjusted space */}
-          <div className="flex items-center space-x-2">
-            <Avatar className="h-10 w-10"> {/* Reduced Avatar size and removed ring */}
-              <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
-              <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
-              <p className="text-xs text-sidebar-foreground/80">
-                {genderInitial} {patient.age}
-              </p>
-            </div>
+        <div className="flex flex-col space-y-2 items-start"> {/* Changed to items-start and adjusted space */}
+          <Avatar className="h-16 w-16 mb-2"> {/* Larger Avatar, added margin-bottom */}
+            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
+            <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
+            <p className="text-xs text-sidebar-foreground/80">
+              {genderInitial} {patient.age}
+            </p>
           </div>
         </div>
 
         <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-2"> {/* Added pt-2 for spacing */}
           {patientDetails.map((detail) => (
-            // Only display details other than gender and age here, as they are now in the header line
+            // Only display details other than gender and age here
             (detail.label !== 'Gender' && detail.label !== 'Age') && (
               <li key={detail.label} className="flex items-center">
                 <detail.icon className="mr-2 h-3.5 w-3.5 flex-shrink-0" />
