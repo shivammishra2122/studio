@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import {
   FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
-import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent } from '@/lib/constants'; 
+import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -302,7 +303,7 @@ export default function DashboardPage(): JSX.Element {
                 </div>
                 <div className="text-right">
                   <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
-                  <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
+                  <span className="text-sm font-normal text-foreground/80 ml-0.5">{indicator.unit}</span>
                 </div>
               </div>
             ))}
@@ -472,3 +473,4 @@ export default function DashboardPage(): JSX.Element {
 }
 
     
+
