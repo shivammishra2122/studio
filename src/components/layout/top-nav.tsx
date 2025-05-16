@@ -3,13 +3,13 @@
 
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-// Menu icon might become unused if SidebarTrigger's default PanelLeft is acceptable.
-// If Menu icon is critical, SidebarTrigger itself needs modification or a different approach.
-import { Menu } from 'lucide-react'; 
+// PanelLeft is the default icon for SidebarTrigger, Menu might not be needed explicitly
+// import { Menu } from 'lucide-react'; 
 
 const navButtonLabels = [
-  "Home", "Patients", "Appointments", "Billing", "Reports",
-  "Messages", "Tasks", "Analytics", "Settings", "Help"
+  "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
+  "Emergency Care", "Postmortem", "Nursing Referral", "Lab", "Radiology",
+  "Blood Center", "BI Report"
 ];
 
 export function TopNav() {
@@ -18,8 +18,7 @@ export function TopNav() {
       {/* Hamburger menu for mobile/tablet to toggle sidebar sheet */}
       <div className="md:hidden">
         {/* 
-          Use SidebarTrigger directly. It's already a Button component.
-          It will render its default icon (PanelLeft).
+          Use SidebarTrigger directly. It renders PanelLeft by default.
           If a different icon (like Menu) is strictly required here, 
           the SidebarTrigger component in sidebar.tsx would need to be refactored 
           to accept a custom icon child, or a different trigger mechanism used.
@@ -43,4 +42,3 @@ export function TopNav() {
     </div>
   );
 }
-
