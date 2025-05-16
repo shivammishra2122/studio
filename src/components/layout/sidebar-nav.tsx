@@ -6,7 +6,7 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
-  SidebarHeader, // Added SidebarHeader
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -24,7 +24,8 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SansysLogo } from '@/components/icons/sansys-logo'; // Import the new logo
+// Removed: import { SansysLogo } from '@/components/icons/sansys-logo';
+import Image from 'next/image'; // Added Image import
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -35,9 +36,6 @@ type PatientDetailItem = {
   icon?: LucideIcon;
 };
 
-// Adjusted 'label' for 'admissionDate' to "AD"
-// Removed labels for 'primaryConsultant' and 'posting'
-// Combined 'wardNo' and 'bedDetails' into 'wardAndBed'
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
@@ -68,8 +66,19 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="p-3 space-y-3 flex flex-col">
-        <SidebarHeader className="mb-2"> {/* Added SidebarHeader */}
-          <SansysLogo className="h-12 w-auto text-sidebar-primary-foreground" />
+        <SidebarHeader className="mb-2 flex justify-center items-center"> {/* Added flex justify-center items-center */}
+          {/* 
+            TODO: Replace with your actual logo image. 
+            1. Place your logo file (e.g., sansys-logo.png) in the `public` directory.
+            2. Adjust the src, width, height, and alt props below as needed.
+          */}
+          <Image 
+            src="/sansys-logo-image.png" // Example path, update if your filename is different
+            alt="Sansys Informatics Logo"
+            width={150} // Adjust as needed
+            height={75}  // Adjust as needed
+            className="object-contain" // Ensures the image scales nicely
+          />
         </SidebarHeader>
 
         <div className="flex flex-col items-center space-y-1">
