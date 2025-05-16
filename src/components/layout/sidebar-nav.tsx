@@ -18,31 +18,24 @@ import {
   FileText,
   BriefcaseMedical,
   FileQuestion,
-  User,
+  User, // Keep User if other parts of sidebar might use it, or remove if truly unused.
   Ban,
   Edit3,
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-
-const patient: Patient = MOCK_PATIENT;
+import Image from 'next/image'; // Ensure Image is imported
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed';
+  key: keyof Patient | 'wardAndBed'; // Include 'wardAndBed' for the combined field
   label: string;
   value: string;
   icon?: LucideIcon;
 };
 
+const patient: Patient = MOCK_PATIENT;
+
 const patientDetails: PatientDetailItem[] = [
-  { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
-  {
-    key: 'dob',
-    label: 'DOB',
-    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
-    icon: CalendarDays
-  },
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admissionDate',
@@ -51,6 +44,13 @@ const patientDetails: PatientDetailItem[] = [
     icon: CalendarDays,
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
+  { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
+  {
+    key: 'dob',
+    label: 'DOB',
+    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+    icon: CalendarDays
+  },
   { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
   { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
   { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
@@ -68,16 +68,18 @@ export function SidebarNav() {
         <SidebarHeader className="mb-2 flex justify-center items-center">
           {/*
             Image logo from the `public` directory.
-            Ensure your logo file (e.g., sansys-logo-image.png) is in the `public` folder.
-            Adjust src, width, height, and alt props below if your filename or dimensions differ.
+            1. ENSURE your logo file is named EXACTLY 'sansys-logo-image.png' (case-sensitive)
+               and is located directly in the 'public' folder.
+            2. If you've just added the 'public' folder or the image, RESTART your Next.js dev server.
           */}
           <Image
-            src="/sansys-logo-image.png"
+            src="/sansys-logo-image.png" // Critical: Must match the filename in public/ exactly (including case for extension)
             alt="Sansys Informatics Logo"
             width={150}
             height={75}
             className="object-contain"
             priority
+            style={{ border: '1px solid red' }} // Temporary debug border
           />
         </SidebarHeader>
 
