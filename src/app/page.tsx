@@ -202,11 +202,7 @@ export default function DashboardPage(): JSX.Element {
         <Card className="lg:col-span-6 shadow-lg h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-1.5 h-9">
-                <TabsTrigger value="heart-rate" className="text-xs px-2 py-1">Heart Rate</TabsTrigger>
-                <TabsTrigger value="blood-glucose" className="text-xs px-2 py-1">Blood Glucose</TabsTrigger>
-                <TabsTrigger value="blood-pressure" className="text-xs px-2 py-1">Blood Pressure</TabsTrigger>
-              </TabsList>
+              {/* TabsList removed as per user request */}
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
                   <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
