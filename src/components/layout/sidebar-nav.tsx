@@ -13,8 +13,6 @@ import {
 const patient: Patient = MOCK_PATIENT;
 
 const patientDetails = [
-  { label: 'Gender', value: patient.gender },
-  { label: 'Age', value: `${patient.age} years` },
   { label: 'Ward', value: patient.wardNo },
   {
     label: 'Admitted',
@@ -64,7 +62,7 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-2">
+        <ul className="space-y-2 text-xs text-sidebar-foreground/80 pt-3"> {/* Increased pt and space-y */}
           {patientDetails.map(
             (detail) =>
               detail.label !== 'Gender' &&
