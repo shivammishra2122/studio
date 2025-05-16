@@ -23,15 +23,12 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-// Image component is not used directly here if logo is an SVG component or removed
-// import Image from 'next/image'; 
-// import { SansysLogo } from '@/components/icons/sansys-logo';
-
+// Removed SansysLogo and Image imports as they are no longer used directly here
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed'; 
+  key: keyof Patient | 'wardAndBed' | 'dob'; 
   label: string;
-  value: string;
+  value: string | undefined;
   icon?: LucideIcon;
 };
 
@@ -42,13 +39,13 @@ const patientDetails: PatientDetailItem[] = [
   {
     key: 'dob',
     label: 'DOB',
-    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+    value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays
   },
   {
     key: 'admissionDate',
     label: 'AD',
-    value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+    value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays,
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
@@ -66,11 +63,11 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarContent className="p-3 space-y-1 flex flex-col"> {/* Reduced space-y and p-4 to p-3 */}
+      <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1"> {/* Changed p-3 to px-3 pt-3 */}
         {/* SidebarHeader removed */}
 
-        <div className="flex flex-col items-center space-y-1"> {/* Reduced space-y-3 to space-y-1 */}
-          <Avatar className="h-20 w-20 mb-1"> {/* Increased size */}
+        <div className="flex flex-col items-center space-y-1"> 
+          <Avatar className="h-20 w-20 mb-1"> 
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>
               <User className="h-10 w-10 text-sidebar-foreground" />
@@ -84,10 +81,10 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2"> {/* Reduced space-y-1.5 and pt-3 */}
+        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2"> 
           {patientDetails.map(
-            (detail) => (
-              <li key={detail.key} className="flex items-start space-x-1.5"> {/* Reduced space-x-2 */}
+            (detail) => detail.value && (
+              <li key={detail.key} className="flex items-start space-x-1.5"> 
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
                   {detail.label && <span className="font-medium">{detail.label}: </span>}
@@ -98,7 +95,7 @@ export function SidebarNav() {
           )}
         </ul>
 
-        <div className="mt-auto flex items-center justify-around p-2 border-t border-sidebar-border">
+        <div className="mt-auto flex items-center justify-around px-2 pt-2 border-t border-sidebar-border"> {/* Changed p-2 to px-2 pt-2 */}
           <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
             <Ban className="h-5 w-5" />
             <span className="sr-only">Ban</span>
