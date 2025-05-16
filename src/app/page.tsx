@@ -29,8 +29,8 @@ const keyIndicators: KeyIndicatorWithTab[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
   { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
   { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' }, // No chart for this yet
-  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' }, // No chart for this yet
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
+  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
 ];
 
 const heartRateMonitorData: Array<{ time: string; hr: number }> = [
@@ -254,7 +254,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         <Card className="lg:col-span-3 shadow-lg h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-40 overflow-y-auto no-scrollbar"> 
+          <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar"> 
             {keyIndicators.map((indicator) => (
               <div 
                 key={indicator.name} 
@@ -457,3 +457,4 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
