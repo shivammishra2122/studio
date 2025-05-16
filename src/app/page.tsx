@@ -22,13 +22,15 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as Dial
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+// Define a type for key indicators that includes a tabValue
+type KeyIndicatorWithTab = HealthMetric & { tabValue: string };
 
-const keyIndicators: HealthMetric[] = [
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet },
-  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity},
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer },
-  { name: 'Weight', value: '70', unit: 'kg', icon: Scale },
+const keyIndicators: KeyIndicatorWithTab[] = [
+  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
+  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
+  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' }, // No chart for this yet
+  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' }, // No chart for this yet
 ];
 
 const heartRateMonitorData: Array<{ time: string; hr: number }> = [
@@ -37,21 +39,31 @@ const heartRateMonitorData: Array<{ time: string; hr: number }> = [
   { time: '6s', hr: 79 }, { time: '7s', hr: 76 },
 ];
 
-const ecgData: Array<{ time: string; value: number }> = [
-  { time: '0s', value: 0.1 }, { time: '0.1s', value: 0.5 }, { time: '0.2s', value: -0.2 },
-  { time: '0.3s', value: 1.0 }, { time: '0.4s', value: -0.3 }, { time: '0.5s', value: 0.2 },
-  { time: '0.6s', value: 0.6 }, { time: '0.7s', value: -0.1 }, { time: '0.8s', value: 1.1 },
+const glucoseData: Array<{ date: string; level: number }> = [
+  { date: 'Mon', level: 95 }, { date: 'Tue', level: 102 }, { date: 'Wed', level: 98 },
+  { date: 'Thu', level: 110 }, { date: 'Fri', level: 105 }, { date: 'Sat', level: 99 },
+  { date: 'Sun', level: 108 },
 ];
 
-const ctScanReadings: Array<{ organ: string; finding: string }> = [
-  { organ: 'Lungs', finding: 'Clear' }, { organ: 'Liver', finding: 'Normal' }, { organ: 'Kidneys', finding: 'Slight calcification' },
+const bloodPressureData: Array<{ date: string; systolic: number; diastolic: number }> = [
+  { date: 'Mon', systolic: 120, diastolic: 80 },
+  { date: 'Tue', systolic: 122, diastolic: 82 },
+  { date: 'Wed', systolic: 118, diastolic: 78 },
+  { date: 'Thu', systolic: 125, diastolic: 85 },
+  { date: 'Fri', systolic: 120, diastolic: 80 },
+  { date: 'Sat', systolic: 123, diastolic: 81 },
+  { date: 'Sun', systolic: 119, diastolic: 79 },
 ];
+
 
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
-const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
+const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
+const bloodPressureChartConfig: ChartConfig = { 
+  systolic: { label: 'Systolic (mmHg)', color: 'hsl(var(--chart-1))' },
+  diastolic: { label: 'Diastolic (mmHg)', color: 'hsl(var(--chart-3))' },
+};
 
 
-// Define which icons to use for which informational card title
 const infoCardIcons: Record<string, LucideIcon> = {
   "Allergies": Ban,
   "Radiology": ScanLine,
@@ -83,6 +95,8 @@ export default function DashboardPage(): JSX.Element {
   const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
   const [editingInfoCardTitle, setEditingInfoCardTitle] = useState<string | null>(null);
   const [newItemInput, setNewItemInput] = useState('');
+
+  const [activeChartTab, setActiveChartTab] = useState<string>('heart-rate');
 
 
   const handleAddProblem = () => {
@@ -187,11 +201,11 @@ export default function DashboardPage(): JSX.Element {
         
         <Card className="lg:col-span-6 shadow-lg h-full">
           <CardContent className="pt-2 px-2 pb-2">
-            <Tabs defaultValue="heart-rate">
-              <TabsList className="grid w-full grid-cols-3 mb-2 h-8">
+            <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-1.5 h-9">
                 <TabsTrigger value="heart-rate" className="text-xs px-2 py-1">Heart Rate</TabsTrigger>
-                <TabsTrigger value="ecg" className="text-xs px-2 py-1">ECG</TabsTrigger>
-                <TabsTrigger value="ct-scan" className="text-xs px-2 py-1">CT Scan</TabsTrigger>
+                <TabsTrigger value="blood-glucose" className="text-xs px-2 py-1">Blood Glucose</TabsTrigger>
+                <TabsTrigger value="blood-pressure" className="text-xs px-2 py-1">Blood Pressure</TabsTrigger>
               </TabsList>
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
@@ -208,33 +222,34 @@ export default function DashboardPage(): JSX.Element {
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="ecg">
+              <TabsContent value="blood-glucose">
                  <Card className="border-0 shadow-none">
                   <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={ecgChartConfig} className="h-[140px] w-full">
-                      <RechartsLineChart data={ecgData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
                         <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                        <Line dataKey="value" type="monotone" stroke="var(--color-value)" strokeWidth={1.5} dot={false} />
+                        <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="ct-scan">
+              <TabsContent value="blood-pressure">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar space-y-0.5">
-                    <ul className="space-y-0.5">
-                      {ctScanReadings.map((reading, index) => (
-                        <li key={index} className="flex justify-between p-1 rounded-md bg-muted/70 text-xs">
-                          <span className="font-medium text-foreground">{reading.organ}:</span>
-                          <span className="text-muted-foreground">{reading.finding}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-1 text-xs text-muted-foreground">Note: Simplified. Consult doctor for details.</p>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={bloodPressureChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+                        <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={1.5} dot={{r: 2}} />
+                        <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} />
+                      </RechartsLineChart>
+                    </ChartContainer>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -245,7 +260,14 @@ export default function DashboardPage(): JSX.Element {
         <Card className="lg:col-span-3 shadow-lg h-full">
           <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> 
             {keyIndicators.map((indicator) => (
-              <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
+              <div 
+                key={indicator.name} 
+                className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
+                onClick={() => setActiveChartTab(indicator.tabValue)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveChartTab(indicator.tabValue);}}
+              >
                 <div className="flex items-center">
                   {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
                   <span className="text-xs font-medium text-foreground">{indicator.name}</span>
@@ -439,5 +461,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
-    
