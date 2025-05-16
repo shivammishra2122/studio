@@ -23,7 +23,7 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "14rem" // Reduced from 15rem
+const SIDEBAR_WIDTH = "12rem"; // Reduced from 13rem
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
@@ -259,11 +259,10 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button> & { asChild?: boolean } // Ensure asChild is part of props
->(({ className, onClick, asChild = false, ...props }, ref) => {
+  React.ComponentProps<typeof Button> & { asChild?: boolean }
+>(({ className, onClick, asChild = false, children: propChildren, ...props }, ref) => {
   const { toggleSidebar } = useSidebar();
 
-  // If asChild is true, Slot will handle rendering, otherwise Button.
   const Comp = asChild ? Slot : Button;
 
   return (
@@ -277,15 +276,14 @@ const SidebarTrigger = React.forwardRef<
         onClick?.(event);
         toggleSidebar();
       }}
-      {...props} // Spread remaining props
+      {...props}
     >
-      {!asChild && ( // Only render default content if not asChild
+      {asChild ? propChildren : (
         <>
           <PanelLeft />
           <span className="sr-only">Toggle Sidebar</span>
         </>
       )}
-      {asChild && props.children} 
     </Comp>
   );
 });
@@ -767,4 +765,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
