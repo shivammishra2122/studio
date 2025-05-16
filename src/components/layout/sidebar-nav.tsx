@@ -26,24 +26,24 @@ const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   { 
     key: 'dob', 
-    label: 'DOB', 
+    label: 'DOB', // Only DOB will show its label
     value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }), 
     icon: CalendarDays 
   },
-  { key: 'ward', label: 'Ward', value: patient.wardNo, icon: BedDouble },
+  { key: 'ward', label: '', value: patient.wardNo, icon: BedDouble },
   { key: 'bed', label: '', value: patient.bedDetails, icon: BedDouble },
   {
     key: 'admitted',
-    label: 'Admitted',
+    label: '',
     value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays,
   },
-  { key: 'stay', label: 'Stay', value: patient.lengthOfStay, icon: Clock },
-  { key: 'consultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
-  { key: 'provider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
-  { key: 'diagnosis', label: 'Final Diagnosis', value: patient.finalDiagnosis, icon: FileText },
-  { key: 'posting', label: 'Posting', value: patient.posting, icon: BriefcaseMedical },
-  { key: 'reason', label: 'Reason for Visit', value: patient.reasonForVisit, icon: FileQuestion },
+  { key: 'stay', label: '', value: patient.lengthOfStay, icon: Clock },
+  { key: 'consultant', label: '', value: patient.primaryConsultant, icon: User },
+  { key: 'provider', label: '', value: patient.encounterProvider, icon: Hospital },
+  { key: 'diagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
+  { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical },
+  { key: 'reason', label: '', value: patient.reasonForVisit, icon: FileQuestion },
 ];
 
 export function SidebarNav() {
