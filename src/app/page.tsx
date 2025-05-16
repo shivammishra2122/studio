@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -13,15 +12,14 @@ import {
 } from 'lucide-react'; 
 import type { HealthMetric, Problem, Medication, LucideIcon } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const keyIndicators: HealthMetric[] = [
@@ -71,7 +69,6 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Clinical notes": FileText, 
   "Report": FileText, 
 };
-
 
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
@@ -303,10 +300,10 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
 
-      {/* Second Row: Allergies (20%), Medications History (40%), Report (20%), Radiology (20%) */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-2">
+      {/* Second Row: Allergies (20%), Medications History (30%), Report (30%), Radiology (20%) */}
+      <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
         {/* Allergies Card */}
-        <Card className="md:col-span-1 shadow-lg">
+        <Card className="md:col-span-2 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <Ban className="h-4 w-4 text-primary" />
@@ -341,7 +338,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
         
         {/* Medications History Card */}
-        <Card className="md:col-span-2 shadow-lg">
+        <Card className="md:col-span-3 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
@@ -391,7 +388,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         {/* Report Card */}
-        <Card className="md:col-span-1 shadow-lg">
+        <Card className="md:col-span-3 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <FileText className="h-4 w-4 text-primary" />
@@ -430,7 +427,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         {/* Radiology Card */}
-        <Card className="md:col-span-1 shadow-lg">
+        <Card className="md:col-span-2 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <ScanLine className="h-4 w-4 text-primary" />
@@ -544,4 +541,6 @@ export default function DashboardPage(): JSX.Element {
 }
 
     
+
+
 
