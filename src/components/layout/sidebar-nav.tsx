@@ -18,16 +18,18 @@ import {
   FileText,
   BriefcaseMedical,
   FileQuestion,
-  User, // Keep User if other parts of sidebar might use it, or remove if truly unused.
+  User, 
   Ban,
   Edit3,
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image'; // Ensure Image is imported
+import Image from 'next/image'; 
+import { SansysLogo } from '@/components/icons/sansys-logo';
+
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed'; // Include 'wardAndBed' for the combined field
+  key: keyof Patient | 'wardAndBed'; 
   label: string;
   value: string;
   icon?: LucideIcon;
@@ -64,27 +66,13 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarContent className="p-3 space-y-2 flex flex-col"> {/* Reduced space-y */}
-        <SidebarHeader className="mb-2 flex justify-center items-center">
-          {/*
-            Image logo from the `public` directory.
-            1. ENSURE your logo file is named EXACTLY 'sansys-logo-image.png' (case-sensitive)
-               and is located directly in the 'public' folder.
-            2. If you've just added the 'public' folder or the image, RESTART your Next.js dev server.
-          */}
-          <Image
-            src="/sansys-logo-image.png" // Critical: Must match the filename in public/ exactly (including case for extension)
-            alt="Sansys Informatics Logo"
-            width={150}
-            height={75}
-            className="object-contain"
-            priority
-            style={{ border: '1px solid red' }} // Temporary debug border
-          />
+      <SidebarContent className="p-3 space-y-2 flex flex-col">
+        <SidebarHeader className="flex justify-center items-center"> {/* Removed mb-2 */}
+          <SansysLogo />
         </SidebarHeader>
 
         <div className="flex flex-col items-center space-y-1">
-          <Avatar className="h-20 w-20 mb-1"> {/* Increased Avatar size */}
+          <Avatar className="h-20 w-20 mb-1">
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -96,10 +84,10 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2"> {/* Reduced pt and space-y */}
+        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2">
           {patientDetails.map(
             (detail) => (
-              <li key={detail.key} className="flex items-start space-x-1.5"> {/* Reduced space-x */}
+              <li key={detail.key} className="flex items-start space-x-1.5">
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
                   {detail.label && <span className="font-medium">{detail.label}: </span>}
@@ -128,4 +116,3 @@ export function SidebarNav() {
     </>
   );
 }
-
