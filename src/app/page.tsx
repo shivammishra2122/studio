@@ -254,7 +254,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         <Card className="lg:col-span-3 shadow-lg h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> 
+          <CardContent className="space-y-1.5 p-2 max-h-40 overflow-y-auto no-scrollbar"> 
             {keyIndicators.map((indicator) => (
               <div 
                 key={indicator.name} 
