@@ -36,13 +36,13 @@ body {
     --chart-5: 30 80% 55%; /* Orangeish */
 
     /* Sidebar theme based on image (darker) */
-    --sidebar-background: 220 15% 25%; /* Dark grayish blue */
-    --sidebar-foreground: 0 0% 95%; /* Light grey/white text */
+    --sidebar-background: 177 100% 36%; /* New Teal from #00b5ad */
+    --sidebar-foreground: 0 0% 95%; /* Light grey/white text (Good contrast with new teal) */
     --sidebar-primary: 180 100% 35%; /* Brighter Teal for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White for text on active items */
     --sidebar-accent: 190 50% 40%; /* Slightly lighter dark blue for hover */
     --sidebar-accent-foreground: 0 0% 98%; /* Light text on hover */
-    --sidebar-border: 220 15% 20%; /* Darker border for sidebar */
+    --sidebar-border: 177 100% 30%; /* Darker shade of new teal for sidebar border */
     --sidebar-ring: 180 100% 35%; /* Teal */
     
     /* Specific for active sidebar menu item background from image */
@@ -78,13 +78,13 @@ body {
     --chart-5: 30 80% 65%;
 
     /* Dark mode sidebar, ensure it contrasts with main dark theme */
-    --sidebar-background: 220 20% 18%; /* Darker base for sidebar in dark mode */
+    --sidebar-background: 177 100% 20%; /* Darker variant of new Teal for dark mode */
     --sidebar-foreground: 0 0% 90%; /* Light text */
     --sidebar-primary: 180 100% 40%; /* Brighter Teal */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 190 50% 35%; /* Darker Light Blue for hover */
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 20% 23%;
+    --sidebar-border: 177 100% 15%; /* Even darker shade of new teal for dark mode border */
     --sidebar-ring: 180 100% 40%;
 
     --sidebar-menu-item-active-background: 190 70% 60%; 
