@@ -4,6 +4,7 @@
 import type { Patient } from '@/lib/constants';
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AppLogo } from '@/components/icons/app-logo';
 import {
   SidebarContent,
   SidebarFooter,
@@ -11,18 +12,18 @@ import {
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import { 
-  BedDouble, CalendarDays, Clock, Phone, User, Hospital as HospitalIcon, FileText, BriefcaseMedical, FileQuestion 
+  BedDouble, CalendarDays, Clock, Phone, User, Hospital, FileText, BriefcaseMedical, FileQuestion, LayoutGrid 
 } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  label: string; // Still useful for key and for associating data
+  label: string; 
   value: string;
   icon?: LucideIcon;
 };
 
-// Ensure all necessary fields are present in MOCK_PATIENT in constants.ts
+// Define patient details with optional icons
 const patientDetails: PatientDetailItem[] = [
   { label: 'Ward', value: patient.wardNo, icon: BedDouble },
   {
@@ -46,7 +47,7 @@ const patientDetails: PatientDetailItem[] = [
     icon: CalendarDays,
   },
   { label: 'Consultant', value: patient.primaryConsultant, icon: User },
-  { label: 'Provider', value: patient.encounterProvider, icon: HospitalIcon },
+  { label: 'Provider', value: patient.encounterProvider, icon: Hospital },
   { label: 'Final Diagnosis', value: patient.finalDiagnosis, icon: FileText },
   { label: 'Posting', value: patient.posting, icon: BriefcaseMedical },
   { label: 'Reason for Visit', value: patient.reasonForVisit, icon: FileQuestion },
@@ -58,7 +59,10 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader className="p-3 border-b border-sidebar-border">
-        {/* Logo and title removed */}
+        <div className="flex items-center space-x-2">
+          <AppLogo className="h-7 w-7 text-sidebar-primary-foreground" />
+          <h1 className="text-lg font-semibold text-sidebar-primary-foreground">HealthView</h1>
+        </div>
       </SidebarHeader>
 
       <SidebarContent className="p-3 space-y-3">
@@ -75,14 +79,14 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-3">
+        <ul className="space-y-1.5 text-xs text-sidebar-foreground/80 pt-3"> {/* Increased space-y and pt */}
           {patientDetails.map(
             (detail) =>
-              detail.label !== 'Gender' && // These are already shown above
+              detail.label !== 'Gender' && 
               detail.label !== 'Age' && (
                 <li key={detail.label} className="flex items-center space-x-1.5">
-                  {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-accent shrink-0" />}
-                  <span className="flex-1">{detail.value}</span>
+                  {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0" />} {/* Changed icon color */}
+                  <span className="flex-1 font-semibold">{detail.value}</span>
                 </li>
               )
           )}
@@ -91,8 +95,8 @@ export function SidebarNav() {
 
       <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8 bg-red-500"> 
-            <AvatarFallback className="text-white text-sm font-semibold">
+          <Avatar className="h-8 w-8 bg-sidebar-accent"> 
+            <AvatarFallback className="text-sm font-semibold text-sidebar-primary-foreground"> {/* Changed text color */}
               N 
             </AvatarFallback>
           </Avatar>
