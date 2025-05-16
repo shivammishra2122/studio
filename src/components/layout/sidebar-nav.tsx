@@ -34,8 +34,8 @@ const patientDetails = [
       year: 'numeric',
     }),
   },
-  { label: 'Consultant', value: patient.primaryConsultant }, // Renamed
-  { label: 'Provider', value: patient.encounterProvider }, // Renamed
+  { label: 'Consultant', value: patient.primaryConsultant },
+  { label: 'Provider', value: patient.encounterProvider },
   { label: 'Final Diagnosis', value: patient.finalDiagnosis },
   { label: 'Posting', value: patient.posting },
   { label: 'Reason for Visit', value: patient.reasonForVisit },
@@ -46,13 +46,13 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarHeader className="p-4 border-b border-sidebar-border">
+      <SidebarHeader className="p-3 border-b border-sidebar-border">
         {/* Logo and title removed as per user request */}
       </SidebarHeader>
 
-      <SidebarContent className="p-4 space-y-3">
+      <SidebarContent className="p-3 space-y-3">
         <div className="flex flex-col items-center space-y-1">
-          <Avatar className="h-16 w-16 mb-2">
+          <Avatar className="h-14 w-14 mb-2">
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -70,19 +70,19 @@ export function SidebarNav() {
               detail.label !== 'Gender' &&
               detail.label !== 'Age' && (
                 <li key={detail.label} className="flex items-start">
-                  <span className="font-medium w-28 shrink-0">{detail.label}:</span>
-                  <span className="flex-1">{detail.value}</span> {/* Removed truncate, allows wrapping */}
+                  <span className="font-medium w-24 shrink-0">{detail.label}:</span>
+                  <span className="flex-1">{detail.value}</span>
                 </li>
               )
           )}
         </ul>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
+      <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8 bg-red-500">
+          <Avatar className="h-8 w-8 bg-red-500"> {/* Example, replace with actual if needed */}
             <AvatarFallback className="text-white text-sm font-semibold">
-              N
+              N 
             </AvatarFallback>
           </Avatar>
         </div>

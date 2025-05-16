@@ -23,7 +23,7 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH = "14rem" // Reduced from 15rem
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
@@ -87,14 +87,14 @@ const SidebarProvider = React.forwardRef<
 
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${newOpenState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
-      [setOpenProp, open] // Removed isMobile from dependencies
+      [setOpenProp, open] 
     );
 
     const toggleSidebar = React.useCallback(() => {
       if (isMobile) {
         setOpenMobile((currentOpenMobile) => !currentOpenMobile);
       } else {
-        setOpen((currentOpen) => !currentOpen); // This will now toggle on desktop
+        setOpen((currentOpen) => !currentOpen); 
       }
     }, [isMobile, setOpen, setOpenMobile]);
 
@@ -259,28 +259,36 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  React.ComponentProps<typeof Button> & { asChild?: boolean } // Ensure asChild is part of props
+>(({ className, onClick, asChild = false, ...props }, ref) => {
+  const { toggleSidebar } = useSidebar();
+
+  // If asChild is true, Slot will handle rendering, otherwise Button.
+  const Comp = asChild ? Slot : Button;
 
   return (
-    <Button
+    <Comp
       ref={ref}
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
+        onClick?.(event);
+        toggleSidebar();
       }}
-      {...props}
+      {...props} // Spread remaining props
     >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
-  )
-})
+      {!asChild && ( // Only render default content if not asChild
+        <>
+          <PanelLeft />
+          <span className="sr-only">Toggle Sidebar</span>
+        </>
+      )}
+      {asChild && props.children} 
+    </Comp>
+  );
+});
 SidebarTrigger.displayName = "SidebarTrigger"
 
 const SidebarRail = React.forwardRef<
