@@ -4,50 +4,46 @@
 import type { Patient } from '@/lib/constants';
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AppLogo } from '@/components/icons/app-logo';
 import {
   SidebarContent,
 } from '@/components/ui/sidebar';
-import type { LucideIcon } from 'lucide-react'; 
+import type { LucideIcon } from 'lucide-react';
 import { 
-  BedDouble, CalendarDays, Clock, Phone, User, Hospital, FileText, BriefcaseMedical, FileQuestion, LayoutGrid 
+  Phone, CalendarDays, BedDouble, Clock, User, Hospital, FileText, BriefcaseMedical, FileQuestion
 } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
+  key: string;
   label: string; 
   value: string;
   icon?: LucideIcon;
 };
 
+// Updated order and label visibility
 const patientDetails: PatientDetailItem[] = [
-  { label: 'Ward', value: patient.wardNo, icon: BedDouble },
+  { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
+  { 
+    key: 'dob', 
+    label: 'DOB', 
+    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }), 
+    icon: CalendarDays 
+  },
+  { key: 'ward', label: 'Ward', value: patient.wardNo, icon: BedDouble },
+  { key: 'bed', label: '', value: patient.bedDetails, icon: BedDouble },
   {
+    key: 'admitted',
     label: 'Admitted',
-    value: new Date(patient.admissionDate).toLocaleDateString('en-US', {
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric',
-    }),
+    value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays,
   },
-  { label: 'Stay', value: patient.lengthOfStay, icon: Clock },
-  { label: 'Mobile', value: patient.mobile, icon: Phone },
-  {
-    label: 'DOB',
-    value: new Date(patient.dob).toLocaleDateString('en-US', {
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric',
-    }),
-    icon: CalendarDays,
-  },
-  { label: 'Consultant', value: patient.primaryConsultant, icon: User },
-  { label: 'Provider', value: patient.encounterProvider, icon: Hospital },
-  { label: 'Final Diagnosis', value: patient.finalDiagnosis, icon: FileText },
-  { label: 'Posting', value: patient.posting, icon: BriefcaseMedical },
-  { label: 'Reason for Visit', value: patient.reasonForVisit, icon: FileQuestion },
+  { key: 'stay', label: 'Stay', value: patient.lengthOfStay, icon: Clock },
+  { key: 'consultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
+  { key: 'provider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
+  { key: 'diagnosis', label: 'Final Diagnosis', value: patient.finalDiagnosis, icon: FileText },
+  { key: 'posting', label: 'Posting', value: patient.posting, icon: BriefcaseMedical },
+  { key: 'reason', label: 'Reason for Visit', value: patient.reasonForVisit, icon: FileQuestion },
 ];
 
 export function SidebarNav() {
@@ -55,11 +51,9 @@ export function SidebarNav() {
 
   return (
     <>
-      {/* SidebarHeader removed */}
-
       <SidebarContent className="p-3 space-y-3">
-        <div className="flex flex-col items-center space-y-1">
-          <Avatar className="h-14 w-14 mb-2">
+        <div className="flex flex-col items-center space-y-1"> {/* Centering for avatar, name, gender/age */}
+          <Avatar className="h-14 w-14 mb-1">
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -73,20 +67,18 @@ export function SidebarNav() {
 
         <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-3">
           {patientDetails.map(
-            (detail) =>
-              detail.label !== 'Gender' && 
-              detail.label !== 'Age' && (
-                <li key={detail.label} className="flex items-center space-x-1.5">
-                  {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0" />}
-                  <span className="flex-1 font-normal">{detail.value}</span> {/* Changed from font-semibold */}
-                </li>
-              )
+            (detail) => (
+              <li key={detail.key} className="flex items-start space-x-1.5">
+                {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
+                <div className="flex-1">
+                  {detail.label && <span className="font-medium">{detail.label}: </span>}
+                  <span className="font-normal">{detail.value}</span>
+                </div>
+              </li>
+            )
           )}
         </ul>
       </SidebarContent>
-
-      {/* SidebarFooter removed */}
     </>
   );
 }
-
