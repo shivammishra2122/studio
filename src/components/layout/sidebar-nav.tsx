@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Patient } from '@/lib/constants';
@@ -8,18 +9,27 @@ import {
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
-  Phone, CalendarDays, BedDouble, Clock, User, Hospital, FileText, BriefcaseMedical, FileQuestion
+  User, // Added User icon
+  Phone, 
+  CalendarDays, 
+  BedDouble, 
+  Clock, 
+  Hospital, 
+  FileText, 
+  BriefcaseMedical, 
+  FileQuestion
 } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  key: string;
+  key: keyof Patient | 'wardAndBed'; // Updated to be more specific
   label: string;
   value: string;
   icon?: LucideIcon;
 };
 
+// Filtered out details no longer explicitly shown as a list, but kept for potential future use or if MOCK_PATIENT structure is relied upon elsewhere.
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
@@ -30,18 +40,19 @@ const patientDetails: PatientDetailItem[] = [
   },
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
-    key: 'admitted',
+    key: 'admissionDate',
     label: '',
     value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays,
   },
-  { key: 'stay', label: '', value: patient.lengthOfStay, icon: Clock },
-  { key: 'consultant', label: '', value: patient.primaryConsultant, icon: User },
-  { key: 'provider', label: '', value: patient.encounterProvider, icon: Hospital },
-  { key: 'diagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
-  { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical },
-  { key: 'reason', label: '', value: patient.reasonForVisit, icon: FileQuestion },
+  { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
+  { key: 'primaryConsultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
+  { key: 'encounterProvider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
+  { key: 'finalDiagnosis', label: 'Diagnosis', value: patient.finalDiagnosis, icon: FileText },
+  { key: 'posting', label: 'Posting', value: patient.posting, icon: BriefcaseMedical },
+  { key: 'reasonForVisit', label: 'Reason', value: patient.reasonForVisit, icon: FileQuestion },
 ];
+
 
 export function SidebarNav() {
   const genderInitial = patient.gender ? patient.gender.charAt(0).toUpperCase() : '';
@@ -54,8 +65,10 @@ export function SidebarNav() {
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col text-center">
+          <div className="flex items-center space-x-1.5 text-center"> {/* Changed to flex row */}
+            <User className="h-4 w-4 text-sidebar-foreground" /> {/* Added User icon */}
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
+            <span className="text-sidebar-foreground">/</span> {/* Separator */}
             <p className="text-xs text-sidebar-foreground">
               {genderInitial} {patient.age}
             </p>
