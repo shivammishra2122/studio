@@ -10,7 +10,7 @@ import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } fro
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Plus, Clock, Pill as PillIcon,
   FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
-} from 'lucide-react';
+} from 'lucide-react'; // Added Trash2 back for delete functionality
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
 
@@ -73,8 +73,11 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Report": FileText, 
 };
 
+// These titles are for the cards explicitly placed in the second row.
+// "Medications History" is also in the second row but handled separately.
 const secondRowInformationalCardTitles: string[] = [
   "Allergies",
+  // "Medications History" - handled explicitly
   "Report",
   "Radiology",
 ];
@@ -117,6 +120,9 @@ export default function DashboardPage(): JSX.Element {
     setIsAddProblemDialogOpen(false);
   };
 
+  const handleDeleteProblem = (idToDelete: string) => {
+    setProblems(prev => prev.filter(problem => problem.id !== idToDelete));
+  };
 
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
@@ -133,6 +139,9 @@ export default function DashboardPage(): JSX.Element {
     setIsAddMedicationDialogOpen(false);
   };
 
+  const handleDeleteMedication = (idToDelete: string) => {
+    setMedications(prev => prev.filter(med => med.id !== idToDelete));
+  };
 
   const handleOpenAddItemDialog = (title: string) => {
     setEditingInfoCardTitle(title);
@@ -151,14 +160,20 @@ export default function DashboardPage(): JSX.Element {
     setEditingInfoCardTitle(null);
   };
   
+  const handleDeleteInfoItem = (cardTitle: string, itemIndex: number) => {
+    setDynamicPageCardSampleContent(prev => {
+      const currentItems = prev[cardTitle] || [];
+      const newItems = currentItems.filter((_, index) => index !== itemIndex);
+      return { ...prev, [cardTitle]: newItems };
+    });
+  };
+
   const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
     setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
     
     let contentToShow = itemText;
     if (titlePrefix === "Radiology Detail" && itemText === "Chest X-Ray: Clear") {
       contentToShow = `Normal lung expansion without fluid or masses.\nHeart size within normal limits.\nClear airways and no structural abnormalities in the bones or diaphragm.`;
-    } else if (titlePrefix === "Report Detail") { 
-        // Add logic here if specific report items need different detailed content
     }
     
     setDetailViewContent(contentToShow);
@@ -209,6 +224,12 @@ export default function DashboardPage(): JSX.Element {
                     <TableRow key={problem.id}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{problem.description}</div>
+                      </TableCell>
+                      <TableCell className="text-right px-1 py-1">
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteProblem(problem.id)}>
+                          <Trash2 className="h-3 w-3" />
+                          <span className="sr-only">Delete problem</span>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -292,10 +313,10 @@ export default function DashboardPage(): JSX.Element {
               <div 
                 key={indicator.name} 
                 className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
-                onClick={() => setActiveChartTab(indicator.tabValue)}
+                onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveChartTab(indicator.tabValue);}}
+                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
               >
                 <div className="flex items-center">
                   {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
@@ -311,50 +332,47 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
 
-      {/* Second Row: Allergies ,medical history ,report, radiology  */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
-        {secondRowInformationalCardTitles.map((title) => {
-          const IconComponent = infoCardIcons[title] || FileText; 
-          const items = dynamicPageCardSampleContent[title] || [];
-          return (
-            <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-                <div className="flex items-center space-x-1.5">
-                  <IconComponent className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-base">{title}</CardTitle>
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
-                </div>
-                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                    <Plus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Add to {title}</span>
-                  </Button>
-              </ShadcnCardHeader>
-              <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
-                <Table>
-                  <TableBody>
-                    {items.map((item, index) => (
-                       <TableRow 
-                        key={index} 
-                        onClick={() => (title === "Report" || title === "Radiology") && handleShowItemDetailInChartArea(title === "Report" ? "Report Detail" : "Radiology Detail", item)}
-                        className={(title === "Report" || title === "Radiology") ? "cursor-pointer hover:bg-muted/50" : ""}
-                      >
-                        <TableCell className="px-2 py-1">
-                          <div className="font-medium text-xs">{item}</div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {items.length === 0 && (
-                  <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+      {/* Second Row: Allergies (20%), Medications History (40%), Report (20%), Radiology (20%) */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-2">
+        {/* Allergies Card */}
+        <Card className="md:col-span-1 shadow-lg">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+            <div className="flex items-center space-x-1.5">
+              <Ban className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Allergies</CardTitle>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Allergies"]?.length || 0}</Badge>
+            </div>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
+              <Plus className="h-3.5 w-3.5" />
+              <span className="sr-only">Add Allergy</span>
+            </Button>
+          </ShadcnCardHeader>
+          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+            <Table>
+              <TableBody>
+                {(dynamicPageCardSampleContent["Allergies"] || []).map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{item}</div>
+                    </TableCell>
+                    <TableCell className="text-right px-1 py-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Allergies", index)}>
+                        <Trash2 className="h-3 w-3" />
+                        <span className="sr-only">Delete item</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {(dynamicPageCardSampleContent["Allergies"] || []).length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+            )}
+          </CardContent>
+        </Card>
         
         {/* Medications History Card */}
-        <Card className="shadow-lg">
+        <Card className="md:col-span-2 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
@@ -393,12 +411,100 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
                     </TableCell>
+                     <TableCell className="text-right px-1 py-1">
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteMedication(med.id)}>
+                          <Trash2 className="h-3 w-3" />
+                          <span className="sr-only">Delete medication</span>
+                        </Button>
+                      </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
             {medications.length === 0 && (
               <p className="py-4 text-center text-xs text-muted-foreground">No medications listed.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Report Card */}
+        <Card className="md:col-span-1 shadow-lg">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+            <div className="flex items-center space-x-1.5">
+              <FileText className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Report</CardTitle>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Report"]?.length || 0}</Badge>
+            </div>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
+              <Plus className="h-3.5 w-3.5" />
+              <span className="sr-only">Add Report Item</span>
+            </Button>
+          </ShadcnCardHeader>
+          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+            <Table>
+              <TableBody>
+                {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
+                  <TableRow 
+                    key={index} 
+                    onClick={() => handleShowItemDetailInChartArea("Report Detail", item)}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{item}</div>
+                    </TableCell>
+                    <TableCell className="text-right px-1 py-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleDeleteInfoItem("Report", index);}}>
+                        <Trash2 className="h-3 w-3" />
+                        <span className="sr-only">Delete item</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Radiology Card */}
+        <Card className="md:col-span-1 shadow-lg">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+            <div className="flex items-center space-x-1.5">
+              <ScanLine className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Radiology</CardTitle>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Radiology"]?.length || 0}</Badge>
+            </div>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
+              <Plus className="h-3.5 w-3.5" />
+              <span className="sr-only">Add Radiology Item</span>
+            </Button>
+          </ShadcnCardHeader>
+          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+            <Table>
+              <TableBody>
+                {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
+                  <TableRow 
+                    key={index} 
+                    onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{item}</div>
+                    </TableCell>
+                    <TableCell className="text-right px-1 py-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleDeleteInfoItem("Radiology", index);}}>
+                        <Trash2 className="h-3 w-3" />
+                        <span className="sr-only">Delete item</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {(dynamicPageCardSampleContent["Radiology"] || []).length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
             )}
           </CardContent>
         </Card>
@@ -430,6 +536,12 @@ export default function DashboardPage(): JSX.Element {
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
                         </TableCell>
+                         <TableCell className="text-right px-1 py-1">
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem(title, index)}>
+                              <Trash2 className="h-3 w-3" />
+                              <span className="sr-only">Delete item</span>
+                            </Button>
+                          </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -473,4 +585,3 @@ export default function DashboardPage(): JSX.Element {
 }
 
     
-
