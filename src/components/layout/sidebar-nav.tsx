@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
-  User, // Added User icon
   Phone, 
   CalendarDays, 
   BedDouble, 
@@ -17,19 +16,19 @@ import {
   Hospital, 
   FileText, 
   BriefcaseMedical, 
-  FileQuestion
+  FileQuestion,
+  User // Added User icon import
 } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed'; // Updated to be more specific
+  key: keyof Patient | 'wardAndBed'; // wardAndBed is a composite key
   label: string;
   value: string;
   icon?: LucideIcon;
 };
 
-// Filtered out details no longer explicitly shown as a list, but kept for potential future use or if MOCK_PATIENT structure is relied upon elsewhere.
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
@@ -65,10 +64,9 @@ export function SidebarNav() {
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex items-center space-x-1.5 text-center"> {/* Changed to flex row */}
-            <User className="h-4 w-4 text-sidebar-foreground" /> {/* Added User icon */}
+          <div className="flex items-center text-center"> 
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
-            <span className="text-sidebar-foreground">/</span> {/* Separator */}
+            <span className="text-sidebar-foreground mx-1">/</span> {/* Separator */}
             <p className="text-xs text-sidebar-foreground">
               {genderInitial} {patient.age}
             </p>
@@ -93,3 +91,4 @@ export function SidebarNav() {
     </>
   );
 }
+
