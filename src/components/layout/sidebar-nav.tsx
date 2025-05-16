@@ -6,6 +6,7 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
+  SidebarHeader, // Added SidebarHeader import
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -13,17 +14,17 @@ import {
   CalendarDays,
   BedDouble,
   Clock,
+  User,
   Hospital,
   FileText,
   BriefcaseMedical,
   FileQuestion,
-  User, 
   Ban,
   Edit3,
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
+import { SansysLogo } from '@/components/icons/sansys-logo'; // Import the logo
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -56,8 +57,10 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1"> {/* Changed p-3 to px-3 pt-3 */}
-        {/* SidebarHeader removed */}
+      <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
+        <SidebarHeader className="flex justify-center items-center mb-3"> {/* Added SidebarHeader */}
+          <SansysLogo className="h-16 w-auto" /> {/* Added the logo */}
+        </SidebarHeader>
 
         <div className="flex flex-col items-center space-y-1"> 
           <Avatar className="h-20 w-20 mb-1"> 
@@ -73,7 +76,7 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-2"> {/* Adjusted spacing */}
+        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-2">
           {patientDetails.map(
             (detail) => detail.value && (
               <li key={detail.key} className="flex items-start space-x-1.5"> 
@@ -87,7 +90,7 @@ export function SidebarNav() {
           )}
         </ul>
 
-        <div className="mt-auto flex items-center justify-around px-2 pt-2 border-t border-sidebar-border"> {/* Changed p-2 to px-2 pt-2 */}
+        <div className="mt-auto flex items-center justify-around px-2 pt-2 border-t border-sidebar-border">
           <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
             <Ban className="h-5 w-5" />
             <span className="sr-only">Ban</span>
