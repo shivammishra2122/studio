@@ -10,13 +10,13 @@ import {
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
-  Phone, 
-  CalendarDays, 
-  BedDouble, 
-  Clock, 
-  Hospital, 
-  FileText, 
-  BriefcaseMedical, 
+  Phone,
+  CalendarDays,
+  BedDouble,
+  Clock,
+  Hospital,
+  FileText,
+  BriefcaseMedical,
   FileQuestion,
   User,
   Ban,
@@ -29,7 +29,7 @@ import Image from 'next/image';
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed'; 
+  key: keyof Patient | 'wardAndBed';
   label: string;
   value: string;
   icon?: LucideIcon;
@@ -39,14 +39,14 @@ const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
-    label: 'DOB', 
+    label: 'DOB',
     value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays
   },
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admissionDate',
-    label: 'AD', 
+    label: 'AD',
     value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
     icon: CalendarDays,
   },
@@ -66,17 +66,18 @@ export function SidebarNav() {
     <>
       <SidebarContent className="p-3 space-y-3 flex flex-col">
         <SidebarHeader className="mb-2 flex justify-center items-center">
-          {/* 
+          {/*
             Image logo from the `public` directory.
             Ensure your logo file (e.g., sansys-logo-image.png) is in the `public` folder.
             Adjust src, width, height, and alt props below if your filename or dimensions differ.
           */}
-          <Image 
-            src="/sansys-logo-image.png" 
+          <Image
+            src="/sansys-logo-image.png"
             alt="Sansys Informatics Logo"
-            width={150} 
-            height={75}  
+            width={150}
+            height={75}
             className="object-contain"
+            priority
           />
         </SidebarHeader>
 
@@ -85,7 +86,7 @@ export function SidebarNav() {
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="text-center"> 
+          <div className="text-center">
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
             <p className="text-xs text-sidebar-foreground">
               {genderInitial} {patient.age}
@@ -106,7 +107,7 @@ export function SidebarNav() {
             )
           )}
         </ul>
-        
+
         <div className="mt-auto flex items-center justify-around p-2 border-t border-sidebar-border">
           <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
             <Ban className="h-5 w-5" />
