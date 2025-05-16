@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -6,13 +5,12 @@ import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle, CardDescr
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import type { ChartConfig } from '@/components/ui/chart';
+import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, Trash2,
-  FileText, Ban, ScanLine, ClipboardList, BellRing
+  FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import type { HealthMetric, Medication, Problem } from '@/lib/constants'; 
 import { MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; 
 
@@ -52,6 +50,14 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
+// "Allergies", "Radiology" are explicitly placed.
+// The remaining are for the bottom row loop.
+const informationalCardTitles: string[] = [
+  "Clinical notes",
+  "Encounter notes",
+  "Report",
+  "Clinical reminder"
+];
 
 const infoCardIcons: Record<string, LucideIcon> = {
   "Allergies": Ban,
@@ -61,13 +67,6 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Clinical notes": FileText, 
   "Report": FileText, 
 };
-
-// "Report", "Allergies", "Clinical notes" are handled explicitly.
-const informationalCardTitles: string[] = [
-  "Radiology",
-  "Encounter notes",
-  "Clinical reminder"
-];
 
 
 export default function DashboardPage(): JSX.Element {
@@ -136,7 +135,7 @@ export default function DashboardPage(): JSX.Element {
   return (
     <div className="flex flex-1 flex-col p-3 bg-background">
       
-      {/* Row 1: Problem, Charts, Report Info */}
+      {/* Top Row: Problem, Charts, Vitals */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
         <Card className="lg:col-span-3 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -244,39 +243,27 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3 shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-              <div className="flex items-center space-x-1.5">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-base">Report</CardTitle>
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
+        <Card className="shadow-lg lg:col-span-3 h-full">
+          <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> 
+            {keyIndicators.map((indicator) => (
+              <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
+                <div className="flex items-center">
+                  {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
+                  <span className="text-xs font-medium text-foreground">{indicator.name}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
+                  <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
+                  {indicator.date && <span className="block text-[10px] text-muted-foreground/80">{indicator.date}</span>}
+                </div>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Report</span>
-              </Button>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
-              <Table>
-                <TableBody>
-                  {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="px-2 py-1">
-                        <div className="font-medium text-xs">{item}</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No report items.</p>
-              )}
-            </CardContent>
+            ))}
+          </CardContent>
         </Card>
       </div>
 
-      {/* Row 2: Allergies, Medications History, Clinical Notes, Vitals */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
+      {/* Second Row: Allergies, Medications History, Radiology */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
@@ -359,19 +346,19 @@ export default function DashboardPage(): JSX.Element {
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Clinical notes</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Clinical notes"] || []).length}</Badge>
+                <ScanLine className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Radiology</CardTitle>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
               </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Clinical notes")}>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
                 <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Clinical Note</span>
+                <span className="sr-only">Edit Radiology</span>
               </Button>
             </ShadcnCardHeader>
             <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
               <Table>
                 <TableBody>
-                  {(dynamicPageCardSampleContent["Clinical notes"] || []).map((item, index) => (
+                  {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
                     <TableRow key={index}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
@@ -380,33 +367,15 @@ export default function DashboardPage(): JSX.Element {
                   ))}
                 </TableBody>
               </Table>
-              {(dynamicPageCardSampleContent["Clinical notes"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No clinical notes.</p>
+              {(dynamicPageCardSampleContent["Radiology"] || []).length === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">No radiology items.</p>
               )}
             </CardContent>
         </Card>
-
-        <Card className="shadow-lg h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> 
-            {keyIndicators.map((indicator) => (
-              <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
-                <div className="flex items-center">
-                  {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
-                  <span className="text-xs font-medium text-foreground">{indicator.name}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
-                  <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
-                  {indicator.date && <span className="block text-[10px] text-muted-foreground/80">{indicator.date}</span>}
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
       </div>
       
-      {/* Bottom Row: Remaining informational cards */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+      {/* Third Row: Clinical notes, Encounter notes, Report, Clinical reminder */}
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
         {informationalCardTitles.map((title) => {
           const IconComponent = infoCardIcons[title] || FileText; // Default to FileText if no icon defined
           return (
@@ -472,6 +441,3 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
-
-    
