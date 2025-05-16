@@ -29,6 +29,7 @@ export const MOCK_PROBLEMS: Problem[] = [
   { id: 'prob2', description: 'Type 2 Diabetes Mellitus' },
   { id: 'prob3', description: 'Asthma - Intermittent' },
   { id: 'prob4', description: 'Allergic Rhinitis' },
+  { id: 'prob5', description: 'Osteoarthritis' }, // Added 5th problem
 ];
 
 
@@ -46,6 +47,7 @@ export const MOCK_MEDICATIONS: Medication[] = [
   { id: '2', name: 'Clopidogrel', reason: 'Heart', amount: '2x1', timing: 'after eating', taken: false },
   { id: '3', name: 'Ticagrelor', reason: 'Heart', amount: '3x/3', timing: 'after eating', taken: false },
   { id: '4', name: 'Aspirin', reason: 'Pain Relief', amount: '1 tablet', timing: 'as needed', taken: true },
+  { id: '5', name: 'Metformin', reason: 'Diabetes', amount: '500mg', timing: 'twice daily', taken: true }, // Added 5th medication
 ];
 
 export type HealthMetric = {
@@ -53,7 +55,7 @@ export type HealthMetric = {
   value: string;
   unit: string;
   icon?: LucideIcon;
-  // date?: string; // Removed date from here
+  // date?: string; // Date removed from vitals display
 };
 
 export const MOCK_PATIENT = {
@@ -62,29 +64,28 @@ export const MOCK_PATIENT = {
   avatarUrl: 'https://placehold.co/100x100.png',
   gender: 'Female',
   age: 42,
-  dob: '1982-03-15', // Added DOB
+  dob: '1982-03-15',
   wardNo: 'C-305',
+  bedDetails: 'Room 301, Bed A',
   admissionDate: '2024-07-15',
   lengthOfStay: '5 days',
   mobile: '+1-555-0102',
-  bedDetails: 'Room 301, Bed A', // Added
-  primaryConsultant: 'Dr. Emily Carter', // Added
-  encounterProvider: 'City General Hospital', // Added
-  finalDiagnosis: 'Acute Bronchitis', // Added
-  posting: 'General Medicine', // Added
-  reasonForVisit: 'Routine Check-up & Consultation', // Added
+  primaryConsultant: 'Dr. Emily Carter',
+  encounterProvider: 'City General Hospital',
+  finalDiagnosis: 'Acute Bronchitis',
+  posting: 'General Medicine',
+  reasonForVisit: 'Routine Check-up & Consultation',
 };
 export type Patient = typeof MOCK_PATIENT;
 
 
-// Simplified for single-line list items
 export const pageCardSampleContent: Record<string, string[]> = {
-  "Allergies": ["Pollen", "Dust Mites", "Peanuts", "Shellfish"],
-  "Clinical notes": ["Follow-up in 3 months", "Monitor blood pressure", "Discussed diet changes", "Patient reports feeling well"],
-  "Radiology": ["Chest X-Ray: Clear", "MRI Brain: Normal", "CT Abdomen: No acute findings", "Ultrasound Pelvis: NAD"],
-  "Encounter notes": ["Routine physical exam", "Medication review completed", "Vaccinations up to date", "Labs ordered for next visit"],
-  "Clinical reminder": ["Annual flu shot due", "Colonoscopy screening overdue", "Mammogram recommended", "Follow up on lab results"],
-  "Report": ["Pathology Report: Pending", "Imaging Results: Reviewed", "Consultation Note: Added", "Discharge Summary: Finalized"]
+  "Allergies": ["Pollen", "Dust Mites", "Peanuts", "Shellfish", "Penicillin"], // 5 entries
+  "Clinical notes": ["Follow-up in 3 months", "Monitor blood pressure", "Discussed diet changes", "Patient reports feeling well", "Reviewed recent lab results", "Adjusted medication dosage"], // 6 entries
+  "Radiology": ["Chest X-Ray: Clear", "MRI Brain: Normal", "CT Abdomen: No acute findings", "Ultrasound Pelvis: NAD", "Mammogram: BI-RADS 1"], // 5 entries
+  "Encounter notes": ["Routine physical exam", "Medication review completed", "Vaccinations up to date", "Labs ordered for next visit", "Counseled on lifestyle modifications", "Patient questions addressed"], // 6 entries
+  "Clinical reminder": ["Annual flu shot due", "Colonoscopy screening overdue", "Mammogram recommended", "Follow up on lab results", "Schedule dental check-up", "Lipid panel in 6 months"], // 6 entries
+  "Report": ["Pathology Report: Benign", "Imaging Results: Stable", "Consultation Note: Cardiology", "Discharge Summary: Complete", "Operative Report: Appendectomy"] // 5 entries
 };
 
 
