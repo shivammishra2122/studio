@@ -10,7 +10,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from '@/components/ui/sidebar';
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react'; 
 import { 
   BedDouble, CalendarDays, Clock, Phone, User, Hospital, FileText, BriefcaseMedical, FileQuestion, LayoutGrid 
 } from 'lucide-react';
@@ -23,7 +23,6 @@ type PatientDetailItem = {
   icon?: LucideIcon;
 };
 
-// Define patient details with optional icons
 const patientDetails: PatientDetailItem[] = [
   { label: 'Ward', value: patient.wardNo, icon: BedDouble },
   {
@@ -59,10 +58,7 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader className="p-3 border-b border-sidebar-border">
-        <div className="flex items-center space-x-2">
-          <AppLogo className="h-7 w-7 text-sidebar-primary-foreground" />
-          <h1 className="text-lg font-semibold text-sidebar-primary-foreground">HealthView</h1>
-        </div>
+        {/* Removed AppLogo and HealthView title */}
       </SidebarHeader>
 
       <SidebarContent className="p-3 space-y-3">
@@ -73,19 +69,19 @@ export function SidebarNav() {
           </Avatar>
           <div className="flex flex-col text-center">
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
-            <p className="text-xs text-sidebar-foreground/80">
+            <p className="text-xs text-sidebar-foreground"> {/* Changed from text-sidebar-foreground/80 */}
               {genderInitial} {patient.age}
             </p>
           </div>
         </div>
 
-        <ul className="space-y-1.5 text-xs text-sidebar-foreground/80 pt-3"> {/* Increased space-y and pt */}
+        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-3"> {/* Changed from text-sidebar-foreground/80 and increased space-y */}
           {patientDetails.map(
             (detail) =>
               detail.label !== 'Gender' && 
               detail.label !== 'Age' && (
                 <li key={detail.label} className="flex items-center space-x-1.5">
-                  {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0" />} {/* Changed icon color */}
+                  {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0" />}
                   <span className="flex-1 font-semibold">{detail.value}</span>
                 </li>
               )
@@ -96,7 +92,7 @@ export function SidebarNav() {
       <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8 bg-sidebar-accent"> 
-            <AvatarFallback className="text-sm font-semibold text-sidebar-primary-foreground"> {/* Changed text color */}
+            <AvatarFallback className="text-sm font-semibold text-sidebar-primary-foreground">
               N 
             </AvatarFallback>
           </Avatar>
