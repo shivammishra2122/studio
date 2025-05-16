@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -31,6 +32,7 @@ const keyIndicators: KeyIndicatorWithTab[] = [
   { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
   { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
+  { name: 'Radiology Reports', value: 'View', unit: '', icon: ScanLine, tabValue: 'radiology-reports' },
 ];
 
 const heartRateMonitorData: Array<{ time: string; hr: number }> = [
@@ -247,6 +249,29 @@ export default function DashboardPage(): JSX.Element {
                         <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
                     </ChartContainer>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="radiology-reports">
+                <Card className="border-0 shadow-none">
+                   <ShadcnCardHeader className="flex flex-row items-center justify-between pt-1 pb-0 px-1">
+                    <CardTitle className="text-sm">Radiology Reports</CardTitle>
+                  </ShadcnCardHeader>
+                  <CardContent className="p-1.5 max-h-[120px] overflow-y-auto no-scrollbar">
+                    <Table>
+                      <TableBody>
+                        {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="px-2 py-1">
+                              <div className="font-medium text-xs">{item}</div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    {(dynamicPageCardSampleContent["Radiology"] || []).length === 0 && (
+                      <p className="py-4 text-center text-xs text-muted-foreground">No radiology items.</p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -489,3 +514,6 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
+
+    
