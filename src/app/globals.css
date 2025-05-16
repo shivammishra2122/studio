@@ -35,18 +35,20 @@ body {
     --chart-4: 160 60% 45%; /* Greenish */
     --chart-5: 30 80% 55%; /* Orangeish */
 
-    /* Sidebar theme based on #4472c4 (blue) */
-    --sidebar-background: 218 53% 52%; /* New Blue from #4472c4 */
-    --sidebar-foreground: 0 0% 95%; /* Light grey/white text (Good contrast with new blue) */
-    --sidebar-primary: 218 53% 62%; /* Brighter Blue for active items */
+    /* Sidebar theme based on #007B8A (Dark Teal) */
+    /* #007B8A -> hsl(186, 100%, 27%) */
+    --sidebar-background: 186 100% 27%; 
+    --sidebar-foreground: 0 0% 95%; /* Light grey/white text */
+    --sidebar-primary: 186 100% 37%; /* Brighter Dark Teal for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White for text on active items */
-    --sidebar-accent: 218 53% 57%; /* Slightly lighter blue for hover */
+    --sidebar-accent: 186 100% 32%; /* Slightly lighter Dark Teal for hover */
     --sidebar-accent-foreground: 0 0% 98%; /* Light text on hover */
-    --sidebar-border: 218 53% 42%; /* Darker shade of new blue for sidebar border */
-    --sidebar-ring: 218 53% 62%; /* Brighter Blue */
+    --sidebar-border: 186 100% 17%; /* Darker shade of Dark Teal for sidebar border */
+    --sidebar-ring: 186 100% 37%; /* Brighter Dark Teal */
     
     /* Specific for active sidebar menu item background from image */
-    --sidebar-menu-item-active-background: 190 70% 50%; /* Light blue from image */
+    /* This should contrast with the new sidebar background */
+    --sidebar-menu-item-active-background: 186 80% 40%; /* Lighter, less saturated teal */
     --sidebar-menu-item-active-foreground: 0 0% 100%; /* White text */
   }
 
@@ -77,17 +79,18 @@ body {
     --chart-4: 160 60% 55%;
     --chart-5: 30 80% 65%;
 
-    /* Dark mode sidebar, based on #4472c4 */
-    --sidebar-background: 218 53% 47%; /* Darker variant of new blue for dark mode */
+    /* Dark mode sidebar, based on #007B8A */
+    /* #007B8A -> hsl(186, 100%, 27%) */
+    --sidebar-background: 186 100% 22%; /* Slightly darker for dark mode variant */
     --sidebar-foreground: 0 0% 90%; /* Light text */
-    --sidebar-primary: 218 53% 57%; /* Brighter blue */
+    --sidebar-primary: 186 100% 32%; /* Brighter Dark Teal */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 218 53% 52%; /* Slightly lighter blue for hover */
+    --sidebar-accent: 186 100% 29%; /* Slightly lighter Dark Teal for hover */
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 218 53% 37%; /* Even darker shade of new blue for dark mode border */
-    --sidebar-ring: 218 53% 57%;
+    --sidebar-border: 186 100% 12%; /* Even darker shade of Dark Teal for dark mode border */
+    --sidebar-ring: 186 100% 32%;
 
-    --sidebar-menu-item-active-background: 190 70% 60%; 
+    --sidebar-menu-item-active-background: 186 80% 35%; 
     --sidebar-menu-item-active-foreground: 0 0% 10%; 
   }
 }
