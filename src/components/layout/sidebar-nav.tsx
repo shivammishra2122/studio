@@ -64,7 +64,7 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarContent className="p-3 space-y-3 flex flex-col">
+      <SidebarContent className="p-3 space-y-2 flex flex-col"> {/* Reduced space-y */}
         <SidebarHeader className="mb-2 flex justify-center items-center">
           {/*
             Image logo from the `public` directory.
@@ -84,7 +84,7 @@ export function SidebarNav() {
         </SidebarHeader>
 
         <div className="flex flex-col items-center space-y-1">
-          <Avatar className="h-14 w-14 mb-1">
+          <Avatar className="h-20 w-20 mb-1"> {/* Increased Avatar size */}
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
@@ -96,10 +96,10 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-3">
+        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2"> {/* Reduced pt and space-y */}
           {patientDetails.map(
             (detail) => (
-              <li key={detail.key} className="flex items-start space-x-1.5">
+              <li key={detail.key} className="flex items-start space-x-1.5"> {/* Reduced space-x */}
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
                   {detail.label && <span className="font-medium">{detail.label}: </span>}
@@ -128,3 +128,4 @@ export function SidebarNav() {
     </>
   );
 }
+
