@@ -7,8 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AppLogo } from '@/components/icons/app-logo';
 import {
   SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react'; 
 import { 
@@ -57,9 +55,7 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarHeader className="p-3 border-b border-sidebar-border">
-        {/* Removed AppLogo and HealthView title */}
-      </SidebarHeader>
+      {/* SidebarHeader removed */}
 
       <SidebarContent className="p-3 space-y-3">
         <div className="flex flex-col items-center space-y-1">
@@ -69,35 +65,28 @@ export function SidebarNav() {
           </Avatar>
           <div className="flex flex-col text-center">
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
-            <p className="text-xs text-sidebar-foreground"> {/* Changed from text-sidebar-foreground/80 */}
+            <p className="text-xs text-sidebar-foreground">
               {genderInitial} {patient.age}
             </p>
           </div>
         </div>
 
-        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-3"> {/* Changed from text-sidebar-foreground/80 and increased space-y */}
+        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-3">
           {patientDetails.map(
             (detail) =>
               detail.label !== 'Gender' && 
               detail.label !== 'Age' && (
                 <li key={detail.label} className="flex items-center space-x-1.5">
                   {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0" />}
-                  <span className="flex-1 font-semibold">{detail.value}</span>
+                  <span className="flex-1 font-normal">{detail.value}</span> {/* Changed from font-semibold */}
                 </li>
               )
           )}
         </ul>
       </SidebarContent>
 
-      <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8 bg-sidebar-accent"> 
-            <AvatarFallback className="text-sm font-semibold text-sidebar-primary-foreground">
-              N 
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      </SidebarFooter>
+      {/* SidebarFooter removed */}
     </>
   );
 }
+
