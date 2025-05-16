@@ -6,7 +6,7 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
-  SidebarHeader, // Added SidebarHeader import
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -14,7 +14,7 @@ import {
   CalendarDays,
   BedDouble,
   Clock,
-  User,
+  User, // Keep User for fallback
   Hospital,
   FileText,
   BriefcaseMedical,
@@ -24,7 +24,8 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SansysLogo } from '@/components/icons/sansys-logo'; // Import the logo
+import Image from 'next/image';
+
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -58,15 +59,17 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
-        <SidebarHeader className="flex justify-center items-center mb-3"> {/* Added SidebarHeader */}
-          <SansysLogo className="h-16 w-auto" /> {/* Added the logo */}
-        </SidebarHeader>
-
-        <div className="flex flex-col items-center space-y-1"> 
-          <Avatar className="h-20 w-20 mb-1"> 
-            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
-            <AvatarFallback>
-              <User className="h-10 w-10 text-sidebar-foreground" />
+        {/* Logo Header Removed as per previous request */}
+        
+        <div className="flex flex-col items-center space-y-1 mb-2"> 
+          <Avatar className="h-20 w-20"> 
+            <AvatarImage 
+              src={patient.avatarUrl} // This will be an empty string for MOCK_PATIENT
+              alt={patient.name} 
+              data-ai-hint="person patient"
+            />
+            <AvatarFallback className="bg-white"> {/* Changed background to white */}
+              <User className="h-10 w-10 text-primary" /> {/* Icon color changed to primary theme color */}
             </AvatarFallback>
           </Avatar>
           <div className="text-center">
@@ -108,3 +111,4 @@ export function SidebarNav() {
     </>
   );
 }
+
