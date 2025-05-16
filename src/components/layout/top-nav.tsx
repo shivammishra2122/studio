@@ -19,14 +19,13 @@ export function TopNav() {
       <div className="md:hidden">
         <SidebarTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8">
-            {/* Using PanelLeft from SidebarTrigger directly if no custom icon is needed */}
-            {/* Or <Menu className="h-5 w-5" /> if a custom icon is desired and SidebarTrigger supports it */}
+            {/* Using PanelLeft from SidebarTrigger directly */}
           </Button>
         </SidebarTrigger>
       </div>
 
       {/* Navigation buttons - scrollable on small screens */}
-      <div className="flex-grow flex items-center space-x-1 overflow-x-auto no-scrollbar">
+      <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar"> {/* Reduced space-x-1 to space-x-0.5 */}
         {navButtonLabels.map((label, index) => (
           <Button
             key={index}
