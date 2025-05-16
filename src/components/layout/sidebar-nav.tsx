@@ -14,17 +14,23 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MOCK_PATIENT } from '@/lib/constants';
 import type { Patient } from '@/lib/constants';
-import { LayoutGrid, User as UserIcon, CalendarDays, Home, Hourglass, PhoneCall } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
 const patientDetails = [
-  { label: 'Gender', value: patient.gender, icon: UserIcon },
-  { label: 'Age', value: `${patient.age} years`, icon: UserIcon },
-  { label: 'Ward', value: patient.wardNo, icon: Home },
-  { label: 'Admitted', value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }), icon: CalendarDays },
-  { label: 'Stay', value: patient.lengthOfStay, icon: Hourglass },
-  { label: 'Mobile', value: patient.mobile, icon: PhoneCall },
+  { label: 'Gender', value: patient.gender },
+  { label: 'Age', value: `${patient.age} years` },
+  { label: 'Ward', value: patient.wardNo },
+  { label: 'Admitted', value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) },
+  { label: 'Stay', value: patient.lengthOfStay },
+  { label: 'Mobile', value: patient.mobile },
+  { label: 'DOB', value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) },
+  { label: 'Primary Consultant', value: patient.primaryConsultant },
+  { label: 'Encounter Provider', value: patient.encounterProvider },
+  { label: 'Final Diagnosis', value: patient.finalDiagnosis },
+  { label: 'Posting', value: patient.posting },
+  { label: 'Reason for Visit', value: patient.reasonForVisit },
 ];
 
 export function SidebarNav() {
@@ -37,13 +43,13 @@ export function SidebarNav() {
         {/* Logo and title removed as per user request */}
       </SidebarHeader>
 
-      <SidebarContent className="p-4 space-y-3"> {/* Reduced space-y for overall compactness */}
-        <div className="flex flex-col space-y-2 items-center"> {/* Changed to items-center */}
+      <SidebarContent className="p-4 space-y-3">
+        <div className="flex flex-col items-center space-y-1">
           <Avatar className="h-16 w-16 mb-2">
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col text-center"> {/* Added text-center */}
+          <div className="flex flex-col text-center">
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
             <p className="text-xs text-sidebar-foreground/80">
               {genderInitial} {patient.age}
@@ -52,17 +58,14 @@ export function SidebarNav() {
         </div>
 
         <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-2">
-          {patientDetails.map((detail) => (
-            // Only display details other than gender and age here
+          {patientDetails.map((detail) => 
             (detail.label !== 'Gender' && detail.label !== 'Age') && (
-              <li key={detail.label} className="flex items-center">
-                <detail.icon className="mr-2 h-3.5 w-3.5 flex-shrink-0" />
-                <span className="truncate">
-                  {detail.label === 'Mobile' ? detail.value : `${detail.label}: ${detail.value}`}
-                </span>
+              <li key={detail.label} className="flex items-start">
+                <span className="font-medium w-28 shrink-0">{detail.label}:</span>
+                <span className="truncate flex-1">{detail.value}</span>
               </li>
             )
-          ))}
+          )}
         </ul>
 
         <SidebarMenu>
@@ -75,7 +78,6 @@ export function SidebarNav() {
           <Avatar className="h-8 w-8 bg-red-500">
             <AvatarFallback className="text-white text-sm font-semibold">N</AvatarFallback>
           </Avatar>
-          {/* Can add user name or settings button here if needed later */}
         </div>
       </SidebarFooter>
     </>

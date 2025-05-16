@@ -63,6 +63,7 @@ export const MOCK_PATIENT = {
   avatarUrl: 'https://placehold.co/100x100.png',
   gender: 'Female',
   age: 42,
+  dob: '1982-03-15',
   wardNo: 'C-305',
   admissionDate: '2024-07-15',
   lengthOfStay: '5 days',
@@ -70,11 +71,12 @@ export const MOCK_PATIENT = {
   bedDetails: 'Room 301, Bed A',
   primaryConsultant: 'Dr. Emily Carter',
   encounterProvider: 'City General Hospital',
+  finalDiagnosis: 'Acute Bronchitis',
+  posting: 'General Medicine',
   reasonForVisit: 'Routine Check-up & Consultation',
 };
 export type Patient = typeof MOCK_PATIENT;
 
-export const LOREM_IPSUM_TEXT: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 // Simplified for single-line list items, matching "Problem" card's new data style
 export const pageCardSampleContent: Record<string, string[]> = {
@@ -83,7 +85,7 @@ export const pageCardSampleContent: Record<string, string[]> = {
   "Radiology": ["Chest X-Ray: Clear", "MRI Brain: Normal", "CT Abdomen: No acute findings", "Ultrasound Pelvis: NAD"],
   "Encounter notes": ["Routine physical exam", "Medication review completed", "Vaccinations up to date", "Labs ordered for next visit"],
   "Clinical reminder": ["Annual flu shot due", "Colonoscopy screening overdue", "Mammogram recommended", "Follow up on lab results"],
-  "Report": ["Pathology Report Pending", "Imaging Results Reviewed", "Consultation Note Added", "Discharge Summary Finalized"]
+  "Report": ["Pathology Report: Pending", "Imaging Results: Reviewed", "Consultation Note: Added", "Discharge Summary: Finalized"]
 };
 
 
