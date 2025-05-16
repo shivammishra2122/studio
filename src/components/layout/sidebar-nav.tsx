@@ -68,17 +68,7 @@ export function SidebarNav() {
         </ul>
 
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Link href="/" passHref legacyBehavior>
-              <SidebarMenuButton
-                isActive={pathname === '/'}
-                className="data-[active=true]:bg-sidebar-menu-item-active-background data-[active=true]:text-sidebar-menu-item-active-foreground"
-              >
-                <LayoutGrid />
-                Dashboard
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
+          {/* Dashboard menu item removed */}
         </SidebarMenu>
       </SidebarContent>
 
@@ -93,3 +83,4 @@ export function SidebarNav() {
     </>
   );
 }
+
