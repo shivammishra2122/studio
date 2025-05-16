@@ -6,7 +6,6 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
-  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -24,8 +23,9 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image'; 
-import { SansysLogo } from '@/components/icons/sansys-logo';
+// Image component is not used directly here if logo is an SVG component or removed
+// import Image from 'next/image'; 
+// import { SansysLogo } from '@/components/icons/sansys-logo';
 
 
 type PatientDetailItem = {
@@ -40,6 +40,12 @@ const patient: Patient = MOCK_PATIENT;
 const patientDetails: PatientDetailItem[] = [
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
+    key: 'dob',
+    label: 'DOB',
+    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+    icon: CalendarDays
+  },
+  {
     key: 'admissionDate',
     label: 'AD',
     value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
@@ -47,12 +53,6 @@ const patientDetails: PatientDetailItem[] = [
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
-  {
-    key: 'dob',
-    label: 'DOB',
-    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
-    icon: CalendarDays
-  },
   { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
   { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
   { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
@@ -66,15 +66,15 @@ export function SidebarNav() {
 
   return (
     <>
-      <SidebarContent className="p-3 space-y-2 flex flex-col">
-        <SidebarHeader className="flex justify-center items-center"> {/* Removed mb-2 */}
-          <SansysLogo />
-        </SidebarHeader>
+      <SidebarContent className="p-3 space-y-1 flex flex-col"> {/* Reduced space-y and p-4 to p-3 */}
+        {/* SidebarHeader removed */}
 
-        <div className="flex flex-col items-center space-y-1">
-          <Avatar className="h-20 w-20 mb-1">
+        <div className="flex flex-col items-center space-y-1"> {/* Reduced space-y-3 to space-y-1 */}
+          <Avatar className="h-20 w-20 mb-1"> {/* Increased size */}
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
-            <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>
+              <User className="h-10 w-10 text-sidebar-foreground" />
+            </AvatarFallback>
           </Avatar>
           <div className="text-center">
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
@@ -84,10 +84,10 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2">
+        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2"> {/* Reduced space-y-1.5 and pt-3 */}
           {patientDetails.map(
             (detail) => (
-              <li key={detail.key} className="flex items-start space-x-1.5">
+              <li key={detail.key} className="flex items-start space-x-1.5"> {/* Reduced space-x-2 */}
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
                   {detail.label && <span className="font-medium">{detail.label}: </span>}
