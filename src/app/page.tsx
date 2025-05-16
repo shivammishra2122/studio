@@ -12,7 +12,7 @@ import {
   FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
-import { MOCK_PROBLEMS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
+import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -74,8 +74,9 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Report": FileText, 
 };
 
-// "Allergies", "Report", and "Radiology" are explicitly placed.
-const informationalCardTitles: string[] = [
+// "Allergies", "Report", and "Radiology" are explicitly placed in the second row.
+// "Clinical notes", "Encounter notes", "Clinical reminder" are in the third row.
+const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
   "Clinical reminder"
@@ -98,10 +99,8 @@ export default function DashboardPage(): JSX.Element {
   const [newItemInput, setNewItemInput] = useState('');
 
   const [activeChartTab, setActiveChartTab] = useState<string>('heart-rate');
-
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const [detailDialogTitle, setDetailDialogTitle] = useState('');
-  const [detailDialogContent, setDetailDialogContent] = useState('');
+  const [detailViewTitle, setDetailViewTitle] = useState<string>('');
+  const [detailViewContent, setDetailViewContent] = useState<string>('');
 
 
   const handleAddProblem = () => {
@@ -148,11 +147,11 @@ export default function DashboardPage(): JSX.Element {
     setIsAddItemDialogOpen(false);
     setEditingInfoCardTitle(null);
   };
-
-  const handleOpenDetailDialog = (title: string, content: string) => {
-    setDetailDialogTitle(title);
-    setDetailDialogContent(content);
-    setIsDetailDialogOpen(true);
+  
+  const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
+    setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
+    setDetailViewContent(itemText);
+    setActiveChartTab('detail-view');
   };
   
 
@@ -260,7 +259,16 @@ export default function DashboardPage(): JSX.Element {
                   </CardContent>
                 </Card>
               </TabsContent>
-              {/* Radiology Reports TabContent removed from here */}
+              <TabsContent value="detail-view">
+                <Card className="border-0 shadow-none">
+                  <ShadcnCardHeader className="pt-2 pb-1 px-3">
+                    <CardTitle className="text-base">{detailViewTitle}</CardTitle>
+                  </ShadcnCardHeader>
+                  <CardContent className="p-3 text-sm text-foreground max-h-[150px] overflow-y-auto no-scrollbar">
+                    {detailViewContent}
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
@@ -292,6 +300,7 @@ export default function DashboardPage(): JSX.Element {
 
       {/* Second Row: Allergies ,medical history ,report, radiology  */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-2">
+        {/* Allergies Card */}
         <Card className="md:col-span-1 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
@@ -322,6 +331,7 @@ export default function DashboardPage(): JSX.Element {
             </CardContent>
         </Card>
         
+        {/* Medications History Card */}
         <Card className="md:col-span-2 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
@@ -371,6 +381,7 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
+        {/* Report Card */}
         <Card className="md:col-span-1 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
@@ -387,7 +398,7 @@ export default function DashboardPage(): JSX.Element {
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                    <TableRow key={index} onClick={() => handleOpenDetailDialog("Report Detail", item)} className="cursor-pointer hover:bg-muted/50">
+                    <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Report Detail", item)} className="cursor-pointer hover:bg-muted/50">
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
@@ -401,6 +412,7 @@ export default function DashboardPage(): JSX.Element {
             </CardContent>
         </Card>
 
+        {/* Radiology Card */}
         <Card className="md:col-span-1 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
               <div className="flex items-center space-x-1.5">
@@ -417,7 +429,7 @@ export default function DashboardPage(): JSX.Element {
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
-                    <TableRow key={index} onClick={() => handleOpenDetailDialog("Radiology Detail", item)} className="cursor-pointer hover:bg-muted/50">
+                    <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)} className="cursor-pointer hover:bg-muted/50">
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
@@ -434,7 +446,7 @@ export default function DashboardPage(): JSX.Element {
       
       {/* Third Row: clinical notes,encounter notes,clinical reminder */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-        {informationalCardTitles.map((title) => {
+        {thirdRowInformationalCardTitles.map((title) => {
           const IconComponent = infoCardIcons[title] || FileText; 
           const items = dynamicPageCardSampleContent[title] || [];
           return (
@@ -496,22 +508,7 @@ export default function DashboardPage(): JSX.Element {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Dialog for displaying item details */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogUITitle>{detailDialogTitle}</DialogUITitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-foreground">{detailDialogContent}</p>
-          </div>
-          <DialogFooter>
-            <DialogClose asChild><Button>Close</Button></DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
     </div>
   );
 }
+
