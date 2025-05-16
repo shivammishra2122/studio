@@ -35,15 +35,15 @@ body {
     --chart-4: 160 60% 45%; /* Greenish */
     --chart-5: 30 80% 55%; /* Orangeish */
 
-    /* Sidebar theme based on image (darker) */
-    --sidebar-background: 177 100% 36%; /* New Teal from #00b5ad */
-    --sidebar-foreground: 0 0% 95%; /* Light grey/white text (Good contrast with new teal) */
-    --sidebar-primary: 180 100% 35%; /* Brighter Teal for active items */
+    /* Sidebar theme based on #4472c4 (blue) */
+    --sidebar-background: 218 53% 52%; /* New Blue from #4472c4 */
+    --sidebar-foreground: 0 0% 95%; /* Light grey/white text (Good contrast with new blue) */
+    --sidebar-primary: 218 53% 62%; /* Brighter Blue for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White for text on active items */
-    --sidebar-accent: 190 50% 40%; /* Slightly lighter dark blue for hover */
+    --sidebar-accent: 218 53% 57%; /* Slightly lighter blue for hover */
     --sidebar-accent-foreground: 0 0% 98%; /* Light text on hover */
-    --sidebar-border: 177 100% 30%; /* Darker shade of new teal for sidebar border */
-    --sidebar-ring: 180 100% 35%; /* Teal */
+    --sidebar-border: 218 53% 42%; /* Darker shade of new blue for sidebar border */
+    --sidebar-ring: 218 53% 62%; /* Brighter Blue */
     
     /* Specific for active sidebar menu item background from image */
     --sidebar-menu-item-active-background: 190 70% 50%; /* Light blue from image */
@@ -77,15 +77,15 @@ body {
     --chart-4: 160 60% 55%;
     --chart-5: 30 80% 65%;
 
-    /* Dark mode sidebar, ensure it contrasts with main dark theme */
-    --sidebar-background: 177 100% 20%; /* Darker variant of new Teal for dark mode */
+    /* Dark mode sidebar, based on #4472c4 */
+    --sidebar-background: 218 53% 47%; /* Darker variant of new blue for dark mode */
     --sidebar-foreground: 0 0% 90%; /* Light text */
-    --sidebar-primary: 180 100% 40%; /* Brighter Teal */
+    --sidebar-primary: 218 53% 57%; /* Brighter blue */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 190 50% 35%; /* Darker Light Blue for hover */
+    --sidebar-accent: 218 53% 52%; /* Slightly lighter blue for hover */
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 177 100% 15%; /* Even darker shade of new teal for dark mode border */
-    --sidebar-ring: 180 100% 40%;
+    --sidebar-border: 218 53% 37%; /* Even darker shade of new blue for dark mode border */
+    --sidebar-ring: 218 53% 57%;
 
     --sidebar-menu-item-active-background: 190 70% 60%; 
     --sidebar-menu-item-active-foreground: 0 0% 10%; 
