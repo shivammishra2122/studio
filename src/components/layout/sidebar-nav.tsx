@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { Patient } from '@/lib/constants';
+import type { Patient, PatientDetailItem } from '@/lib/constants';
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -23,14 +23,7 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-// Removed SansysLogo and Image imports as they are no longer used directly here
 
-type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed' | 'dob'; 
-  label: string;
-  value: string | undefined;
-  icon?: LucideIcon;
-};
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -74,14 +67,13 @@ export function SidebarNav() {
             </AvatarFallback>
           </Avatar>
           <div className="text-center">
-            <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
-            <p className="text-xs text-sidebar-foreground">
-              {genderInitial} {patient.age}
+            <p className="text-md font-medium text-sidebar-foreground">
+              {patient.name} / {genderInitial} {patient.age}
             </p>
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground pt-2"> 
+        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-2"> {/* Adjusted spacing */}
           {patientDetails.map(
             (detail) => detail.value && (
               <li key={detail.key} className="flex items-start space-x-1.5"> 
