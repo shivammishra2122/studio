@@ -17,11 +17,12 @@ import {
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  label: string;
+  label: string; // Still useful for key and for associating data
   value: string;
   icon?: LucideIcon;
 };
 
+// Ensure all necessary fields are present in MOCK_PATIENT in constants.ts
 const patientDetails: PatientDetailItem[] = [
   { label: 'Ward', value: patient.wardNo, icon: BedDouble },
   {
@@ -57,7 +58,7 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader className="p-3 border-b border-sidebar-border">
-        {/* Logo and title removed as per user request */}
+        {/* Logo and title removed */}
       </SidebarHeader>
 
       <SidebarContent className="p-3 space-y-3">
@@ -74,16 +75,13 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-2 text-xs text-sidebar-foreground/80 pt-3">
+        <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-3">
           {patientDetails.map(
             (detail) =>
-              detail.label !== 'Gender' &&
+              detail.label !== 'Gender' && // These are already shown above
               detail.label !== 'Age' && (
-                <li key={detail.label} className="flex items-start">
-                  <span className="w-24 shrink-0 flex items-center">
-                    {detail.icon && <detail.icon className="h-3.5 w-3.5 mr-1.5 text-sidebar-accent" />}
-                    <span className="font-medium">{detail.label}:</span>
-                  </span>
+                <li key={detail.label} className="flex items-center space-x-1.5">
+                  {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-accent shrink-0" />}
                   <span className="flex-1">{detail.value}</span>
                 </li>
               )
