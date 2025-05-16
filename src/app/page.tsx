@@ -9,9 +9,9 @@ import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Plus, Clock, Pill as PillIcon,
-  FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
-} from 'lucide-react'; // Added Trash2 back for delete functionality
-import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
+  FileText, Ban, ScanLine, ClipboardList, BellRing
+} from 'lucide-react'; 
+import type { HealthMetric, Problem, Medication, LucideIcon } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +22,6 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as Dial
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
 
 
 const keyIndicators: HealthMetric[] = [
@@ -73,14 +72,6 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Report": FileText, 
 };
 
-// These titles are for the cards explicitly placed in the second row.
-// "Medications History" is also in the second row but handled separately.
-const secondRowInformationalCardTitles: string[] = [
-  "Allergies",
-  // "Medications History" - handled explicitly
-  "Report",
-  "Radiology",
-];
 
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
@@ -120,9 +111,6 @@ export default function DashboardPage(): JSX.Element {
     setIsAddProblemDialogOpen(false);
   };
 
-  const handleDeleteProblem = (idToDelete: string) => {
-    setProblems(prev => prev.filter(problem => problem.id !== idToDelete));
-  };
 
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
@@ -139,9 +127,6 @@ export default function DashboardPage(): JSX.Element {
     setIsAddMedicationDialogOpen(false);
   };
 
-  const handleDeleteMedication = (idToDelete: string) => {
-    setMedications(prev => prev.filter(med => med.id !== idToDelete));
-  };
 
   const handleOpenAddItemDialog = (title: string) => {
     setEditingInfoCardTitle(title);
@@ -160,14 +145,6 @@ export default function DashboardPage(): JSX.Element {
     setEditingInfoCardTitle(null);
   };
   
-  const handleDeleteInfoItem = (cardTitle: string, itemIndex: number) => {
-    setDynamicPageCardSampleContent(prev => {
-      const currentItems = prev[cardTitle] || [];
-      const newItems = currentItems.filter((_, index) => index !== itemIndex);
-      return { ...prev, [cardTitle]: newItems };
-    });
-  };
-
   const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
     setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
     
@@ -224,12 +201,6 @@ export default function DashboardPage(): JSX.Element {
                     <TableRow key={problem.id}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{problem.description}</div>
-                      </TableCell>
-                      <TableCell className="text-right px-1 py-1">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteProblem(problem.id)}>
-                          <Trash2 className="h-3 w-3" />
-                          <span className="sr-only">Delete problem</span>
-                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -323,8 +294,8 @@ export default function DashboardPage(): JSX.Element {
                   <span className="text-xs font-medium text-foreground">{indicator.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
-                  <span className="text-sm font-normal text-foreground/80 ml-0.5">{indicator.unit}</span>
+                  <span className="text-xs text-foreground">{indicator.value}</span>
+                  <span className="text-xs text-foreground/80 ml-0.5">{indicator.unit}</span>
                 </div>
               </div>
             ))}
@@ -342,10 +313,14 @@ export default function DashboardPage(): JSX.Element {
               <CardTitle className="text-base">Allergies</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Allergies"]?.length || 0}</Badge>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
-              <Plus className="h-3.5 w-3.5" />
-              <span className="sr-only">Add Allergy</span>
-            </Button>
+            <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === "Allergies"} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog("Allergies");} }}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add Allergy</span>
+                </Button>
+              </DialogTrigger>
+            </Dialog>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
@@ -354,12 +329,6 @@ export default function DashboardPage(): JSX.Element {
                   <TableRow key={index}>
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{item}</div>
-                    </TableCell>
-                    <TableCell className="text-right px-1 py-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Allergies", index)}>
-                        <Trash2 className="h-3 w-3" />
-                        <span className="sr-only">Delete item</span>
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -411,12 +380,6 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
                     </TableCell>
-                     <TableCell className="text-right px-1 py-1">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteMedication(med.id)}>
-                          <Trash2 className="h-3 w-3" />
-                          <span className="sr-only">Delete medication</span>
-                        </Button>
-                      </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -435,10 +398,14 @@ export default function DashboardPage(): JSX.Element {
               <CardTitle className="text-base">Report</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Report"]?.length || 0}</Badge>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-              <Plus className="h-3.5 w-3.5" />
-              <span className="sr-only">Add Report Item</span>
-            </Button>
+            <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === "Report"} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog("Report"); } }}>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
+                        <Plus className="h-3.5 w-3.5" />
+                        <span className="sr-only">Add Report Item</span>
+                    </Button>
+                </DialogTrigger>
+            </Dialog>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
@@ -451,12 +418,6 @@ export default function DashboardPage(): JSX.Element {
                   >
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{item}</div>
-                    </TableCell>
-                    <TableCell className="text-right px-1 py-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleDeleteInfoItem("Report", index);}}>
-                        <Trash2 className="h-3 w-3" />
-                        <span className="sr-only">Delete item</span>
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -476,10 +437,14 @@ export default function DashboardPage(): JSX.Element {
               <CardTitle className="text-base">Radiology</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Radiology"]?.length || 0}</Badge>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-              <Plus className="h-3.5 w-3.5" />
-              <span className="sr-only">Add Radiology Item</span>
-            </Button>
+             <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === "Radiology"} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog("Radiology");} }}>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                        <Plus className="h-3.5 w-3.5" />
+                        <span className="sr-only">Add Radiology Item</span>
+                    </Button>
+                </DialogTrigger>
+            </Dialog>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
@@ -492,12 +457,6 @@ export default function DashboardPage(): JSX.Element {
                   >
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{item}</div>
-                    </TableCell>
-                    <TableCell className="text-right px-1 py-1">
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleDeleteInfoItem("Radiology", index);}}>
-                        <Trash2 className="h-3 w-3" />
-                        <span className="sr-only">Delete item</span>
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -523,10 +482,14 @@ export default function DashboardPage(): JSX.Element {
                   <CardTitle className="text-base">{title}</CardTitle>
                   <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add to {title}</span>
-                </Button>
+                <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === title} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog(title); } }}>
+                    <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
+                            <Plus className="h-3.5 w-3.5" />
+                            <span className="sr-only">Add to {title}</span>
+                        </Button>
+                    </DialogTrigger>
+                </Dialog>
               </ShadcnCardHeader>
               <CardContent className="p-0 max-h-24 overflow-y-auto no-scrollbar">
                 <Table>
@@ -536,12 +499,6 @@ export default function DashboardPage(): JSX.Element {
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
                         </TableCell>
-                         <TableCell className="text-right px-1 py-1">
-                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem(title, index)}>
-                              <Trash2 className="h-3 w-3" />
-                              <span className="sr-only">Delete item</span>
-                            </Button>
-                          </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -556,12 +513,14 @@ export default function DashboardPage(): JSX.Element {
       </div>
 
       {/* Common Dialog for adding items to informational cards */}
-      <Dialog open={isAddItemDialogOpen && !!editingInfoCardTitle} onOpenChange={(isOpen) => {
+      <Dialog open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle || "")} onOpenChange={(isOpen) => {
         if (!isOpen) {
           setIsAddItemDialogOpen(false);
           setEditingInfoCardTitle(null);
         } else {
-          setIsAddItemDialogOpen(true);
+          // This else case might not be strictly necessary if opening is handled by triggers
+          // but ensures dialog stays open if its specific trigger was used.
+          setIsAddItemDialogOpen(true); 
         }
       }}>
         <DialogContent>
@@ -585,3 +544,4 @@ export default function DashboardPage(): JSX.Element {
 }
 
     
+
