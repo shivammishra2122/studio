@@ -24,8 +24,7 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-// Removed: import { SansysLogo } from '@/components/icons/sansys-logo';
-import Image from 'next/image'; // Added Image import
+import Image from 'next/image';
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -66,18 +65,18 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="p-3 space-y-3 flex flex-col">
-        <SidebarHeader className="mb-2 flex justify-center items-center"> {/* Added flex justify-center items-center */}
+        <SidebarHeader className="mb-2 flex justify-center items-center">
           {/* 
-            TODO: Replace with your actual logo image. 
-            1. Place your logo file (e.g., sansys-logo.png) in the `public` directory.
-            2. Adjust the src, width, height, and alt props below as needed.
+            Image logo from the `public` directory.
+            Ensure your logo file (e.g., sansys-logo-image.png) is in the `public` folder.
+            Adjust src, width, height, and alt props below if your filename or dimensions differ.
           */}
           <Image 
-            src="/sansys-logo-image.png" // Example path, update if your filename is different
+            src="/sansys-logo-image.png" 
             alt="Sansys Informatics Logo"
-            width={150} // Adjust as needed
-            height={75}  // Adjust as needed
-            className="object-contain" // Ensures the image scales nicely
+            width={150} 
+            height={75}  
+            className="object-contain"
           />
         </SidebarHeader>
 
