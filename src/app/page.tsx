@@ -8,8 +8,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus,
-  FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Plus, Clock, Pill as PillIcon,
+  FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent } from '@/lib/constants'; 
@@ -22,11 +22,10 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as Dial
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 
-// Define a type for key indicators that includes a tabValue
-type KeyIndicatorWithTab = HealthMetric & { tabValue: string };
 
-const keyIndicators: KeyIndicatorWithTab[] = [
+const keyIndicators: Array<HealthMetric & { tabValue: string }> = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
   { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
   { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
@@ -74,11 +73,12 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Report": FileText, 
 };
 
-// "Allergies", "Report", and "Radiology" are explicitly placed in the second row.
-// "Clinical notes", "Encounter notes", "Clinical reminder" are in the third row.
+// "Allergies", "Radiology" are explicitly placed in the second row.
+// "Clinical notes", "Encounter notes", "Report", "Clinical reminder" are in the third row.
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
+  "Report",
   "Clinical reminder"
 ];
 
@@ -154,7 +154,7 @@ export default function DashboardPage(): JSX.Element {
     let contentToShow = itemText;
     if (titlePrefix === "Radiology Detail" && itemText === "Chest X-Ray: Clear") {
       contentToShow = `Normal lung expansion without fluid or masses.\nHeart size within normal limits.\nClear airways and no structural abnormalities in the bones or diaphragm.`;
-    } else if (titlePrefix === "Report Detail") { // Example: Could add more specific details for reports
+    } else if (titlePrefix === "Report Detail") { 
         // Add logic here if specific report items need different detailed content
     }
     
@@ -178,7 +178,7 @@ export default function DashboardPage(): JSX.Element {
               <Dialog open={isAddProblemDialogOpen} onOpenChange={setIsAddProblemDialogOpen}>
                   <DialogTrigger asChild>
                        <Button variant="ghost" size="icon" className="h-7 w-7">
-                          <Edit3 className="h-3.5 w-3.5" />
+                          <Plus className="h-3.5 w-3.5" />
                            <span className="sr-only">Add Problem</span>
                       </Button>
                   </DialogTrigger>
@@ -199,7 +199,7 @@ export default function DashboardPage(): JSX.Element {
                   </DialogContent>
                 </Dialog>
             </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
               <Table>
                 <TableBody>
                   {problems.map((problem) => (
@@ -308,7 +308,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
 
-      {/* Second Row: Allergies ,medical history ,report, radiology  */}
+      {/* Second Row: Allergies ,medical history ,radiology  */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-2">
         {/* Allergies Card */}
         <Card className="md:col-span-1 shadow-lg">
@@ -319,11 +319,11 @@ export default function DashboardPage(): JSX.Element {
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
               </div>
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Allergies</span>
+                <Plus className="h-3.5 w-3.5" />
+                <span className="sr-only">Add Allergies</span>
               </Button>
             </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Allergies"] || []).map((item, index) => (
@@ -352,7 +352,7 @@ export default function DashboardPage(): JSX.Element {
             <Dialog open={isAddMedicationDialogOpen} onOpenChange={setIsAddMedicationDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <Edit3 className="h-3.5 w-3.5" />
+                  <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add Medication</span>
                 </Button>
               </DialogTrigger>
@@ -373,7 +373,7 @@ export default function DashboardPage(): JSX.Element {
               </DialogContent>
             </Dialog>
           </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
               <TableBody>
                 {medications.map((med) => (
@@ -400,11 +400,11 @@ export default function DashboardPage(): JSX.Element {
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
               </div>
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Report</span>
+                <Plus className="h-3.5 w-3.5" />
+                <span className="sr-only">Add Report</span>
               </Button>
             </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
@@ -431,11 +431,11 @@ export default function DashboardPage(): JSX.Element {
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
               </div>
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                <Edit3 className="h-3.5 w-3.5" />
-                <span className="sr-only">Edit Radiology</span>
+                <Plus className="h-3.5 w-3.5" />
+                <span className="sr-only">Add Radiology</span>
               </Button>
             </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
@@ -468,11 +468,11 @@ export default function DashboardPage(): JSX.Element {
                   <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
                 </div>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                  <Edit3 className="h-3.5 w-3.5" />
+                  <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add to {title}</span>
                 </Button>
               </ShadcnCardHeader>
-              <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+              <CardContent className="p-0 max-h-28 overflow-y-auto no-scrollbar">
                 <Table>
                   <TableBody>
                     {items.map((item, index) => (
@@ -521,6 +521,5 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
-
 
     

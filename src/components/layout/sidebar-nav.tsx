@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Patient } from '@/lib/constants';
@@ -8,7 +7,7 @@ import {
   SidebarContent,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
-import { 
+import {
   Phone, CalendarDays, BedDouble, Clock, User, Hospital, FileText, BriefcaseMedical, FileQuestion
 } from 'lucide-react';
 
@@ -16,22 +15,20 @@ const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
   key: string;
-  label: string; 
+  label: string;
   value: string;
   icon?: LucideIcon;
 };
 
-// Updated order and label visibility
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
-  { 
-    key: 'dob', 
-    label: 'DOB', // Only DOB will show its label
-    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }), 
-    icon: CalendarDays 
+  {
+    key: 'dob',
+    label: 'DOB',
+    value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+    icon: CalendarDays
   },
-  { key: 'ward', label: '', value: patient.wardNo, icon: BedDouble },
-  { key: 'bed', label: '', value: patient.bedDetails, icon: BedDouble },
+  { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admitted',
     label: '',
@@ -52,9 +49,9 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="p-3 space-y-3">
-        <div className="flex flex-col items-center space-y-1"> {/* Centering for avatar, name, gender/age */}
+        <div className="flex flex-col items-center space-y-1">
           <Avatar className="h-14 w-14 mb-1">
-            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
+            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient"/>
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col text-center">
@@ -71,7 +68,8 @@ export function SidebarNav() {
               <li key={detail.key} className="flex items-start space-x-1.5">
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1">
-                  {detail.label && <span className="font-medium">{detail.label}: </span>}
+                  {detail.label && detail.label !== 'DOB' && <span className="font-medium">{detail.label}: </span>}
+                  {detail.label === 'DOB' && <span className="font-medium">DOB: </span>}
                   <span className="font-normal">{detail.value}</span>
                 </div>
               </li>
