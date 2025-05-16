@@ -6,6 +6,7 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
+  SidebarHeader, // Added SidebarHeader import
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -13,7 +14,7 @@ import {
   CalendarDays,
   BedDouble,
   Clock,
-  User, 
+  User,
   Hospital,
   FileText,
   BriefcaseMedical,
@@ -23,8 +24,7 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-
+import Image from 'next/image'; // Added Image import
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -44,8 +44,8 @@ const patientDetails: PatientDetailItem[] = [
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
-  { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
-  { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
+  { key: 'primaryConsultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
+  { key: 'encounterProvider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
   { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
   { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical },
   { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
@@ -58,13 +58,27 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
-        {/* Logo Header Removed */}
+        <SidebarHeader className="mb-2 flex justify-center items-center p-2">
+          {/* 
+            Replace "/company-logo.png" with the actual path to your logo 
+            within the 'public' folder (e.g., "/your-logo.svg" or "/images/logo.png").
+            Adjust width and height as needed.
+          */}
+          <Image
+            src="/company-logo.png" 
+            alt="Company Logo"
+            width={150} // Adjust width as needed
+            height={50} // Adjust height as needed
+            className="object-contain"
+            priority
+          />
+        </SidebarHeader>
         
         <div className="flex flex-col items-center space-y-1 mb-2"> 
           <Avatar className="h-20 w-20"> 
             <AvatarImage 
               src={patient.avatarUrl} 
-              alt={patient.name} 
+              alt={patient.name}
               data-ai-hint="person patient"
             />
             <AvatarFallback className="bg-white">
@@ -84,7 +98,8 @@ export function SidebarNav() {
               <li key={detail.key} className="flex items-start space-x-1.5"> 
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
-                  {detail.label && <span className="font-medium">{detail.label}: </span>}
+                  {detail.label && detail.label !== 'DOB' && <span className="font-medium">{detail.label}: </span>}
+                  {detail.label === 'DOB' && <span className="font-medium">DOB: </span>}
                   <span className="font-normal">{detail.value}</span>
                 </div>
               </li>
