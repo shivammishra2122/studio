@@ -38,12 +38,12 @@ export function SidebarNav() {
       </SidebarHeader>
 
       <SidebarContent className="p-4 space-y-3"> {/* Reduced space-y for overall compactness */}
-        <div className="flex flex-col space-y-2 items-start"> {/* Changed to items-start and adjusted space */}
-          <Avatar className="h-16 w-16 mb-2"> {/* Larger Avatar, added margin-bottom */}
+        <div className="flex flex-col space-y-2 items-center"> {/* Changed to items-center */}
+          <Avatar className="h-16 w-16 mb-2">
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback>{patient.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col">
+          <div className="flex flex-col text-center"> {/* Added text-center */}
             <h2 className="text-md font-medium text-sidebar-foreground">{patient.name}</h2>
             <p className="text-xs text-sidebar-foreground/80">
               {genderInitial} {patient.age}
@@ -51,7 +51,7 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-2"> {/* Added pt-2 for spacing */}
+        <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-2">
           {patientDetails.map((detail) => (
             // Only display details other than gender and age here
             (detail.label !== 'Gender' && detail.label !== 'Age') && (
@@ -72,7 +72,7 @@ export function SidebarNav() {
 
       <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8 bg-red-500"> {/* Assuming this is a user/notification avatar */}
+          <Avatar className="h-8 w-8 bg-red-500">
             <AvatarFallback className="text-white text-sm font-semibold">N</AvatarFallback>
           </Avatar>
           {/* Can add user name or settings button here if needed later */}
@@ -81,4 +81,3 @@ export function SidebarNav() {
     </>
   );
 }
-
