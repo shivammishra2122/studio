@@ -1,7 +1,6 @@
-
 import type { LucideIcon } from 'lucide-react';
 // Icons for direct use in page.tsx if needed elsewhere
-import { Clock, Pill as PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing, Edit3, BedDouble, BriefcaseMedical, FileQuestion, LayoutGrid } from 'lucide-react';
+import { Clock, Pill as PillIcon, Plus, MoreVertical, FileText, Ban, ScanLine, ClipboardList, BellRing, Edit3, BedDouble, BriefcaseMedical, FileQuestion, LayoutGrid } from 'lucide-react';
 
 
 export type Appointment = {
@@ -10,15 +9,14 @@ export type Appointment = {
   specialty: string;
   date: string; 
   time: string;
-  location: string; 
   avatarUrl: string;
 };
 
 export const MOCK_APPOINTMENTS: Appointment[] = [
-  { id: '1', doctor: 'Frederica Zegno', specialty: 'Doctor cardiologist', date: '2024-06-22', time: '3 pm', location: 'Heartbeat Clinic, Room 203', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '2', doctor: 'Rosa Mann', specialty: 'Doctor neurologist', date: '2024-06-27', time: '9 am', location: 'City General Hospital, Wing A', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '3', doctor: 'Simon Sparcs', specialty: 'Doctor Orthologist', date: '2024-07-03', time: '5 pm', location: 'Wellness Center, Suite 10', avatarUrl: 'https://placehold.co/40x40.png' },
-  { id: '4', doctor: 'Dr. Angela Lee', specialty: 'Pediatrician', date: '2024-07-10', time: '11 am', location: 'Children s Wellness, Suite 5', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '1', doctor: 'Frederica Zegno', specialty: 'Doctor cardiologist', date: '2024-06-22', time: '3 pm', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '2', doctor: 'Rosa Mann', specialty: 'Doctor neurologist', date: '2024-06-27', time: '9 am', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '3', doctor: 'Simon Sparcs', specialty: 'Doctor Orthologist', date: '2024-07-03', time: '5 pm', avatarUrl: 'https://placehold.co/40x40.png' },
+  { id: '4', doctor: 'Dr. Angela Lee', specialty: 'Pediatrician', date: '2024-07-10', time: '11 am', avatarUrl: 'https://placehold.co/40x40.png' },
 ];
 
 export type Problem = {
@@ -55,6 +53,7 @@ export type HealthMetric = {
   value: string;
   unit: string;
   icon?: LucideIcon;
+  // date?: string; // Removed date from here
 };
 
 export const MOCK_PATIENT = {
@@ -63,22 +62,22 @@ export const MOCK_PATIENT = {
   avatarUrl: 'https://placehold.co/100x100.png',
   gender: 'Female',
   age: 42,
-  dob: '1982-03-15',
+  dob: '1982-03-15', // Added DOB
   wardNo: 'C-305',
   admissionDate: '2024-07-15',
   lengthOfStay: '5 days',
   mobile: '+1-555-0102',
-  bedDetails: 'Room 301, Bed A',
-  primaryConsultant: 'Dr. Emily Carter',
-  encounterProvider: 'City General Hospital',
-  finalDiagnosis: 'Acute Bronchitis',
-  posting: 'General Medicine',
-  reasonForVisit: 'Routine Check-up & Consultation',
+  bedDetails: 'Room 301, Bed A', // Added
+  primaryConsultant: 'Dr. Emily Carter', // Added
+  encounterProvider: 'City General Hospital', // Added
+  finalDiagnosis: 'Acute Bronchitis', // Added
+  posting: 'General Medicine', // Added
+  reasonForVisit: 'Routine Check-up & Consultation', // Added
 };
 export type Patient = typeof MOCK_PATIENT;
 
 
-// Simplified for single-line list items, matching "Problem" card's new data style
+// Simplified for single-line list items
 export const pageCardSampleContent: Record<string, string[]> = {
   "Allergies": ["Pollen", "Dust Mites", "Peanuts", "Shellfish"],
   "Clinical notes": ["Follow-up in 3 months", "Monitor blood pressure", "Discussed diet changes", "Patient reports feeling well"],
@@ -89,5 +88,4 @@ export const pageCardSampleContent: Record<string, string[]> = {
 };
 
 
-export { Clock, PillIcon, Plus, MoreVertical, Phone, CalendarDays, User, Hospital, FileText, Ban, ScanLine, ClipboardList, BellRing, Edit3, BedDouble, BriefcaseMedical, FileQuestion, LayoutGrid };
-
+export { Clock, PillIcon, Plus, MoreVertical, FileText, Ban, ScanLine, ClipboardList, BellRing, Edit3, BedDouble, BriefcaseMedical, FileQuestion, LayoutGrid };

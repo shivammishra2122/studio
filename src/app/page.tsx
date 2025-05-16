@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useState } from 'react'; // Added this line
+import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -11,8 +11,8 @@ import {
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, Trash2,
   FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon
 } from 'lucide-react';
-import type { HealthMetric, Medication, Problem } from '@/lib/constants'; 
-import { MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent, MOCK_PROBLEMS } from '@/lib/constants'; 
+import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
+import { MOCK_PROBLEMS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,10 +24,10 @@ import { Label } from '@/components/ui/label';
 
 
 const keyIndicators: HealthMetric[] = [
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, date: '23 SEP, 2024 09:58' },
+  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet },
   { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, date: '23 SEP, 2024 09:58'},
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, date: '23 SEP, 2024 09:58' },
+  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity},
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale },
 ];
 
@@ -50,23 +50,24 @@ const ctScanReadings: Array<{ organ: string; finding: string }> = [
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const ecgChartConfig: ChartConfig = { value: { label: 'ECG (mV)', color: 'hsl(var(--chart-2))' } };
 
-// "Allergies", "Radiology" are explicitly placed.
-// The remaining are for the bottom row loop.
+
+// Define which icons to use for which informational card title
+const infoCardIcons: Record<string, LucideIcon> = {
+  "Allergies": Ban,
+  "Radiology": ScanLine,
+  "Encounter notes": ClipboardList,
+  "Clinical reminder": BellRing,
+  "Clinical notes": FileText, // Default icon if not specified or for new cards
+  "Report": FileText, // Default icon
+};
+
+// "Clinical notes", "Encounter notes", "Report", "Clinical reminder" will be rendered by the loop
 const informationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
   "Report",
   "Clinical reminder"
 ];
-
-const infoCardIcons: Record<string, LucideIcon> = {
-  "Allergies": Ban,
-  "Radiology": ScanLine,
-  "Encounter notes": ClipboardList,
-  "Clinical reminder": BellRing,
-  "Clinical notes": FileText, 
-  "Report": FileText, 
-};
 
 
 export default function DashboardPage(): JSX.Element {
@@ -130,12 +131,27 @@ export default function DashboardPage(): JSX.Element {
     setEditingInfoCardTitle(null);
   };
 
+  const handleDeleteProblem = (idToDelete: string) => {
+    setProblems(prev => prev.filter(problem => problem.id !== idToDelete));
+  };
+
+  const handleDeleteMedication = (idToDelete: string) => {
+    setMedications(prev => prev.filter(med => med.id !== idToDelete));
+  };
+
+  const handleDeleteInfoItem = (cardTitle: string, itemIndex: number) => {
+    setDynamicPageCardSampleContent(prev => {
+      const updatedItems = [...(prev[cardTitle] || [])];
+      updatedItems.splice(itemIndex, 1);
+      return { ...prev, [cardTitle]: updatedItems };
+    });
+  };
   
 
   return (
     <div className="flex flex-1 flex-col p-3 bg-background">
       
-      {/* Top Row: Problem, Charts, Vitals */}
+      {/* Top Row: Problem ,chart,vital */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
         <Card className="lg:col-span-3 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -176,6 +192,11 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{problem.description}</div>
                       </TableCell>
+                      <TableCell className="px-1 py-1 text-right w-10">
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteProblem(problem.id)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -186,7 +207,7 @@ export default function DashboardPage(): JSX.Element {
             </CardContent>
         </Card>
         
-        <Card className="shadow-lg lg:col-span-6 h-full">
+        <Card className="lg:col-span-6 shadow-lg h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs defaultValue="heart-rate">
               <TabsList className="grid w-full grid-cols-3 mb-2 h-8">
@@ -243,7 +264,7 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg lg:col-span-3 h-full">
+        <Card className="lg:col-span-3 shadow-lg h-full">
           <CardContent className="space-y-1.5 p-2 max-h-[calc(180px+1rem)] overflow-y-auto no-scrollbar"> 
             {keyIndicators.map((indicator) => (
               <div key={indicator.name} className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70">
@@ -254,7 +275,6 @@ export default function DashboardPage(): JSX.Element {
                 <div className="text-right">
                   <span className="text-sm font-semibold text-foreground">{indicator.value}</span>
                   <span className="text-xs text-muted-foreground ml-0.5">{indicator.unit}</span>
-                  {indicator.date && <span className="block text-[10px] text-muted-foreground/80">{indicator.date}</span>}
                 </div>
               </div>
             ))}
@@ -262,7 +282,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
 
-      {/* Second Row: Allergies, Medications History, Radiology */}
+      {/* Second Row: Allergies ,medical history ,radiology  */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
         <Card className="shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -283,6 +303,11 @@ export default function DashboardPage(): JSX.Element {
                     <TableRow key={index}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
+                      </TableCell>
+                       <TableCell className="px-1 py-1 text-right w-10">
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Allergies", index)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -333,6 +358,11 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
                     </TableCell>
+                    <TableCell className="px-1 py-1 text-right w-10">
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteMedication(med.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -363,6 +393,11 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
+                      <TableCell className="px-1 py-1 text-right w-10">
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Radiology", index)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -374,10 +409,10 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
       
-      {/* Third Row: Clinical notes, Encounter notes, Report, Clinical reminder */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+      {/* Third Row: clinical notes,encounter notes,report ,clinical reminder */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {informationalCardTitles.map((title) => {
-          const IconComponent = infoCardIcons[title] || FileText; // Default to FileText if no icon defined
+          const IconComponent = infoCardIcons[title] || FileText; // Default to FileText if no specific icon
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
               <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -398,6 +433,11 @@ export default function DashboardPage(): JSX.Element {
                       <TableRow key={index}>
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
+                        </TableCell>
+                         <TableCell className="px-1 py-1 text-right w-10">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem(title, index)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -441,3 +481,5 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
+    
