@@ -9,7 +9,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
   "Emergency Care", "Postmortem", "Nursing Referral", "Lab", "Radiology",
-  "Blood Center", "BI Report"
+  "Blood Center", "BI", "Report"
 ];
 
 export function TopNav() {
@@ -17,13 +17,12 @@ export function TopNav() {
     <div className="bg-card border-b border-border px-3 py-2.5 sticky top-0 z-30 flex items-center space-x-2">
       {/* Hamburger menu for mobile/tablet to toggle sidebar sheet */}
       <div className="md:hidden">
-        {/* 
-          Use SidebarTrigger directly. It renders PanelLeft by default.
-          If a different icon (like Menu) is strictly required here, 
-          the SidebarTrigger component in sidebar.tsx would need to be refactored 
-          to accept a custom icon child, or a different trigger mechanism used.
-        */}
-        <SidebarTrigger className="h-8 w-8" />
+        <SidebarTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            {/* Using PanelLeft from SidebarTrigger directly if no custom icon is needed */}
+            {/* Or <Menu className="h-5 w-5" /> if a custom icon is desired and SidebarTrigger supports it */}
+          </Button>
+        </SidebarTrigger>
       </div>
 
       {/* Navigation buttons - scrollable on small screens */}
