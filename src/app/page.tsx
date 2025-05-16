@@ -78,7 +78,6 @@ const infoCardIcons: Record<string, LucideIcon> = {
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
-  "Report",
   "Clinical reminder"
 ];
 
@@ -523,3 +522,4 @@ export default function DashboardPage(): JSX.Element {
 }
 
     
+
