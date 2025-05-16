@@ -1,20 +1,14 @@
 
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import type { Patient } from '@/lib/constants';
+import { MOCK_PATIENT } from '@/lib/constants';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
+  SidebarHeader,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MOCK_PATIENT } from '@/lib/constants';
-import type { Patient } from '@/lib/constants';
-import { LayoutGrid } from 'lucide-react';
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -22,19 +16,32 @@ const patientDetails = [
   { label: 'Gender', value: patient.gender },
   { label: 'Age', value: `${patient.age} years` },
   { label: 'Ward', value: patient.wardNo },
-  { label: 'Admitted', value: new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) },
+  {
+    label: 'Admitted',
+    value: new Date(patient.admissionDate).toLocaleDateString('en-US', {
+      month: 'numeric',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  },
   { label: 'Stay', value: patient.lengthOfStay },
   { label: 'Mobile', value: patient.mobile },
-  { label: 'DOB', value: new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) },
-  { label: 'Primary Consultant', value: patient.primaryConsultant },
-  { label: 'Encounter Provider', value: patient.encounterProvider },
+  {
+    label: 'DOB',
+    value: new Date(patient.dob).toLocaleDateString('en-US', {
+      month: 'numeric',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  },
+  { label: 'Consultant', value: patient.primaryConsultant }, // Renamed
+  { label: 'Provider', value: patient.encounterProvider }, // Renamed
   { label: 'Final Diagnosis', value: patient.finalDiagnosis },
   { label: 'Posting', value: patient.posting },
   { label: 'Reason for Visit', value: patient.reasonForVisit },
 ];
 
 export function SidebarNav() {
-  const pathname = usePathname();
   const genderInitial = patient.gender ? patient.gender.charAt(0).toUpperCase() : '';
 
   return (
@@ -58,25 +65,25 @@ export function SidebarNav() {
         </div>
 
         <ul className="space-y-1 text-xs text-sidebar-foreground/80 pt-2">
-          {patientDetails.map((detail) => 
-            (detail.label !== 'Gender' && detail.label !== 'Age') && (
-              <li key={detail.label} className="flex items-start">
-                <span className="font-medium w-28 shrink-0">{detail.label}:</span>
-                <span className="truncate flex-1">{detail.value}</span>
-              </li>
-            )
+          {patientDetails.map(
+            (detail) =>
+              detail.label !== 'Gender' &&
+              detail.label !== 'Age' && (
+                <li key={detail.label} className="flex items-start">
+                  <span className="font-medium w-28 shrink-0">{detail.label}:</span>
+                  <span className="flex-1">{detail.value}</span> {/* Removed truncate, allows wrapping */}
+                </li>
+              )
           )}
         </ul>
-
-        <SidebarMenu>
-          {/* Dashboard menu item removed */}
-        </SidebarMenu>
       </SidebarContent>
 
       <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8 bg-red-500">
-            <AvatarFallback className="text-white text-sm font-semibold">N</AvatarFallback>
+            <AvatarFallback className="text-white text-sm font-semibold">
+              N
+            </AvatarFallback>
           </Avatar>
         </div>
       </SidebarFooter>
