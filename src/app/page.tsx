@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react'; // Added this line
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
@@ -8,7 +8,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, Trash2,
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus,
   FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
@@ -57,11 +57,10 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Radiology": ScanLine,
   "Encounter notes": ClipboardList,
   "Clinical reminder": BellRing,
-  "Clinical notes": FileText, // Default icon if not specified or for new cards
-  "Report": FileText, // Default icon
+  "Clinical notes": FileText, 
+  "Report": FileText, 
 };
 
-// "Clinical notes", "Encounter notes", "Report", "Clinical reminder" will be rendered by the loop
 const informationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
@@ -130,22 +129,6 @@ export default function DashboardPage(): JSX.Element {
     setIsAddItemDialogOpen(false);
     setEditingInfoCardTitle(null);
   };
-
-  const handleDeleteProblem = (idToDelete: string) => {
-    setProblems(prev => prev.filter(problem => problem.id !== idToDelete));
-  };
-
-  const handleDeleteMedication = (idToDelete: string) => {
-    setMedications(prev => prev.filter(med => med.id !== idToDelete));
-  };
-
-  const handleDeleteInfoItem = (cardTitle: string, itemIndex: number) => {
-    setDynamicPageCardSampleContent(prev => {
-      const updatedItems = [...(prev[cardTitle] || [])];
-      updatedItems.splice(itemIndex, 1);
-      return { ...prev, [cardTitle]: updatedItems };
-    });
-  };
   
 
   return (
@@ -191,11 +174,6 @@ export default function DashboardPage(): JSX.Element {
                     <TableRow key={problem.id}>
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{problem.description}</div>
-                      </TableCell>
-                      <TableCell className="px-1 py-1 text-right w-10">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteProblem(problem.id)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -304,11 +282,6 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
-                       <TableCell className="px-1 py-1 text-right w-10">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Allergies", index)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -358,11 +331,6 @@ export default function DashboardPage(): JSX.Element {
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
                     </TableCell>
-                    <TableCell className="px-1 py-1 text-right w-10">
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteMedication(med.id)}>
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -393,11 +361,6 @@ export default function DashboardPage(): JSX.Element {
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
-                      <TableCell className="px-1 py-1 text-right w-10">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem("Radiology", index)}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -412,7 +375,7 @@ export default function DashboardPage(): JSX.Element {
       {/* Third Row: clinical notes,encounter notes,report ,clinical reminder */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {informationalCardTitles.map((title) => {
-          const IconComponent = infoCardIcons[title] || FileText; // Default to FileText if no specific icon
+          const IconComponent = infoCardIcons[title] || FileText; 
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
               <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -433,11 +396,6 @@ export default function DashboardPage(): JSX.Element {
                       <TableRow key={index}>
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
-                        </TableCell>
-                         <TableCell className="px-1 py-1 text-right w-10">
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleDeleteInfoItem(title, index)}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
