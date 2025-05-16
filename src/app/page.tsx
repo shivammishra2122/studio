@@ -72,8 +72,12 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Report": FileText, 
 };
 
-// "Allergies", "Radiology", "Report" are explicitly placed in the second row.
-// "Clinical notes", "Encounter notes", "Clinical reminder" are in the third row.
+const secondRowInformationalCardTitles: string[] = [
+  "Allergies",
+  "Report",
+  "Radiology",
+];
+
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
@@ -308,36 +312,45 @@ export default function DashboardPage(): JSX.Element {
 
       {/* Second Row: Allergies ,medical history ,report, radiology  */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-2">
-        {/* Allergies Card */}
-        <Card className="shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-              <div className="flex items-center space-x-1.5">
-                <Ban className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Allergies</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Allergies</span>
-              </Button>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
-              <Table>
-                <TableBody>
-                  {(dynamicPageCardSampleContent["Allergies"] || []).map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="px-2 py-1">
-                        <div className="font-medium text-xs">{item}</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {(dynamicPageCardSampleContent["Allergies"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No allergies listed.</p>
-              )}
-            </CardContent>
-        </Card>
+        {secondRowInformationalCardTitles.map((title) => {
+          const IconComponent = infoCardIcons[title] || FileText; 
+          const items = dynamicPageCardSampleContent[title] || [];
+          return (
+            <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
+              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+                <div className="flex items-center space-x-1.5">
+                  <IconComponent className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-base">{title}</CardTitle>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
+                </div>
+                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-only">Add to {title}</span>
+                  </Button>
+              </ShadcnCardHeader>
+              <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+                <Table>
+                  <TableBody>
+                    {items.map((item, index) => (
+                       <TableRow 
+                        key={index} 
+                        onClick={() => (title === "Report" || title === "Radiology") && handleShowItemDetailInChartArea(title === "Report" ? "Report Detail" : "Radiology Detail", item)}
+                        className={(title === "Report" || title === "Radiology") ? "cursor-pointer hover:bg-muted/50" : ""}
+                      >
+                        <TableCell className="px-2 py-1">
+                          <div className="font-medium text-xs">{item}</div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                {items.length === 0 && (
+                  <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
         
         {/* Medications History Card */}
         <Card className="shadow-lg">
@@ -388,68 +401,6 @@ export default function DashboardPage(): JSX.Element {
             )}
           </CardContent>
         </Card>
-
-        {/* Report Card */}
-        <Card className="shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-              <div className="flex items-center space-x-1.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Report</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Report</span>
-              </Button>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
-              <Table>
-                <TableBody>
-                  {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                    <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Report Detail", item)} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell className="px-2 py-1">
-                        <div className="font-medium text-xs">{item}</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No report items.</p>
-              )}
-            </CardContent>
-        </Card>
-
-        {/* Radiology Card */}
-        <Card className="shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-              <div className="flex items-center space-x-1.5">
-                <ScanLine className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Radiology</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
-              </div>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Radiology</span>
-              </Button>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
-              <Table>
-                <TableBody>
-                  {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
-                    <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell className="px-2 py-1">
-                        <div className="font-medium text-xs">{item}</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {(dynamicPageCardSampleContent["Radiology"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No radiology items.</p>
-              )}
-            </CardContent>
-        </Card>
       </div>
       
       {/* Third Row: clinical notes,encounter notes,clinical reminder */}
@@ -470,7 +421,7 @@ export default function DashboardPage(): JSX.Element {
                   <span className="sr-only">Add to {title}</span>
                 </Button>
               </ShadcnCardHeader>
-              <CardContent className="p-0 max-h-28 overflow-y-auto no-scrollbar">
+              <CardContent className="p-0 max-h-24 overflow-y-auto no-scrollbar">
                 <Table>
                   <TableBody>
                     {items.map((item, index) => (
