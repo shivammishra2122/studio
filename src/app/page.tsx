@@ -9,7 +9,7 @@ import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus,
-  FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon, Trash2
+  FileText, Ban, ScanLine, ClipboardList, BellRing, LucideIcon
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
@@ -32,7 +32,6 @@ const keyIndicators: KeyIndicatorWithTab[] = [
   { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
   { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
-  { name: 'Radiology Reports', value: 'View', unit: '', icon: ScanLine, tabValue: 'radiology-reports' },
 ];
 
 const heartRateMonitorData: Array<{ time: string; hr: number }> = [
@@ -76,7 +75,6 @@ const infoCardIcons: Record<string, LucideIcon> = {
 };
 
 // "Allergies", "Report", and "Radiology" are explicitly placed.
-// "Clinical notes", "Encounter notes", "Clinical reminder" will be in the bottom loop
 const informationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
@@ -100,6 +98,10 @@ export default function DashboardPage(): JSX.Element {
   const [newItemInput, setNewItemInput] = useState('');
 
   const [activeChartTab, setActiveChartTab] = useState<string>('heart-rate');
+
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [detailDialogTitle, setDetailDialogTitle] = useState('');
+  const [detailDialogContent, setDetailDialogContent] = useState('');
 
 
   const handleAddProblem = () => {
@@ -145,6 +147,12 @@ export default function DashboardPage(): JSX.Element {
     setNewItemInput('');
     setIsAddItemDialogOpen(false);
     setEditingInfoCardTitle(null);
+  };
+
+  const handleOpenDetailDialog = (title: string, content: string) => {
+    setDetailDialogTitle(title);
+    setDetailDialogContent(content);
+    setIsDetailDialogOpen(true);
   };
   
 
@@ -205,7 +213,7 @@ export default function DashboardPage(): JSX.Element {
         <Card className="lg:col-span-6 shadow-lg h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
-              {/* TabsList removed as per user request */}
+              {/* TabsList removed */}
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
                   <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
@@ -252,29 +260,7 @@ export default function DashboardPage(): JSX.Element {
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="radiology-reports">
-                <Card className="border-0 shadow-none">
-                   <ShadcnCardHeader className="flex flex-row items-center justify-between pt-1 pb-0 px-1">
-                    <CardTitle className="text-sm">Radiology Reports</CardTitle>
-                  </ShadcnCardHeader>
-                  <CardContent className="p-1.5 max-h-[120px] overflow-y-auto no-scrollbar">
-                    <Table>
-                      <TableBody>
-                        {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
-                          <TableRow key={index}>
-                            <TableCell className="px-2 py-1">
-                              <div className="font-medium text-xs">{item}</div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                    {(dynamicPageCardSampleContent["Radiology"] || []).length === 0 && (
-                      <p className="py-4 text-center text-xs text-muted-foreground">No radiology items.</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              {/* Radiology Reports TabContent removed from here */}
             </Tabs>
           </CardContent>
         </Card>
@@ -401,7 +387,7 @@ export default function DashboardPage(): JSX.Element {
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} onClick={() => handleOpenDetailDialog("Report Detail", item)} className="cursor-pointer hover:bg-muted/50">
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
@@ -431,7 +417,7 @@ export default function DashboardPage(): JSX.Element {
               <Table>
                 <TableBody>
                   {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} onClick={() => handleOpenDetailDialog("Radiology Detail", item)} className="cursor-pointer hover:bg-muted/50">
                       <TableCell className="px-2 py-1">
                         <div className="font-medium text-xs">{item}</div>
                       </TableCell>
@@ -511,9 +497,21 @@ export default function DashboardPage(): JSX.Element {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog for displaying item details */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogUITitle>{detailDialogTitle}</DialogUITitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-foreground">{detailDialogContent}</p>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button>Close</Button></DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
-
-
-    
