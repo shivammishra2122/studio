@@ -6,7 +6,6 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
-  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -14,7 +13,7 @@ import {
   CalendarDays,
   BedDouble,
   Clock,
-  User, // Keep User for fallback
+  User, 
   Hospital,
   FileText,
   BriefcaseMedical,
@@ -59,22 +58,22 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
-        {/* Logo Header Removed as per previous request */}
+        {/* Logo Header Removed */}
         
         <div className="flex flex-col items-center space-y-1 mb-2"> 
           <Avatar className="h-20 w-20"> 
             <AvatarImage 
-              src={patient.avatarUrl} // This will be an empty string for MOCK_PATIENT
+              src={patient.avatarUrl} 
               alt={patient.name} 
               data-ai-hint="person patient"
             />
-            <AvatarFallback className="bg-white"> {/* Changed background to white */}
-              <User className="h-10 w-10 text-primary" /> {/* Icon color changed to primary theme color */}
+            <AvatarFallback className="bg-white">
+              <User className="h-10 w-10 text-primary" />
             </AvatarFallback>
           </Avatar>
           <div className="text-center">
             <p className="text-md font-medium text-sidebar-foreground">
-              {patient.name} / {genderInitial} {patient.age}
+              {patient.name} ({genderInitial} {patient.age})
             </p>
           </div>
         </div>
@@ -111,4 +110,3 @@ export function SidebarNav() {
     </>
   );
 }
-
