@@ -150,8 +150,16 @@ export default function DashboardPage(): JSX.Element {
   
   const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
     setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
-    setDetailViewContent(itemText);
-    setActiveChartTab('detail-view');
+    
+    let contentToShow = itemText;
+    if (titlePrefix === "Radiology Detail" && itemText === "Chest X-Ray: Clear") {
+      contentToShow = `Normal lung expansion without fluid or masses.\nHeart size within normal limits.\nClear airways and no structural abnormalities in the bones or diaphragm.`;
+    } else if (titlePrefix === "Report Detail") { // Example: Could add more specific details for reports
+        // Add logic here if specific report items need different detailed content
+    }
+    
+    setDetailViewContent(contentToShow);
+    setActiveChartTab('detail-view'); 
   };
   
 
@@ -265,7 +273,9 @@ export default function DashboardPage(): JSX.Element {
                     <CardTitle className="text-base">{detailViewTitle}</CardTitle>
                   </ShadcnCardHeader>
                   <CardContent className="p-3 text-sm text-foreground max-h-[150px] overflow-y-auto no-scrollbar">
-                    {detailViewContent}
+                    {detailViewContent.split('\n').map((line, index) => (
+                      <div key={index}>{line}</div>
+                    ))}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -512,3 +522,5 @@ export default function DashboardPage(): JSX.Element {
   );
 }
 
+
+    
