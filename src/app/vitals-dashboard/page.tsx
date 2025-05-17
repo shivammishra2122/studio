@@ -39,14 +39,14 @@ const VitalsDashboardPage: NextPage = () => {
   const [toDate, setToDate] = useState<string>("");
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm"> {/* Changed bg-sky-50 to bg-background */}
+    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
       {/* Left Vertical Navigation Panel */}
-      <aside className="w-48 bg-card border-r p-2 flex flex-col space-y-1">
+      <aside className="w-40 bg-card border-r p-2 flex flex-col space-y-1"> {/* Reduced width from w-48 */}
         {verticalNavItems.map((item) => (
           <Button
             key={item}
             variant={activeVerticalTab === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-100 text-blue-700 border-l-4 border-orange-500' : 'hover:bg-muted/50'}`}
+            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400' : 'hover:bg-muted/50'}`}
             onClick={() => setActiveVerticalTab(item)}
           >
             {item}
@@ -57,14 +57,14 @@ const VitalsDashboardPage: NextPage = () => {
       {/* Right Content Panel */}
       <main className="flex-1 flex p-3 gap-3 overflow-hidden">
         {/* Vitals Data Area */}
-        <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
+        <div className="flex-[2] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[3] */}
           {/* Header */}
-          <div className="flex items-center justify-between p-2 border-b bg-blue-100 text-blue-800 rounded-t-md">
+          <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
             <h2 className="text-base font-semibold">{activeVerticalTab}</h2>
             <div className="flex items-center space-x-2">
-              <Checkbox id="enteredInError" />
-              <Label htmlFor="enteredInError" className="text-xs">Entered in Error</Label>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-700 hover:bg-blue-200">
+              <Checkbox id="enteredInError" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-blue-700" />
+              <Label htmlFor="enteredInError" className="text-xs text-white">Entered in Error</Label>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600">
                 <Edit3 className="h-4 w-4" />
               </Button>
             </div>
@@ -83,7 +83,7 @@ const VitalsDashboardPage: NextPage = () => {
                 <SelectItem value="custom">Custom</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" className="h-8 text-xs">Today</Button>
+            {/* Removed "Today" button */}
             <div className="flex items-center space-x-1">
               <Label htmlFor="fromDate" className="shrink-0">From Date</Label>
               <div className="relative">
@@ -105,7 +105,7 @@ const VitalsDashboardPage: NextPage = () => {
           </div>
 
           {/* Vitals Table Header (Date/Time) */}
-          <div className="flex items-center justify-end p-2 bg-blue-100 text-blue-800 border-b text-xs font-medium">
+          <div className="flex items-center justify-end p-2 bg-blue-700 text-white border-b text-xs font-medium">
             <div className="w-20 text-center">Date</div>
             <div className="w-20 text-center">Time</div>
           </div>
@@ -135,8 +135,8 @@ const VitalsDashboardPage: NextPage = () => {
         </div>
 
         {/* Vitals Graph Area */}
-        <div className="flex-1 flex flex-col border rounded-md bg-card shadow">
-          <div className="flex items-center p-2 border-b bg-blue-100 text-blue-800 rounded-t-md">
+        <div className="flex-[3] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-1 */}
+          <div className="flex items-center p-2 border-b bg-blue-700 text-white rounded-t-md">
             <h2 className="text-base font-semibold">Vitals Graph</h2>
           </div>
           <div className="flex-1 p-2">
