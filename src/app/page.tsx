@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -7,17 +8,16 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Plus, Clock, Pill as PillIcon,
-  FileText, Ban, ScanLine, ClipboardList, BellRing
-} from 'lucide-react'; 
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Plus, Clock, Pill as PillIcon, Edit3,
+  FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
+} from 'lucide-react';
 import type { HealthMetric, Problem, Medication, LucideIcon } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -25,8 +25,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
   { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
+  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure', date: '23 SEP, 2024 09:58'},
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature', date: '23 SEP, 2024 09:58' },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
 ];
 
@@ -70,6 +70,7 @@ const infoCardIcons: Record<string, LucideIcon> = {
   "Report": FileText, 
 };
 
+// "Report" is now explicitly placed in the second row
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
   "Encounter notes",
@@ -96,6 +97,13 @@ export default function DashboardPage(): JSX.Element {
   const [detailViewTitle, setDetailViewTitle] = useState<string>('');
   const [detailViewContent, setDetailViewContent] = useState<string>('');
 
+  const [problemDialogOffset, setProblemDialogOffset] = useState({ x: 0, y: 0 });
+  const problemDialogRef = useRef<HTMLDivElement>(null);
+  const problemHeaderRef = useRef<HTMLDivElement>(null);
+  const isProblemDialogDragging = useRef(false);
+  const problemDragStartCoords = useRef({ x: 0, y: 0 });
+  const problemInitialDialogOffset = useRef({ x: 0, y: 0 });
+
 
   const handleAddProblem = () => {
     if (!newProblemInput.trim()) return;
@@ -117,13 +125,23 @@ export default function DashboardPage(): JSX.Element {
       reason: 'General', 
       amount: 'N/A',
       timing: 'N/A',
-      taken: false,
+      status: 'Pending', 
     };
     setMedications(prev => [newMed, ...prev]);
     setNewMedicationInput('');
     setIsAddMedicationDialogOpen(false);
   };
 
+  const openAddProblemDialog = () => {
+    setNewProblemInput('');
+    setProblemDialogOffset({ x: 0, y: 0 });
+    setIsAddProblemDialogOpen(true);
+  };
+  
+  const openAddMedicationDialog = () => {
+    setNewMedicationInput('');
+    setIsAddMedicationDialogOpen(true);
+  };
 
   const handleOpenAddItemDialog = (title: string) => {
     setEditingInfoCardTitle(title);
@@ -153,6 +171,53 @@ export default function DashboardPage(): JSX.Element {
     setDetailViewContent(contentToShow);
     setActiveChartTab('detail-view'); 
   };
+
+  const handleProblemDialogMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (problemHeaderRef.current) {
+      isProblemDialogDragging.current = true;
+      problemDragStartCoords.current = { x: e.clientX, y: e.clientY };
+      problemInitialDialogOffset.current = { ...problemDialogOffset };
+      problemHeaderRef.current.style.cursor = 'grabbing';
+      document.body.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isProblemDialogDragging.current) return;
+      const deltaX = e.clientX - problemDragStartCoords.current.x;
+      const deltaY = e.clientY - problemDragStartCoords.current.y;
+      setProblemDialogOffset({
+        x: problemInitialDialogOffset.current.x + deltaX,
+        y: problemInitialDialogOffset.current.y + deltaY,
+      });
+    };
+
+    const handleMouseUp = () => {
+      if (isProblemDialogDragging.current) {
+        isProblemDialogDragging.current = false;
+        if (problemHeaderRef.current) {
+          problemHeaderRef.current.style.cursor = 'grab';
+        }
+        document.body.style.cursor = 'default';
+      }
+    };
+
+    if (isAddProblemDialogOpen) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      if (problemHeaderRef.current) {
+        problemHeaderRef.current.style.cursor = 'grab';
+      }
+      document.body.style.cursor = 'default';
+    };
+  }, [isAddProblemDialogOpen]);
   
 
   return (
@@ -167,29 +232,16 @@ export default function DashboardPage(): JSX.Element {
                 <CardTitle className="text-base">Problem</CardTitle>
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
               </div>
-              <Dialog open={isAddProblemDialogOpen} onOpenChange={setIsAddProblemDialogOpen}>
-                  <DialogTrigger asChild>
-                       <Button variant="ghost" size="icon" className="h-7 w-7">
-                          <Plus className="h-3.5 w-3.5" />
-                           <span className="sr-only">Add Problem</span>
-                      </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogUITitle>Add New Problem</DialogUITitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="problemDesc" className="text-right">Description</Label>
-                        <Input id="problemDesc" value={newProblemInput} onChange={(e) => setNewProblemInput(e.target.value)} className="col-span-3" />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                      <Button onClick={handleAddProblem}>Add</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit Problem</span>
+                </Button>
+                <Button variant="default" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-only">Add Problem</span>
+                </Button>
+              </div>
             </ShadcnCardHeader>
             <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
               <Table>
@@ -212,7 +264,6 @@ export default function DashboardPage(): JSX.Element {
         <Card className="lg:col-span-6 shadow-lg h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
-              {/* TabsList removed */}
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
                   <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
@@ -293,6 +344,7 @@ export default function DashboardPage(): JSX.Element {
                 <div className="text-right">
                   <span className="text-xs text-foreground">{indicator.value}</span>
                   <span className="text-xs text-foreground/80 ml-0.5">{indicator.unit}</span>
+                   {indicator.date && <span className="block text-xs text-muted-foreground/80">{indicator.date}</span>}
                 </div>
               </div>
             ))}
@@ -300,7 +352,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
 
-      {/* Second Row: Allergies (20%), Medications History (30%), Report (30%), Radiology (20%) */}
+      {/* Second Row: Allergies (20%), Medications History (30%), Report (20%), Radiology (20%) */}
       <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
         {/* Allergies Card */}
         <Card className="md:col-span-2 shadow-lg">
@@ -308,22 +360,24 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center space-x-1.5">
               <Ban className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Allergies</CardTitle>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Allergies"]?.length || 0}</Badge>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
             </div>
-            <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === "Allergies"} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog("Allergies");} }}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Allergies")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Allergies</span>
+              </Button>
+              <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
                   <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add Allergy</span>
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+              </Button>
+            </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
               <TableBody>
                 {(dynamicPageCardSampleContent["Allergies"] || []).map((item, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Allergy Detail", item)} className="cursor-pointer hover:bg-muted/50">
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{item}</div>
                     </TableCell>
@@ -345,29 +399,16 @@ export default function DashboardPage(): JSX.Element {
               <CardTitle className="text-base">Medications History</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{medications.length}</Badge>
             </div>
-            <Dialog open={isAddMedicationDialogOpen} onOpenChange={setIsAddMedicationDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add Medication</span>
+            <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddMedicationDialog}>
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit Medication</span>
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogUITitle>Add New Medication</DialogUITitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="medName" className="text-right">Name</Label>
-                    <Input id="medName" value={newMedicationInput} onChange={(e) => setNewMedicationInput(e.target.value)} className="col-span-3" />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                  <Button onClick={handleAddMedication}>Add</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                <Button variant="default" size="icon" className="h-7 w-7" onClick={openAddMedicationDialog}>
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-only">Add Medication</span>
+                </Button>
+            </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
@@ -376,6 +417,12 @@ export default function DashboardPage(): JSX.Element {
                   <TableRow key={med.id}>
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{med.name}</div>
+                      <div className="text-xs text-muted-foreground">{med.reason} - {med.amount} - {med.timing}</div>
+                    </TableCell>
+                    <TableCell className="text-right px-2 py-1">
+                        <Badge variant={med.status === 'Active' ? 'default' : med.status === 'Pending' ? 'secondary' : 'outline'} className="text-xs">
+                            {med.status}
+                        </Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -393,16 +440,18 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center space-x-1.5">
               <FileText className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Report</CardTitle>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Report"]?.length || 0}</Badge>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
             </div>
-            <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === "Report"} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog("Report"); } }}>
-                <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                        <Plus className="h-3.5 w-3.5" />
-                        <span className="sr-only">Add Report Item</span>
-                    </Button>
-                </DialogTrigger>
-            </Dialog>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Report")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Report</span>
+              </Button>
+              <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Report</span>
+              </Button>
+            </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
@@ -432,16 +481,18 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center space-x-1.5">
               <ScanLine className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Radiology</CardTitle>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{dynamicPageCardSampleContent["Radiology"]?.length || 0}</Badge>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
             </div>
-             <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === "Radiology"} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog("Radiology");} }}>
-                <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                        <Plus className="h-3.5 w-3.5" />
-                        <span className="sr-only">Add Radiology Item</span>
-                    </Button>
-                </DialogTrigger>
-            </Dialog>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Radiology</span>
+              </Button>
+              <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Radiology</span>
+              </Button>
+            </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
@@ -479,20 +530,22 @@ export default function DashboardPage(): JSX.Element {
                   <CardTitle className="text-base">{title}</CardTitle>
                   <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
                 </div>
-                <Dialog open={isAddItemDialogOpen && editingInfoCardTitle === title} onOpenChange={(isOpen) => { if (!isOpen) { setIsAddItemDialogOpen(false); setEditingInfoCardTitle(null); } else { handleOpenAddItemDialog(title); } }}>
-                    <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                            <Plus className="h-3.5 w-3.5" />
-                            <span className="sr-only">Add to {title}</span>
-                        </Button>
-                    </DialogTrigger>
-                </Dialog>
+                <div className="flex items-center">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
+                      <Edit3 className="h-3.5 w-3.5" />
+                      <span className="sr-only">Edit {title}</span>
+                  </Button>
+                  <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
+                      <Plus className="h-3.5 w-3.5" />
+                      <span className="sr-only">Add to {title}</span>
+                  </Button>
+                </div>
               </ShadcnCardHeader>
               <CardContent className="p-0 max-h-24 overflow-y-auto no-scrollbar">
                 <Table>
                   <TableBody>
                     {items.map((item, index) => (
-                      <TableRow key={index}>
+                      <TableRow key={index} onClick={() => handleShowItemDetailInChartArea(`${title} Detail`, item)} className="cursor-pointer hover:bg-muted/50">
                         <TableCell className="px-2 py-1">
                           <div className="font-medium text-xs">{item}</div>
                         </TableCell>
@@ -509,17 +562,16 @@ export default function DashboardPage(): JSX.Element {
         })}
       </div>
 
-      {/* Common Dialog for adding items to informational cards */}
-      <Dialog open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle || "")} onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setIsAddItemDialogOpen(false);
-          setEditingInfoCardTitle(null);
-        } else {
-          // This else case might not be strictly necessary if opening is handled by triggers
-          // but ensures dialog stays open if its specific trigger was used.
-          setIsAddItemDialogOpen(true); 
-        }
-      }}>
+      {/* Common Dialog for adding items to informational cards (excluding Problem and Medications History) */}
+      <Dialog 
+        open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle!)} 
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setIsAddItemDialogOpen(false);
+            setEditingInfoCardTitle(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogUITitle>Add New Item to {editingInfoCardTitle}</DialogUITitle>
@@ -536,11 +588,59 @@ export default function DashboardPage(): JSX.Element {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog for Adding Problem */}
+       <Dialog open={isAddProblemDialogOpen} onOpenChange={(open) => { if (!open) setIsAddProblemDialogOpen(false); else openAddProblemDialog(); }}>
+          <DialogContent
+            ref={problemDialogRef}
+            style={{
+              position: 'fixed', 
+              left: '50%', 
+              top: '50%',  
+              transform: `translate(calc(-50% + ${problemDialogOffset.x}px), calc(-50% + ${problemDialogOffset.y}px))`,
+            }}
+            className="sm:max-w-[425px]" 
+            onOpenAutoFocus={(e) => e.preventDefault()} 
+          >
+            <DialogHeader
+              ref={problemHeaderRef}
+              onMouseDown={handleProblemDialogMouseDown}
+              style={{ cursor: 'grab', userSelect: 'none' }}
+            >
+              <DialogUITitle>Add New Problem</DialogUITitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="problemDesc" className="text-right">Description</Label>
+                <Input id="problemDesc" value={newProblemInput} onChange={(e) => setNewProblemInput(e.target.value)} className="col-span-3" />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild><Button variant="outline" onClick={() => setIsAddProblemDialogOpen(false)}>Cancel</Button></DialogClose>
+              <Button onClick={handleAddProblem}>Add</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+      {/* Dialog for Adding Medication */}
+      <Dialog open={isAddMedicationDialogOpen} onOpenChange={setIsAddMedicationDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogUITitle>Add New Medication</DialogUITitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="medName" className="text-right">Name</Label>
+              <Input id="medName" value={newMedicationInput} onChange={(e) => setNewMedicationInput(e.target.value)} className="col-span-3" />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline" onClick={() => setIsAddMedicationDialogOpen(false)}>Cancel</Button></DialogClose>
+            <Button onClick={handleAddMedication}>Add</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
-
-    
-
-
-
