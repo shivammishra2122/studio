@@ -31,14 +31,14 @@ const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
-    label: 'DOB',
+    label: 'DOB', // Only DOB and AD will have textual labels
     value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays
   },
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admissionDate',
-    label: 'AD',
+    label: 'AD', // Only DOB and AD will have textual labels
     value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays,
   },
@@ -119,7 +119,7 @@ export function SidebarNav() {
             {/* Company Logo */}
             <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
               <Image
-                src="/sansys-logo-image.png" // Ensure this path is correct for your logo in the public folder
+                src="/company-logo.png" 
                 alt="Company Logo"
                 width={150} 
                 height={50}  

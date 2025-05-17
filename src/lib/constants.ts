@@ -56,13 +56,13 @@ export type HealthMetric = {
   value: string;
   unit: string;
   icon?: LucideIcon;
-  tabValue?: string; // Added for linking vitals to chart tabs
+  tabValue?: string; 
 };
 
 export const MOCK_PATIENT = {
   id: 'pat123',
   name: 'Sarah Miller',
-  avatarUrl: '', // Changed from placeholder URL to empty string
+  avatarUrl: '', 
   gender: 'Female',
   age: 42,
   dob: '1982-03-15',
@@ -80,6 +80,14 @@ export const MOCK_PATIENT = {
 export type Patient = typeof MOCK_PATIENT;
 
 
+export type PatientDetailItem = {
+  key: string;
+  label: string;
+  value?: string;
+  icon?: LucideIcon;
+};
+
+
 export const pageCardSampleContent: Record<string, string[]> = {
   "Allergies": ["Pollen", "Dust Mites", "Peanuts", "Shellfish", "Penicillin", "Aspirin"], 
   "Clinical notes": ["Follow-up in 3 months", "Monitor blood pressure", "Discussed diet changes", "Patient reports feeling well", "Reviewed recent lab results", "Adjusted medication dosage"], 
@@ -91,3 +99,4 @@ export const pageCardSampleContent: Record<string, string[]> = {
 
 
 export { Clock, PillIcon, Plus, Edit3, FileText, Ban, ScanLine, ClipboardList, BellRing, BedDouble, User, CalendarDays, Phone, Hospital, BriefcaseMedical, FileQuestion, LayoutGrid };
+
