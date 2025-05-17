@@ -27,12 +27,73 @@ const vitalTypes = [
   "Early Warning Sign", "Location", "Entered By"
 ];
 
-const mockVitalChartData = [
-  { name: '1', Y_axis: 0 }, { name: '2', Y_axis: 10 }, { name: '3', Y_axis: 20 },
-  { name: '4', Y_axis: 25 }, { name: '5', Y_axis: 40 }, { name: '6', Y_axis: 30 },
-  { name: '7', Y_axis: 50 }, { name: '8', Y_axis: 65 }, { name: '9', Y_axis: 70 },
-  { name: '10', Y_axis: 80 },
-];
+type VitalChartDataPoint = { name: string; value: number };
+
+const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
+  const baseData = [
+    { name: '1', value: 0 }, { name: '2', value: 10 }, { name: '3', value: 20 },
+    { name: '4', value: 25 }, { name: '5', value: 40 }, { name: '6', value: 30 },
+    { name: '7', value: 50 }, { name: '8', value: 65 }, { name: '9', value: 70 },
+    { name: '10', value: 80 },
+  ];
+
+  switch (vitalName) {
+    case "B/P (mmHg)": // Representing average or a single value for simplicity
+      return baseData.map(d => ({ ...d, value: d.value + 40 })); // e.g., 40-120 range
+    case "Temp (F)":
+      return baseData.map(d => ({ ...d, value: 95 + (d.value / 10) * 1.5 })); // e.g., 95-107 range
+    case "Resp (/min)":
+      return baseData.map(d => ({ ...d, value: 10 + (d.value / 10) * 2 })); // e.g., 10-30 range
+    case "Pulse (/min)":
+      return baseData.map(d => ({ ...d, value: 50 + (d.value / 10) * 7 })); // e.g., 50-120 range
+    case "Height (In)":
+      return Array(10).fill(null).map((_, i) => ({ name: (i + 1).toString(), value: 68 })); // Static value
+    case "Weight (kg)":
+      return baseData.map(d => ({ ...d, value: 60 + (d.value / 20) })); // e.g., 60-64 range with some fluctuation
+    case "CVP (cmH2O)":
+      return baseData.map(d => ({ ...d, value: 2 + (d.value / 10) * 0.8 })); // e.g., 2-10 range
+    case "C/G (In)":
+      return baseData.map(d => ({ ...d, value: 30 + (d.value / 10) })); // e.g., 30-38 range
+    case "Pulse Oximetry (%)":
+      return baseData.map(d => ({ ...d, value: 90 + (d.value / 10) })); // e.g., 90-100 range
+    case "Pain":
+      return baseData.map(d => ({ ...d, value: Math.min(10, d.value / 8) })); // 0-10 scale
+    case "Early Warning Sign":
+       return baseData.map(d => ({ ...d, value: Math.round(d.value / 20) })); // Small integer values
+    default: // For Location, Entered By, etc.
+      return Array(10).fill(null).map((_, i) => ({ name: (i + 1).toString(), value: 0 }));
+  }
+};
+
+const getYAxisConfig = (vitalName: string): { label: string; domain: [number, number] } => {
+  switch (vitalName) {
+    case "B/P (mmHg)":
+      return { label: "mmHg", domain: [40, 180] };
+    case "Temp (F)":
+      return { label: "°F", domain: [90, 110] };
+    case "Resp (/min)":
+      return { label: "/min", domain: [0, 40] };
+    case "Pulse (/min)":
+      return { label: "bpm", domain: [40, 140] };
+    case "Height (In)":
+      return { label: "Inches", domain: [0, 80] };
+    case "Weight (kg)":
+      return { label: "kg", domain: [0, 150] };
+    case "CVP (cmH2O)":
+      return { label: "cmH2O", domain: [0, 20] };
+    case "C/G (In)":
+      return { label: "Inches", domain: [0, 50] };
+    case "Pulse Oximetry (%)":
+      return { label: "%", domain: [70, 100] };
+    case "Pain":
+      return { label: "Scale 0-10", domain: [0, 10] };
+    case "Early Warning Sign":
+       return { label: "Score", domain: [0, 10] };
+    default:
+      return { label: "Value", domain: [0, 100] };
+  }
+};
+
 
 const mockIntakeOutputChartData = [
   { name: '08:00', series1: 400, series2: 240 },
@@ -48,11 +109,16 @@ const VitalsView = () => {
   const [visitDate, setVisitDate] = useState<string | undefined>();
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
+  const [selectedVitalForGraph, setSelectedVitalForGraph] = useState<string>(vitalTypes[0]);
+
+  const chartData = getMockDataForVital(selectedVitalForGraph);
+  const yAxisConfig = getYAxisConfig(selectedVitalForGraph);
+
 
   return (
     <>
       {/* Vitals Data Area */}
-      <div className="flex-[2] flex flex-col border rounded-md bg-card shadow">
+      <div className="flex-[19] flex flex-col border rounded-md bg-card shadow">
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
@@ -110,7 +176,11 @@ const VitalsView = () => {
           <Table className="text-xs">
             <TableBody>
               {vitalTypes.map((vital) => (
-                <TableRow key={vital} className="hover:bg-muted/30">
+                <TableRow 
+                  key={vital} 
+                  className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-muted' : ''}`}
+                  onClick={() => setSelectedVitalForGraph(vital)}
+                >
                   <TableCell className="font-medium py-1.5 border-r w-48">{vital}</TableCell>
                   <TableCell className="py-1.5 border-r w-20 text-center">-</TableCell>
                   <TableCell className="py-1.5 w-20 text-center">-</TableCell>
@@ -128,18 +198,22 @@ const VitalsView = () => {
       </div>
 
       {/* Vitals Graph Area */}
-      <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
+      <div className="flex-[31] flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center p-2 border-b bg-blue-700 text-white rounded-t-md">
-          <h2 className="text-base font-semibold">Vitals Graph</h2>
+          <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockVitalChartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
+            <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "X axis", position: 'insideBottom', offset: -10, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} label={{ value: "Y axis", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Time/Sequence", position: 'insideBottom', offset: -10, fontSize: 10 }} />
+              <YAxis 
+                tick={{ fontSize: 10 }} 
+                domain={yAxisConfig.domain} 
+                label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }} 
+              />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
-              <Line type="monotone" dataKey="Y_axis" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name={selectedVitalForGraph} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -164,10 +238,10 @@ const IntakeOutputView = () => {
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
           <div className="flex items-center space-x-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
-              <Edit3 className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
               <RefreshCw className="h-4 w-4" />
+            </Button>
+             <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+              <Edit3 className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -247,10 +321,10 @@ const IntakeOutputView = () => {
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 20, left: 20 }}>
+            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 20, left: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 0, fontSize: 10, dy:30 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: -5, fontSize: 10, dy:30 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="#8884d8" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -784,6 +858,4 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-
-    
-update the code
+update the dashboard code and use the exact color code for the header bg-sky-100
