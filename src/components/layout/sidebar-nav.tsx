@@ -6,7 +6,6 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
-  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -14,16 +13,12 @@ import {
   CalendarDays,
   BedDouble,
   Clock,
-  User,
+  User, // Keep User for AvatarFallback
   Hospital,
   FileText,
   BriefcaseMedical,
   FileQuestion,
-  Ban,
-  Edit3,
-  Search
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
 const patient: Patient = MOCK_PATIENT;
@@ -58,16 +53,7 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
-        <SidebarHeader className="mb-2 flex justify-center items-center p-2">
-          <Image
-            src="/max2.jpg" 
-            alt="Company Logo"
-            width={150}
-            height={50}
-            className="object-contain"
-            priority
-          />
-        </SidebarHeader>
+        {/* SidebarHeader removed */}
         
         <div className="flex flex-col items-center space-y-1 mb-2"> 
           <Avatar className="h-20 w-20"> 
@@ -112,21 +98,18 @@ export function SidebarNav() {
           )}
         </ul>
 
-        <div className="mt-auto flex items-center justify-around px-2 pt-2 border-t border-sidebar-border">
-          <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
-            <Ban className="h-5 w-5" />
-            <span className="sr-only">Ban</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
-            <Edit3 className="h-5 w-5" />
-            <span className="sr-only">Edit</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
-            <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
-          </Button>
+        <div className="mt-auto flex items-center justify-center p-2 border-t border-sidebar-border">
+          <Image
+            src="/company-logo.png" // Ensure this path is correct for your logo in the public folder
+            alt="Company Logo"
+            width={150} // Adjust as needed
+            height={50}  // Adjust as needed
+            className="object-contain"
+            priority // Can be useful for LCP elements
+          />
         </div>
       </SidebarContent>
     </>
   );
 }
+
