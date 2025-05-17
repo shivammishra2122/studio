@@ -39,7 +39,7 @@ const VitalsDashboardPage: NextPage = () => {
   const [toDate, setToDate] = useState<string>("");
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-sky-50 text-sm"> {/* Changed bg-background to bg-sky-50 */}
+    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm"> {/* Changed bg-sky-50 to bg-background */}
       {/* Left Vertical Navigation Panel */}
       <aside className="w-48 bg-card border-r p-2 flex flex-col space-y-1">
         {verticalNavItems.map((item) => (
