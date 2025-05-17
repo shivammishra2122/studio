@@ -448,6 +448,294 @@ const FinalDiagnosisView = () => {
   );
 };
 
+const ChiefComplaintsView = () => {
+  const [showEntries, setShowEntries] = useState<string>("10");
+  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
+  const [statusActive, setStatusActive] = useState<boolean>(true);
+  const [searchText, setSearchText] = useState<string>("");
+
+  const tableHeaders = ["S.No", "Complaints", "Complaints Type", "Date", "Status", "Remark"];
+
+  return (
+    <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
+      {/* Header */}
+      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <h2 className="text-base font-semibold">Chief-Complaints</h2>
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+          <Edit3 className="h-4 w-4" />
+        </Button>
+      </div>
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between p-2.5 border-b">
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="showEntriesComplaint" className="text-xs">Show</Label>
+          <Select value={showEntries} onValueChange={setShowEntries}>
+            <SelectTrigger id="showEntriesComplaint" className="h-7 w-20 text-xs">
+              <SelectValue placeholder="10" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="showEntriesComplaint" className="text-xs">entries</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="visitDateComplaint" className="text-xs">Visit Date</Label>
+          <Select value={visitDate} onValueChange={setVisitDate}>
+            <SelectTrigger id="visitDateComplaint" className="h-7 w-40 text-xs">
+              <SelectValue placeholder="Select Date" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="statusSwitchComplaint" className="text-xs">Status</Label>
+          <Switch id="statusSwitchComplaint" checked={statusActive} onCheckedChange={setStatusActive}  className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Label htmlFor="statusSwitchComplaint" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="searchComplaint" className="text-xs">Search:</Label>
+          <Input id="searchComplaint" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto">
+        <Table className="text-xs">
+          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+            <TableRow>
+              {tableHeaders.map(header => (
+                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                  <div className="flex items-center justify-between">
+                    {header}
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                No Data Found
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+        <div>Showing 0 to 0 of 0 entries</div>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+        </div>
+      </div>
+
+       {/* Action Button */}
+       <div className="flex items-center justify-center p-2.5 border-t">
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Chief Complaints</Button>
+        </div>
+    </div>
+  );
+};
+
+const AllergiesView = () => {
+  const [showEntries, setShowEntries] = useState<string>("10");
+  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10"); // Reusing for consistency
+  const [statusActive, setStatusActive] = useState<boolean>(true); // Reusing
+  const [searchText, setSearchText] = useState<string>("");
+
+  const tableHeaders = ["S.No", "Allergen", "Reaction", "Severity", "Type", "Onset Date", "Status"];
+
+  return (
+    <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
+      {/* Header */}
+      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <h2 className="text-base font-semibold">Allergies</h2>
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+          <Edit3 className="h-4 w-4" />
+        </Button>
+      </div>
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between p-2.5 border-b">
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="showEntriesAllergy" className="text-xs">Show</Label>
+          <Select value={showEntries} onValueChange={setShowEntries}>
+            <SelectTrigger id="showEntriesAllergy" className="h-7 w-20 text-xs">
+              <SelectValue placeholder="10" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="showEntriesAllergy" className="text-xs">entries</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="visitDateAllergy" className="text-xs">Date Range</Label> {/* Or specific filter */}
+          <Select value={visitDate} onValueChange={setVisitDate}>
+            <SelectTrigger id="visitDateAllergy" className="h-7 w-40 text-xs">
+              <SelectValue placeholder="Select Date" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="statusSwitchAllergy" className="text-xs">Status</Label>
+          <Switch id="statusSwitchAllergy" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Label htmlFor="statusSwitchAllergy" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="searchAllergy" className="text-xs">Search:</Label>
+          <Input id="searchAllergy" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto">
+        <Table className="text-xs">
+          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+            <TableRow>
+              {tableHeaders.map(header => (
+                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                  <div className="flex items-center justify-between">
+                    {header}
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                No Data Found
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+        <div>Showing 0 to 0 of 0 entries</div>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+        </div>
+      </div>
+
+       {/* Action Button */}
+       <div className="flex items-center justify-center p-2.5 border-t">
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Allergy</Button>
+        </div>
+    </div>
+  );
+};
+
+const OpdIpdDetailsView = () => {
+  const [showEntries, setShowEntries] = useState<string>("10");
+  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10"); // Reusing for consistency
+  const [statusActive, setStatusActive] = useState<boolean>(true); // Reusing
+  const [searchText, setSearchText] = useState<string>("");
+
+  const tableHeaders = ["S.No", "Visit ID", "Visit Type", "Department", "Doctor", "Date", "Status"];
+  
+  return (
+    <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
+      {/* Header */}
+      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <h2 className="text-base font-semibold">OPD/IPD Details</h2>
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+          <Edit3 className="h-4 w-4" />
+        </Button>
+      </div>
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between p-2.5 border-b">
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="showEntriesOpdIpd" className="text-xs">Show</Label>
+          <Select value={showEntries} onValueChange={setShowEntries}>
+            <SelectTrigger id="showEntriesOpdIpd" className="h-7 w-20 text-xs">
+              <SelectValue placeholder="10" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="showEntriesOpdIpd" className="text-xs">entries</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="visitDateOpdIpd" className="text-xs">Visit Date</Label>
+          <Select value={visitDate} onValueChange={setVisitDate}>
+            <SelectTrigger id="visitDateOpdIpd" className="h-7 w-40 text-xs">
+              <SelectValue placeholder="Select Date" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="statusSwitchOpdIpd" className="text-xs">Status</Label>
+          <Switch id="statusSwitchOpdIpd" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Label htmlFor="statusSwitchOpdIpd" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="searchOpdIpd" className="text-xs">Search:</Label>
+          <Input id="searchOpdIpd" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto">
+        <Table className="text-xs">
+          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+            <TableRow>
+              {tableHeaders.map(header => (
+                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                  <div className="flex items-center justify-between">
+                    {header}
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                No Data Found
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+        <div>Showing 0 to 0 of 0 entries</div>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+        </div>
+      </div>
+
+       {/* Action Button */}
+       <div className="flex items-center justify-center p-2.5 border-t">
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New OPD/IPD Entry</Button>
+        </div>
+    </div>
+  );
+};
+
 
 const VitalsDashboardPage: NextPage = () => {
   const [activeVerticalTab, setActiveVerticalTab] = useState<string>("Vitals");
@@ -472,9 +760,15 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Intake/Output" && <IntakeOutputView />}
         {activeVerticalTab === "Problems" && <ProblemsView />}
         {activeVerticalTab === "Final Diagnosis" && <FinalDiagnosisView />}
-        {/* Add other views here based on activeVerticalTab */}
-         {/* Placeholder for other views */}
-         {activeVerticalTab !== "Vitals" && activeVerticalTab !== "Intake/Output" && activeVerticalTab !== "Problems" && activeVerticalTab !== "Final Diagnosis" && (
+        {activeVerticalTab === "Chief-Complaints" && <ChiefComplaintsView />}
+        {activeVerticalTab === "Allergies" && <AllergiesView />}
+        {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
+        
+         {/* Placeholder for other views not yet implemented */}
+         {![
+            "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
+            "Chief-Complaints", "Allergies", "OPD/IPD Details"
+          ].includes(activeVerticalTab) && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
               <CardTitle className="text-xl text-muted-foreground">
