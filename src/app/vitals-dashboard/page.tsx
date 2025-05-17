@@ -46,7 +46,7 @@ const VitalsDashboardPage: NextPage = () => {
           <Button
             key={item}
             variant={activeVerticalTab === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400' : 'hover:bg-muted/50'}`}
+            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-skyblue-700 text-black border-l-4 border-sky-400' : 'hover:bg-muted/50'}`}
             onClick={() => setActiveVerticalTab(item)}
           >
             {item}
@@ -59,12 +59,12 @@ const VitalsDashboardPage: NextPage = () => {
         {/* Vitals Data Area */}
         <div className="flex-[2] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[3] */}
           {/* Header */}
-          <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
+          <div className="flex items-center justify-between p-2 border-b bg-skyblue-700 text-black rounded-t-md">
             <h2 className="text-base font-semibold">{activeVerticalTab}</h2>
             <div className="flex items-center space-x-2">
-              <Checkbox id="enteredInError" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-blue-700" />
-              <Label htmlFor="enteredInError" className="text-xs text-white">Entered in Error</Label>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600">
+              
+              
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-black hover:bg-skyblue-700">
                 <Edit3 className="h-4 w-4" />
               </Button>
             </div>
@@ -85,7 +85,7 @@ const VitalsDashboardPage: NextPage = () => {
             </Select>
             {/* Removed "Today" button */}
             <div className="flex items-center space-x-1">
-              <Label htmlFor="fromDate" className="shrink-0">From Date</Label>
+              <Label htmlFor="fromDate" className="shrink-0">From</Label>
               <div className="relative">
                 <Input id="fromDate" type="text" value={fromDate} onChange={(e) => setFromDate(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-32 text-xs pr-8" />
                 <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
@@ -94,7 +94,7 @@ const VitalsDashboardPage: NextPage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-1">
-              <Label htmlFor="toDate" className="shrink-0">To Date</Label>
+              <Label htmlFor="toDate" className="shrink-0">To</Label>
                <div className="relative">
                 <Input id="toDate" type="text" value={toDate} onChange={(e) => setToDate(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-32 text-xs pr-8" />
                  <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
@@ -105,7 +105,7 @@ const VitalsDashboardPage: NextPage = () => {
           </div>
 
           {/* Vitals Table Header (Date/Time) */}
-          <div className="flex items-center justify-end p-2 bg-blue-700 text-white border-b text-xs font-medium">
+          <div className="flex items-center justify-end p-2 bg-skyblue-700 text-black border-b text-xs font-medium">
             <div className="w-20 text-center">Date</div>
             <div className="w-20 text-center">Time</div>
           </div>
@@ -136,7 +136,7 @@ const VitalsDashboardPage: NextPage = () => {
 
         {/* Vitals Graph Area */}
         <div className="flex-[3] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-1 */}
-          <div className="flex items-center p-2 border-b bg-blue-700 text-white rounded-t-md">
+          <div className="flex items-center p-2 border-b bg-skyblue-700 text-black rounded-t-md">
             <h2 className="text-base font-semibold">Vitals Graph</h2>
           </div>
           <div className="flex-1 p-2">
