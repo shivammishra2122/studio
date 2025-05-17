@@ -38,6 +38,20 @@ export function TopNav() {
               </Link>
             );
           }
+          if (label === "Cover Sheet") {
+            return (
+              <Link key={index} href="/" passHref legacyBehavior>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+                >
+                  <a>{label}</a>
+                </Button>
+              </Link>
+            );
+          }
           return (
             <Button
               key={index}
