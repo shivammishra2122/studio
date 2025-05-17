@@ -157,7 +157,7 @@ const IntakeOutputView = () => {
   return (
     <>
       {/* Patient Intake/Output Summary Area */}
-      <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden"> {/* Increased flex factor */}
+      <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
@@ -249,7 +249,7 @@ const IntakeOutputView = () => {
       </div>
 
       {/* Intake/Output Graph Area */}
-      <div className="flex-[5] flex flex-col border rounded-md bg-card shadow"> {/* Reduced flex factor */}
+      <div className="flex-[3] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[5] */}
         <div className="flex items-center p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
         </div>
