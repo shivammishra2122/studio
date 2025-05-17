@@ -37,7 +37,7 @@ body {
 
     /* Sidebar theme based on #007B8A (Dark Teal) */
     /* #007B8A -> hsl(186, 100%, 27%) */
-    --sidebar-background: 186 100% 27%; 
+    --sidebar-background: 186 100% 27% / 0.9; 
     --sidebar-foreground: 0 0% 95%; /* Light grey/white text */
     --sidebar-primary: 186 100% 37%; /* Brighter Dark Teal for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White for text on active items */
@@ -81,7 +81,7 @@ body {
 
     /* Dark mode sidebar, based on #007B8A */
     /* #007B8A -> hsl(186, 100%, 27%) */
-    --sidebar-background: 186 100% 22%; /* Slightly darker for dark mode variant */
+    --sidebar-background: 186 100% 22% / 0.9; /* Slightly darker for dark mode variant */
     --sidebar-foreground: 0 0% 90%; /* Light text */
     --sidebar-primary: 186 100% 32%; /* Brighter Dark Teal */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
