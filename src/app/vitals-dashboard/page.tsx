@@ -356,6 +356,98 @@ const ProblemsView = () => {
   );
 };
 
+const FinalDiagnosisView = () => {
+  const [showEntries, setShowEntries] = useState<string>("10");
+  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const tableHeaders = ["Primary/Secondary", "Diagnosis Description", "Comment", "Entered Date", "Provider", "Primary", "Add", "Remove"];
+  
+  return (
+    <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
+      {/* Header */}
+      <div className="p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <h2 className="text-base font-semibold">Diagnosis</h2>
+      </div>
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between p-2.5 border-b">
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="showEntriesDiagnosis" className="text-xs">Show</Label>
+          <Select value={showEntries} onValueChange={setShowEntries}>
+            <SelectTrigger id="showEntriesDiagnosis" className="h-7 w-20 text-xs">
+              <SelectValue placeholder="10" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="showEntriesDiagnosis" className="text-xs">entries</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="visitDateDiagnosis" className="text-xs">Visit Date</Label>
+          <Select value={visitDate} onValueChange={setVisitDate}>
+            <SelectTrigger id="visitDateDiagnosis" className="h-7 w-40 text-xs">
+              <SelectValue placeholder="Select Date" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+              {/* Add other dates as needed */}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="searchDiagnosis" className="text-xs">Search:</Label>
+          <Input id="searchDiagnosis" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto">
+        <Table className="text-xs">
+          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+            <TableRow>
+              {tableHeaders.map(header => (
+                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                  <div className="flex items-center justify-between">
+                    {header}
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                No Data Found
+              </TableCell>
+            </TableRow>
+            {/* Placeholder for data rows */}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+        <div>Showing 0 to 0 of 0 entries</div>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          {/* Pagination numbers could be dynamic */}
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+        </div>
+      </div>
+
+       {/* Action Button */}
+       <div className="flex items-center justify-center p-2.5 border-t">
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Diagnosis</Button>
+        </div>
+    </div>
+  );
+};
+
 
 const VitalsDashboardPage: NextPage = () => {
   const [activeVerticalTab, setActiveVerticalTab] = useState<string>("Vitals");
@@ -379,10 +471,24 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Vitals" && <VitalsView />}
         {activeVerticalTab === "Intake/Output" && <IntakeOutputView />}
         {activeVerticalTab === "Problems" && <ProblemsView />}
+        {activeVerticalTab === "Final Diagnosis" && <FinalDiagnosisView />}
         {/* Add other views here based on activeVerticalTab */}
+         {/* Placeholder for other views */}
+         {activeVerticalTab !== "Vitals" && activeVerticalTab !== "Intake/Output" && activeVerticalTab !== "Problems" && activeVerticalTab !== "Final Diagnosis" && (
+          <Card className="flex-1 flex items-center justify-center">
+            <CardContent className="text-center">
+              <CardTitle className="text-xl text-muted-foreground">
+                {activeVerticalTab} View
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   );
 };
 
 export default VitalsDashboardPage;
+
+    
