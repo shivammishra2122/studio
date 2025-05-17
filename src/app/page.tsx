@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -8,8 +7,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Plus, Clock, Pill as PillIcon, Edit3,
-  FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Plus,
+  FileText, Ban, ScanLine, ClipboardList, BellRing, Clock, Pill as PillIcon
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication, LucideIcon } from '@/lib/constants'; 
 import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
@@ -25,8 +24,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const keyIndicators: HealthMetric[] = [
   { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
   { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure', date: '23 SEP, 2024 09:58'},
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature', date: '23 SEP, 2024 09:58' },
+  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure'},
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
 ];
 
@@ -59,7 +58,6 @@ const bloodPressureChartConfig: ChartConfig = {
   systolic: { label: 'Systolic (mmHg)', color: 'hsl(var(--chart-1))' },
   diastolic: { label: 'Diastolic (mmHg)', color: 'hsl(var(--chart-3))' },
 };
-
 
 const infoCardIcons: Record<string, LucideIcon> = {
   "Allergies": Ban,
@@ -97,13 +95,12 @@ export default function DashboardPage(): JSX.Element {
   const [detailViewTitle, setDetailViewTitle] = useState<string>('');
   const [detailViewContent, setDetailViewContent] = useState<string>('');
 
-  const [problemDialogOffset, setProblemDialogOffset] = useState({ x: 0, y: 0 });
   const problemDialogRef = useRef<HTMLDivElement>(null);
   const problemHeaderRef = useRef<HTMLDivElement>(null);
+  const [problemDialogOffset, setProblemDialogOffset] = useState({ x: 0, y: 0 });
   const isProblemDialogDragging = useRef(false);
   const problemDragStartCoords = useRef({ x: 0, y: 0 });
   const problemInitialDialogOffset = useRef({ x: 0, y: 0 });
-
 
   const handleAddProblem = () => {
     if (!newProblemInput.trim()) return;
@@ -115,7 +112,6 @@ export default function DashboardPage(): JSX.Element {
     setNewProblemInput('');
     setIsAddProblemDialogOpen(false);
   };
-
 
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
@@ -134,7 +130,7 @@ export default function DashboardPage(): JSX.Element {
 
   const openAddProblemDialog = () => {
     setNewProblemInput('');
-    setProblemDialogOffset({ x: 0, y: 0 });
+    setProblemDialogOffset({ x: 0, y: 0 }); 
     setIsAddProblemDialogOpen(true);
   };
   
@@ -173,10 +169,14 @@ export default function DashboardPage(): JSX.Element {
   };
 
   const handleProblemDialogMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (problemHeaderRef.current) {
+    if (problemHeaderRef.current && problemDialogRef.current) { // Ensure dialogRef is also checked
       isProblemDialogDragging.current = true;
       problemDragStartCoords.current = { x: e.clientX, y: e.clientY };
-      problemInitialDialogOffset.current = { ...problemDialogOffset };
+      // Get the current transform values
+      const style = window.getComputedStyle(problemDialogRef.current);
+      const matrix = new DOMMatrixReadOnly(style.transform);
+      problemInitialDialogOffset.current = { x: matrix.m41, y: matrix.m42 };
+
       problemHeaderRef.current.style.cursor = 'grabbing';
       document.body.style.cursor = 'grabbing';
       e.preventDefault();
@@ -185,13 +185,14 @@ export default function DashboardPage(): JSX.Element {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isProblemDialogDragging.current) return;
+      if (!isProblemDialogDragging.current || !problemDialogRef.current) return;
       const deltaX = e.clientX - problemDragStartCoords.current.x;
       const deltaY = e.clientY - problemDragStartCoords.current.y;
-      setProblemDialogOffset({
-        x: problemInitialDialogOffset.current.x + deltaX,
-        y: problemInitialDialogOffset.current.y + deltaY,
-      });
+      
+      const newX = problemInitialDialogOffset.current.x + deltaX;
+      const newY = problemInitialDialogOffset.current.y + deltaY;
+
+      problemDialogRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
     };
 
     const handleMouseUp = () => {
@@ -233,10 +234,6 @@ export default function DashboardPage(): JSX.Element {
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
               </div>
               <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
-                    <Edit3 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Edit Problem</span>
-                </Button>
                 <Button variant="default" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
                     <Plus className="h-3.5 w-3.5" />
                     <span className="sr-only">Add Problem</span>
@@ -264,6 +261,12 @@ export default function DashboardPage(): JSX.Element {
         <Card className="lg:col-span-6 shadow-lg h-full">
           <CardContent className="pt-2 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
+            <TabsList className="hidden"> {/* TabsList is hidden as per user request */}
+                <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
+                <TabsTrigger value="blood-glucose">Blood Glucose</TabsTrigger>
+                <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
+                <TabsTrigger value="detail-view">Detail</TabsTrigger>
+            </TabsList>
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
                   <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
@@ -342,9 +345,8 @@ export default function DashboardPage(): JSX.Element {
                   <span className="text-xs font-medium text-foreground">{indicator.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-foreground">{indicator.value}</span>
-                  <span className="text-xs text-foreground/80 ml-0.5">{indicator.unit}</span>
-                   {indicator.date && <span className="block text-xs text-muted-foreground/80">{indicator.date}</span>}
+                  <span className="text-xs font-normal text-foreground">{indicator.value}</span>
+                  <span className="text-xs font-normal text-foreground/80 ml-0.5">{indicator.unit}</span>
                 </div>
               </div>
             ))}
@@ -352,7 +354,7 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
 
-      {/* Second Row: Allergies (20%), Medications History (30%), Report (20%), Radiology (20%) */}
+      {/* Second Row: Allergies (20%), Medications History (30%), Report (30%), Radiology (20%) */}
       <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
         {/* Allergies Card */}
         <Card className="md:col-span-2 shadow-lg">
@@ -363,10 +365,6 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Allergies</span>
-              </Button>
               <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
                   <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add Allergy</span>
@@ -400,10 +398,6 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{medications.length}</Badge>
             </div>
             <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddMedicationDialog}>
-                    <Edit3 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Edit Medication</span>
-                </Button>
                 <Button variant="default" size="icon" className="h-7 w-7" onClick={openAddMedicationDialog}>
                     <Plus className="h-3.5 w-3.5" />
                     <span className="sr-only">Add Medication</span>
@@ -416,13 +410,7 @@ export default function DashboardPage(): JSX.Element {
                 {medications.map((med) => (
                   <TableRow key={med.id}>
                     <TableCell className="px-2 py-1">
-                      <div className="font-medium text-xs">{med.name}</div>
-                      <div className="text-xs text-muted-foreground">{med.reason} - {med.amount} - {med.timing}</div>
-                    </TableCell>
-                    <TableCell className="text-right px-2 py-1">
-                        <Badge variant={med.status === 'Active' ? 'default' : med.status === 'Pending' ? 'secondary' : 'outline'} className="text-xs">
-                            {med.status}
-                        </Badge>
+                      <div className="font-medium text-xs">{med.name}: {med.status}</div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -443,10 +431,6 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Report")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Report</span>
-              </Button>
               <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
                   <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add to Report</span>
@@ -484,10 +468,6 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Radiology</span>
-              </Button>
               <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
                   <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add to Radiology</span>
@@ -531,10 +511,6 @@ export default function DashboardPage(): JSX.Element {
                   <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
                 </div>
                 <div className="flex items-center">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
-                      <Edit3 className="h-3.5 w-3.5" />
-                      <span className="sr-only">Edit {title}</span>
-                  </Button>
                   <Button variant="default" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
                       <Plus className="h-3.5 w-3.5" />
                       <span className="sr-only">Add to {title}</span>
@@ -569,6 +545,8 @@ export default function DashboardPage(): JSX.Element {
           if (!isOpen) {
             setIsAddItemDialogOpen(false);
             setEditingInfoCardTitle(null);
+          } else {
+            setIsAddItemDialogOpen(true); // Ensure dialog opens if triggered
           }
         }}
       >
@@ -590,14 +568,24 @@ export default function DashboardPage(): JSX.Element {
       </Dialog>
 
       {/* Dialog for Adding Problem */}
-       <Dialog open={isAddProblemDialogOpen} onOpenChange={(open) => { if (!open) setIsAddProblemDialogOpen(false); else openAddProblemDialog(); }}>
+       <Dialog open={isAddProblemDialogOpen} onOpenChange={(open) => { 
+          setIsAddProblemDialogOpen(open);
+          if (open) { // Only reset if opening
+            setNewProblemInput('');
+            // Reset dialog position when opening
+            if (problemDialogRef.current) {
+                 problemDialogRef.current.style.transform = 'translate(-50%, -50%)';
+                 setProblemDialogOffset({x:0, y:0}); // Also reset state if you use it for initial positioning
+            }
+          }
+        }}>
           <DialogContent
             ref={problemDialogRef}
             style={{
               position: 'fixed', 
               left: '50%', 
               top: '50%',  
-              transform: `translate(calc(-50% + ${problemDialogOffset.x}px), calc(-50% + ${problemDialogOffset.y}px))`,
+              transform: 'translate(-50%, -50%)', // Initial centered position
             }}
             className="sm:max-w-[425px]" 
             onOpenAutoFocus={(e) => e.preventDefault()} 
@@ -605,7 +593,7 @@ export default function DashboardPage(): JSX.Element {
             <DialogHeader
               ref={problemHeaderRef}
               onMouseDown={handleProblemDialogMouseDown}
-              style={{ cursor: 'grab', userSelect: 'none' }}
+              style={{ cursor: 'grab', userSelect: 'none', paddingBottom: '1rem' }} // Added padding for grab area
             >
               <DialogUITitle>Add New Problem</DialogUITitle>
             </DialogHeader>
@@ -623,7 +611,12 @@ export default function DashboardPage(): JSX.Element {
         </Dialog>
 
       {/* Dialog for Adding Medication */}
-      <Dialog open={isAddMedicationDialogOpen} onOpenChange={setIsAddMedicationDialogOpen}>
+      <Dialog open={isAddMedicationDialogOpen} onOpenChange={(open) => {
+          setIsAddMedicationDialogOpen(open);
+          if (open) {
+            setNewMedicationInput('');
+          }
+        }}>
         <DialogContent>
           <DialogHeader>
             <DialogUITitle>Add New Medication</DialogUITitle>
