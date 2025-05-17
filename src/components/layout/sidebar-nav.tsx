@@ -9,28 +9,33 @@ import {
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
+  User, // For AvatarFallback
   Phone,
   CalendarDays,
   BedDouble,
   Clock,
-  User, // Keep User for AvatarFallback
-  Hospital,
   FileText,
   BriefcaseMedical,
   FileQuestion,
+  Hospital,
+  Ban,
+  Edit3,
+  Search,
 } from 'lucide-react';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 
 const patient: Patient = MOCK_PATIENT;
 
 const patientDetails: PatientDetailItem[] = [
-  { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
+  { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
     label: 'DOB',
     value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays
   },
+  { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admissionDate',
     label: 'AD',
@@ -38,7 +43,6 @@ const patientDetails: PatientDetailItem[] = [
     icon: CalendarDays,
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
-  { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
   { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
   { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
@@ -53,9 +57,8 @@ export function SidebarNav() {
   return (
     <>
       <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
-        {/* SidebarHeader removed */}
         
-        <div className="flex flex-col items-center space-y-1 mb-2"> 
+        <div className="flex flex-col items-center space-y-2 mb-2"> {/* Reduced space-y */}
           <Avatar className="h-20 w-20"> 
             <AvatarImage 
               src={patient.avatarUrl} 
@@ -73,7 +76,7 @@ export function SidebarNav() {
           </div>
           <div className="mt-2 w-full px-4">
             <Image
-              src="https://placehold.co/180x50.png"
+              src="https://placehold.co/180x50.png" // Placeholder for barcode
               alt="Patient Barcode"
               width={180}
               height={50}
@@ -83,14 +86,14 @@ export function SidebarNav() {
           </div>
         </div>
 
-        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-2">
+        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-2"> {/* Reduced space-y and pt */}
           {patientDetails.map(
             (detail) => detail.value && (
-              <li key={detail.key} className="flex items-start space-x-1.5"> 
+              <li key={detail.key} className="flex items-start space-x-1.5"> {/* Reduced space-x */}
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
-                  {detail.label && detail.label !== 'DOB' && <span className="font-medium">{detail.label}: </span>}
-                  {detail.label === 'DOB' && <span className="font-medium">DOB: </span>}
+                  {detail.label && detail.label === 'DOB' && <span className="font-semibold">{detail.label}: </span>}
+                  {detail.label && detail.label === 'AD' && <span className="font-semibold">{detail.label}: </span>}
                   <span className="font-normal">{detail.value}</span>
                 </div>
               </li>
@@ -98,18 +101,34 @@ export function SidebarNav() {
           )}
         </ul>
 
-        <div className="mt-auto flex items-center justify-center p-2 border-t border-sidebar-border">
-          <Image
-            src="/company-logo.png" // Ensure this path is correct for your logo in the public folder
-            alt="Company Logo"
-            width={150} // Adjust as needed
-            height={50}  // Adjust as needed
-            className="object-contain"
-            priority // Can be useful for LCP elements
-          />
+        {/* Container for icons and logo at the bottom */}
+        <div className="mt-auto">
+            {/* Action Icons */}
+            <div className="flex items-center justify-around p-2 border-t border-sidebar-border">
+              <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
+                <Ban className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
+                <Edit3 className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
+                <Search className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Company Logo */}
+            <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
+              <Image
+                src="/sansys-logo-image.png" // Ensure this path is correct for your logo in the public folder
+                alt="Company Logo"
+                width={150} 
+                height={50}  
+                className="object-contain"
+                priority 
+              />
+            </div>
         </div>
       </SidebarContent>
     </>
   );
 }
-
