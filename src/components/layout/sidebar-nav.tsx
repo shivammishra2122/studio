@@ -6,7 +6,7 @@ import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   SidebarContent,
-  SidebarHeader, // Added SidebarHeader import
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -24,7 +24,7 @@ import {
   Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image'; // Added Image import
+import Image from 'next/image';
 
 const patient: Patient = MOCK_PATIENT;
 
@@ -44,8 +44,8 @@ const patientDetails: PatientDetailItem[] = [
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
-  { key: 'primaryConsultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
-  { key: 'encounterProvider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
+  { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
+  { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
   { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
   { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical },
   { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
@@ -59,16 +59,11 @@ export function SidebarNav() {
     <>
       <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
         <SidebarHeader className="mb-2 flex justify-center items-center p-2">
-          {/* 
-            Replace "/company-logo.png" with the actual path to your logo 
-            within the 'public' folder (e.g., "/your-logo.svg" or "/images/logo.png").
-            Adjust width and height as needed.
-          */}
           <Image
-            src="/company-logo.png" 
+            src="/max2.jpg" 
             alt="Company Logo"
-            width={150} // Adjust width as needed
-            height={50} // Adjust height as needed
+            width={150}
+            height={50}
             className="object-contain"
             priority
           />
@@ -89,6 +84,16 @@ export function SidebarNav() {
             <p className="text-md font-medium text-sidebar-foreground">
               {patient.name} ({genderInitial} {patient.age})
             </p>
+          </div>
+          <div className="mt-2 w-full px-4">
+            <Image
+              src="https://placehold.co/180x50.png"
+              alt="Patient Barcode"
+              width={180}
+              height={50}
+              className="object-contain mx-auto"
+              data-ai-hint="barcode medical"
+            />
           </div>
         </div>
 
