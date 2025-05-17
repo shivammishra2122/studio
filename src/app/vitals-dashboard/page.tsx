@@ -12,7 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
@@ -189,7 +190,6 @@ const IntakeOutputView = () => {
           </div>
         </div>
         
-        {/* Intake/Output Table */}
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
@@ -209,7 +209,6 @@ const IntakeOutputView = () => {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {/* Placeholder for data rows - add 1 for example */}
               <tr>
                 {inputHeaders.map(header => <TableCell key={`input-data-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
                 {outputHeaders.map(header => <TableCell key={`output-data-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
@@ -218,20 +217,14 @@ const IntakeOutputView = () => {
                 {inputHeaders.map(header => <TableCell key={`input-data2-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
                 {outputHeaders.map(header => <TableCell key={`output-data2-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
               </tr>
-              {/* Total Row */}
               <tr className="bg-slate-50">
                 <TableCell colSpan={inputHeaders.length} className="p-1.5 border text-left font-semibold">Total:</TableCell>
                 <TableCell colSpan={outputHeaders.length} className="p-1.5 border text-left font-semibold"></TableCell> 
-                {/* The visual suggests total is within input columns only, but the line goes across.
-                    For simplicity in structure, one cell spans input, other spans output. Content can be placed as needed. 
-                    If a single value for input and output is expected, these can be merged or styled.
-                */}
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Summary Totals */}
         <div className="p-2.5 border-t text-xs space-y-1">
             <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
             <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
@@ -239,7 +232,6 @@ const IntakeOutputView = () => {
             <div className="text-green-600 text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
           <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Intake</Button>
           <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Output</Button>
@@ -249,7 +241,7 @@ const IntakeOutputView = () => {
       </div>
 
       {/* Intake/Output Graph Area */}
-      <div className="flex-[3] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[5] */}
+      <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
         </div>
@@ -263,12 +255,104 @@ const IntakeOutputView = () => {
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="#8884d8" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
               <Line type="monotone" dataKey="series2" name="Series 2" stroke="#82ca9d" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-              {/* Add third series if needed based on legend */}
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
     </>
+  );
+};
+
+const ProblemsView = () => {
+  const [showEntries, setShowEntries] = useState<string>("all");
+  const [problemVisitDate, setProblemVisitDate] = useState<string>("10 SEP, 2024 13:10");
+  const [statusToggle, setStatusToggle] = useState<boolean>(true);
+  const [searchText, setSearchText] = useState<string>("");
+  // const [problemsData, setProblemsData] = useState<any[]>([]); // Placeholder for actual data
+
+  const tableHeaders = ["Problems", "Immediacy", "Status", "Date of OnSet", "Edit", "Remove", "Restore", "Co-Morbidity"];
+
+  return (
+    <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
+      {/* Filter Bar */}
+      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
+          <Select value={showEntries} onValueChange={setShowEntries}>
+            <SelectTrigger id="showEntriesProblem" className="h-7 w-20 text-xs">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="showEntriesProblem" className="text-xs">entries</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="visitDateProblem" className="text-xs">Visit Date</Label>
+          <Select value={problemVisitDate} onValueChange={setProblemVisitDate}>
+            <SelectTrigger id="visitDateProblem" className="h-7 w-40 text-xs">
+              <SelectValue placeholder="Select Date" />
+            </SelectTrigger>
+            <SelectContent>
+              {/* Placeholder, ideally a date picker or dynamic list */}
+              <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="statusToggleProblem" className="text-xs">Status</Label>
+          <Switch id="statusToggleProblem" checked={statusToggle} onCheckedChange={setStatusToggle} className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Label htmlFor="statusToggleProblem" className="text-xs ml-1">ALL</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="searchProblem" className="text-xs">Search:</Label>
+          <Input id="searchProblem" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-32 text-xs" />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto">
+        <Table className="text-xs">
+          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+            <TableRow>
+              {tableHeaders.map(header => (
+                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                  <div className="flex items-center justify-between">
+                    {header}
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                No Data Found
+              </TableCell>
+            </TableRow>
+            {/* Placeholder for data rows if problemsData had items */}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+        <div>Showing 0 to 0 of 0 entries</div>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-sky-200 text-sky-800 border-sky-300">1</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+        </div>
+      </div>
+
+       {/* Action Button */}
+       <div className="flex items-center justify-center p-2.5 border-t">
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Problem</Button>
+        </div>
+    </div>
   );
 };
 
@@ -278,7 +362,6 @@ const VitalsDashboardPage: NextPage = () => {
 
   return (
     <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      {/* Left Vertical Navigation Panel */}
       <aside className="w-40 bg-card border-r p-2 flex flex-col space-y-1">
         {verticalNavItems.map((item) => (
           <Button
@@ -292,10 +375,10 @@ const VitalsDashboardPage: NextPage = () => {
         ))}
       </aside>
 
-      {/* Right Content Panel */}
       <main className="flex-1 flex p-3 gap-3 overflow-hidden">
         {activeVerticalTab === "Vitals" && <VitalsView />}
         {activeVerticalTab === "Intake/Output" && <IntakeOutputView />}
+        {activeVerticalTab === "Problems" && <ProblemsView />}
         {/* Add other views here based on activeVerticalTab */}
       </main>
     </div>
@@ -303,5 +386,3 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-
- 
