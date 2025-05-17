@@ -3,8 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-// PanelLeft is the default icon for SidebarTrigger, Menu might not be needed explicitly
-// import { Menu } from 'lucide-react'; 
+import Link from 'next/link';
 
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
@@ -18,24 +17,38 @@ export function TopNav() {
       {/* Hamburger menu for mobile/tablet to toggle sidebar sheet */}
       <div className="md:hidden">
         <SidebarTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            {/* Using PanelLeft from SidebarTrigger directly */}
-          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" />
         </SidebarTrigger>
       </div>
 
       {/* Navigation buttons - scrollable on small screens */}
-      <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar"> {/* Reduced space-x-1 to space-x-0.5 */}
-        {navButtonLabels.map((label, index) => (
-          <Button
-            key={index}
-            variant="ghost"
-            size="sm"
-            className="text-xs px-2 py-1 h-7 whitespace-nowrap"
-          >
-            {label}
-          </Button>
-        ))}
+      <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar">
+        {navButtonLabels.map((label, index) => {
+          if (label === "Dashboard") {
+            return (
+              <Link key={index} href="/vitals-dashboard" passHref legacyBehavior>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+                >
+                  <a>{label}</a>
+                </Button>
+              </Link>
+            );
+          }
+          return (
+            <Button
+              key={index}
+              variant="ghost"
+              size="sm"
+              className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+            >
+              {label}
+            </Button>
+          );
+        })}
       </div>
     </div>
   );
