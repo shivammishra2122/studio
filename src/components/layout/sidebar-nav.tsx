@@ -1,44 +1,47 @@
 
 'use client';
 
-import type { Patient, PatientDetailItem } from '@/lib/constants';
+import type { Patient } from '@/lib/constants';
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { SidebarContent } from '@/components/ui/sidebar';
 import {
-  SidebarContent,
-} from '@/components/ui/sidebar';
-import type { LucideIcon } from 'lucide-react';
-import {
-  User, // For AvatarFallback
   Phone,
   CalendarDays,
   BedDouble,
   Clock,
+  Hospital,
   FileText,
   BriefcaseMedical,
   FileQuestion,
-  Hospital,
+  User,
+  Heart,
   Ban,
-  Edit3,
+  PenLine,
   Search,
 } from 'lucide-react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 
 const patient: Patient = MOCK_PATIENT;
+
+type PatientDetailItem = {
+  key: keyof Patient | 'wardAndBed' | 'vitalSigns';
+  label: string;
+  value?: string; // Made value optional to match existing data structure
+  icon?: typeof Phone; // Kept icon type as is, can be refined if needed
+};
 
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
-    label: 'DOB', // Only DOB and AD will have textual labels
+    label: '',
     value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
-    icon: CalendarDays
+    icon: CalendarDays,
   },
   { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   {
     key: 'admissionDate',
-    label: 'AD', // Only DOB and AD will have textual labels
+    label: '',
     value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays,
   },
@@ -50,85 +53,81 @@ const patientDetails: PatientDetailItem[] = [
   { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
 ];
 
-
 export function SidebarNav() {
-  const genderInitial = patient.gender ? patient.gender.charAt(0).toUpperCase() : '';
+  const genderDisplay = patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1).toLowerCase() : '';
 
   return (
-    <>
-      <SidebarContent className="px-3 pt-3 space-y-1 flex flex-col flex-1">
-        
-        <div className="flex flex-col items-center space-y-2 mb-2"> {/* Reduced space-y */}
-          <Avatar className="h-20 w-20"> 
-            <AvatarImage 
-              src={patient.avatarUrl} 
-              alt={patient.name}
-              data-ai-hint="person patient"
-            />
+    <SidebarContent className="flex h-full w-full flex-col bg-teal-600 text-white">
+      <div className="min-h-0 gap-2 overflow-auto px-3 pt-3 space-y-0 flex flex-col flex-1">
+        <div className="flex flex-col items-center space-y-2 mb-2">
+          <Avatar className="h-20 w-20">
+            <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback className="bg-white">
               <User className="h-10 w-10 text-primary" />
             </AvatarFallback>
           </Avatar>
-          <div className="text-center">
-            <p className="text-md font-medium text-sidebar-foreground">
-              {patient.name} ({genderInitial} {patient.age})
-            </p>
-          </div>
           <div className="mt-2 w-full px-4">
-            <Image
-              src="https://placehold.co/180x50.png" // Placeholder for barcode
+            <img
               alt="Patient Barcode"
-              width={180}
-              height={50}
-              className="object-contain mx-auto"
               data-ai-hint="barcode medical"
+              loading="lazy"
+              width="auto"
+              height="auto"
+              decoding="async"
+              className="object-contain mx-auto"
+              src="/barcode.jpg"
             />
+          </div>
+          <div className="text-center">
+            <p className="text-md font-medium">
+              {patient.name}
+            </p>
+            <p className="text-sm">
+              {genderDisplay} {patient.age}
+            </p>
           </div>
         </div>
 
-        <ul className="space-y-1.5 text-xs text-sidebar-foreground pt-2"> {/* Reduced space-y and pt */}
-          {patientDetails.map(
-            (detail) => detail.value && (
-              <li key={detail.key} className="flex items-start space-x-1.5"> {/* Reduced space-x */}
-                {detail.icon && <detail.icon className="h-3.5 w-3.5 text-sidebar-primary-foreground shrink-0 mt-0.5" />}
+        <ul className="space-y-0.5 text-xs pt-0.5">
+          {patientDetails.map((detail) => (
+            detail.value && ( // Added check for detail.value to prevent rendering empty items
+              <li key={detail.key} className="flex items-start space-x-1.5">
+                {detail.icon && <detail.icon className="h-3.5 w-3.5 shrink-0 mt-0.5" />}
                 <div className="flex-1 min-w-0">
-                  {detail.label && detail.label === 'DOB' && <span className="font-semibold">{detail.label}: </span>}
-                  {detail.label && detail.label === 'AD' && <span className="font-semibold">{detail.label}: </span>}
-                  <span className="font-normal">{detail.value}</span>
+                  {detail.label && <span className="font-semibold">{detail.label}: </span>}
+                  <span className={detail.key === 'vitalSigns' ? 'font-semibold text-lg' : 'font-normal'}>
+                    {detail.value}
+                  </span>
                 </div>
               </li>
             )
-          )}
+          ))}
         </ul>
 
-        {/* Container for icons and logo at the bottom */}
         <div className="mt-auto">
-            {/* Action Icons */}
-            <div className="flex items-center justify-around p-2 border-t border-sidebar-border">
-              <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
-                <Ban className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
-                <Edit3 className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-sidebar-primary-foreground hover:bg-sidebar-accent">
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {/* Company Logo */}
-            <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
-              <Image
-                src="/company-logo.png" 
-                alt="Company Logo"
-                width={150} 
-                height={50}  
-                className="object-contain"
-                priority 
-              />
-            </div>
+          <div className="flex items-center justify-around p-2 border-t border-sidebar-border">
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-10 w-10 hover:bg-sidebar-accent text-white">
+              <Ban className="h-4 w-4" />
+            </button>
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-10 w-10 hover:bg-sidebar-accent text-white">
+              <PenLine className="h-4 w-4" />
+            </button>
+            <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-10 w-10 hover:bg-sidebar-accent text-white">
+              <Search className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
+            <img
+              alt="Company Logo"
+              width="150"
+              height="50"
+              decoding="async"
+              className="object-contain"
+              src="/sansys.png"
+            />
+          </div>
         </div>
-      </SidebarContent>
-    </>
+      </div>
+    </SidebarContent>
   );
 }
