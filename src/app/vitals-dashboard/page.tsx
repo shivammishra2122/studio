@@ -858,4 +858,3 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-update the dashboard code and use the exact color code for the header bg-sky-100
