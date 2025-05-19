@@ -32,13 +32,13 @@ type NoteEntryDataType = {
 const mockNoteEntries: NoteEntryDataType[] = [
   { 
     id: '1', 
-    notesTitle: 'Initial Assessment - Orthopedics', 
+    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress.', 
     dateOfEntry: '15 MAY, 2025 20:05', 
     status: 'COMPLETED', 
     signed: true,
-    author: 'Sansys Doctor', 
-    location: 'ICU ONE',
-    cosigner: 'Dr. Jane Doe' 
+    author: 'Sansys Doctor Primary Care Physician', 
+    location: 'ICU ONE - General Ward',
+    cosigner: 'Dr. Jane Doe Supervising Physician' 
   },
   { 
     id: '2', 
@@ -46,8 +46,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '16 MAY, 2025 10:30', 
     status: 'PENDING', 
     signed: false,
-    author: 'Dr. Smith', 
-    location: 'Cardiology Wing',
+    author: 'Dr. Smith Attending Cardiologist', 
+    location: 'Cardiology Wing - Outpatient Clinic A',
+    cosigner: 'Dr. Emily White Cardiology Fellow'
   },
 ];
 
@@ -172,7 +173,7 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
                       <TableRow key={note.id}>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.notesTitle}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.notesTitle}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.dateOfEntry}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
@@ -187,9 +188,9 @@ const ClinicalNotesPage: NextPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -230,5 +231,3 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
-    
