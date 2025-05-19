@@ -38,9 +38,23 @@ export function TopNav() {
               </Link>
             );
           }
-          if (label === "Cover Sheet") {
+          if (label === "Orders") {
             return (
-              <Link key={index} href="/" passHref legacyBehavior>
+              <Link key={index} href="/orders" passHref legacyBehavior>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+                >
+                  <a>{label}</a>
+                </Button>
+              </Link>
+            );
+          }
+          if (label ==="Clinical Notes"){
+            return(
+              <Link key={index} href="/clinical-notes" passHref legacyBehavior>
                 <Button
                   asChild
                   variant="ghost"
