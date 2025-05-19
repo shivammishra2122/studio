@@ -30,38 +30,33 @@ const vitalTypes = [
 type VitalChartDataPoint = { name: string; value: number };
 
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
-  const baseData = [
-    { name: '1', value: 0 }, { name: '2', value: 10 }, { name: '3', value: 20 },
-    { name: '4', value: 25 }, { name: '5', value: 40 }, { name: '6', value: 30 },
-    { name: '7', value: 50 }, { name: '8', value: 65 }, { name: '9', value: 70 },
-    { name: '10', value: 80 },
-  ];
+  const baseData = Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: Math.random() * 80 + 10 }));
 
   switch (vitalName) {
     case "B/P (mmHg)": // Representing average or a single value for simplicity
-      return baseData.map(d => ({ ...d, value: d.value + 40 })); // e.g., 40-120 range
+      return baseData.map(d => ({ ...d, value: Math.floor(d.value * 1.5 + 40) })); // e.g., 40-160 range
     case "Temp (F)":
-      return baseData.map(d => ({ ...d, value: 95 + (d.value / 10) * 1.5 })); // e.g., 95-107 range
+      return baseData.map(d => ({ ...d, value: parseFloat((95 + (d.value / 10) * 1.5).toFixed(1)) })); // e.g., 95-107 range
     case "Resp (/min)":
-      return baseData.map(d => ({ ...d, value: 10 + (d.value / 10) * 2 })); // e.g., 10-30 range
+      return baseData.map(d => ({ ...d, value: Math.floor(10 + (d.value / 10) * 2) })); // e.g., 10-30 range
     case "Pulse (/min)":
-      return baseData.map(d => ({ ...d, value: 50 + (d.value / 10) * 7 })); // e.g., 50-120 range
+      return baseData.map(d => ({ ...d, value: Math.floor(50 + (d.value / 10) * 7) })); // e.g., 50-120 range
     case "Height (In)":
-      return Array(10).fill(null).map((_, i) => ({ name: (i + 1).toString(), value: 68 })); // Static value
+       return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: 68 })); // Static value for example
     case "Weight (kg)":
-      return baseData.map(d => ({ ...d, value: 60 + (d.value / 20) })); // e.g., 60-64 range with some fluctuation
+      return baseData.map(d => ({ ...d, value: parseFloat((60 + (d.value / 20)).toFixed(1)) })); // e.g., 60-64 range
     case "CVP (cmH2O)":
-      return baseData.map(d => ({ ...d, value: 2 + (d.value / 10) * 0.8 })); // e.g., 2-10 range
+      return baseData.map(d => ({ ...d, value: parseFloat((2 + (d.value / 10) * 0.8).toFixed(1)) })); // e.g., 2-10 range
     case "C/G (In)":
-      return baseData.map(d => ({ ...d, value: 30 + (d.value / 10) })); // e.g., 30-38 range
+       return baseData.map(d => ({ ...d, value: Math.floor(30 + (d.value / 10)) })); // e.g., 30-38 range
     case "Pulse Oximetry (%)":
-      return baseData.map(d => ({ ...d, value: 90 + (d.value / 10) })); // e.g., 90-100 range
+      return baseData.map(d => ({ ...d, value: Math.floor(90 + (d.value / 10)) })); // e.g., 90-100 range
     case "Pain":
-      return baseData.map(d => ({ ...d, value: Math.min(10, d.value / 8) })); // 0-10 scale
+      return baseData.map(d => ({ ...d, value: Math.min(10, Math.floor(d.value / 8)) })); // 0-10 scale
     case "Early Warning Sign":
        return baseData.map(d => ({ ...d, value: Math.round(d.value / 20) })); // Small integer values
-    default: // For Location, Entered By, etc.
-      return Array(10).fill(null).map((_, i) => ({ name: (i + 1).toString(), value: 0 }));
+    default: 
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: Math.floor(Math.random() * 100) }));
   }
 };
 
@@ -164,7 +159,7 @@ const VitalsView = () => {
         </div>
 
         {/* Vitals Table Header (Date/Time) */}
-        <div className="flex items-center justify-end p-2 bg-blue-700 text-white border-b text-xs font-medium">
+        <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
           <div className="w-20 text-center">Date</div>
           <div className="w-20 text-center">Time</div>
         </div>
@@ -231,13 +226,13 @@ const IntakeOutputView = () => {
       {/* Patient Intake/Output Summary Area */}
       <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
               <RefreshCw className="h-4 w-4" />
             </Button>
-             <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+             <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
               <Edit3 className="h-4 w-4" />
             </Button>
           </div>
@@ -264,11 +259,11 @@ const IntakeOutputView = () => {
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-sky-200 text-sky-800">
+              <tr className="bg-accent text-foreground">
                 <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
                 <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
               </tr>
-              <tr className="bg-sky-50 text-sky-700">
+              <tr className="bg-accent/80 text-foreground">
                 {inputHeaders.map(header => (
                   <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap">
                     {header.split(" ")[0]}<br/>{header.split(" ")[1] || ""}
@@ -313,7 +308,7 @@ const IntakeOutputView = () => {
 
       {/* Intake/Output Graph Area */}
       <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
-        <div className="flex items-center p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+        <div className="flex items-center p-2.5 border-b bg-accent text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
         </div>
         <div className="flex-1 p-2">
@@ -321,7 +316,7 @@ const IntakeOutputView = () => {
             <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 20, left: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: -5, fontSize: 10, dy:30 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: -5, fontSize: 10, dy:0 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="#8884d8" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -346,7 +341,7 @@ const ProblemsView = () => {
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       {/* Filter Bar */}
-      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -386,13 +381,13 @@ const ProblemsView = () => {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+          <TableHeader className="bg-accent sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
-                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
                   <div className="flex items-center justify-between">
                     {header}
-                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                   </div>
                 </TableHead>
               ))}
@@ -437,7 +432,7 @@ const FinalDiagnosisView = () => {
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       {/* Header */}
-      <div className="p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+      <div className="p-2.5 border-b bg-accent text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Diagnosis</h2>
       </div>
       {/* Filter Bar */}
@@ -478,13 +473,13 @@ const FinalDiagnosisView = () => {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+          <TableHeader className="bg-accent sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
-                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
                   <div className="flex items-center justify-between">
                     {header}
-                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                   </div>
                 </TableHead>
               ))}
@@ -530,9 +525,9 @@ const ChiefComplaintsView = () => {
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       {/* Header */}
-      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Chief-Complaints</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
@@ -576,13 +571,13 @@ const ChiefComplaintsView = () => {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+          <TableHeader className="bg-accent sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
-                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
                   <div className="flex items-center justify-between">
                     {header}
-                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                   </div>
                 </TableHead>
               ))}
@@ -626,9 +621,9 @@ const AllergiesView = () => {
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       {/* Header */}
-      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Allergies</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
@@ -672,13 +667,13 @@ const AllergiesView = () => {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+          <TableHeader className="bg-accent sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
-                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
                   <div className="flex items-center justify-between">
                     {header}
-                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                   </div>
                 </TableHead>
               ))}
@@ -722,9 +717,9 @@ const OpdIpdDetailsView = () => {
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       {/* Header */}
-      <div className="flex items-center justify-between p-2.5 border-b bg-sky-100 text-sky-800 rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">OPD/IPD Details</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-sky-700 hover:bg-sky-200">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
@@ -768,13 +763,13 @@ const OpdIpdDetailsView = () => {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-sky-200 sticky top-0 z-10">
+          <TableHeader className="bg-accent sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
-                <TableHead key={header} className="py-2 px-3 text-sky-800 font-semibold h-8">
+                <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
                   <div className="flex items-center justify-between">
                     {header}
-                    <ArrowUpDown className="h-3 w-3 ml-1 text-sky-600 hover:text-sky-800 cursor-pointer" />
+                    <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                   </div>
                 </TableHead>
               ))}
@@ -818,7 +813,7 @@ const VitalsDashboardPage: NextPage = () => {
           <Button
             key={item}
             variant={activeVerticalTab === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400' : 'hover:bg-muted/50'}`}
+            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400' : 'hover:bg-muted/50 hover:text-foreground'}`}
             onClick={() => setActiveVerticalTab(item)}
           >
             {item}
@@ -855,3 +850,4 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
+update code
