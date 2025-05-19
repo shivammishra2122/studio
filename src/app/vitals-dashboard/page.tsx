@@ -12,17 +12,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, RefreshCw, ArrowUpDown } from 'lucide-react'; 
+import { Edit3, CalendarDays, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
-  "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
-  "Chief-Complaints", "Allergies", "OPD/IPD Details"
+  "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
+  "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
 ];
 
 const vitalTypes = [
-  "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)", 
-  "Height (In)", "Weight (kg)", "CVP (cmH2O)", "C/G (In)", 
+  "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)",
+  "Height (In)", "Weight (kg)", "CVP (cmH2O)", "C/G (In)",
   "Pulse Oximetry (%)", "Pain",
   "Early Warning Sign", "Location", "Entered By"
 ];
@@ -38,11 +38,13 @@ const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
 
   switch (vitalName) {
     case "B/P (mmHg)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({
-        name: (i + 1).toString(),
-        systolic: generateRandomValue(110, 140),
-        diastolic: generateRandomValue(70, 90),
-      }));
+      return [
+        { name: '1', systolic: 120, diastolic: 80 }, { name: '2', systolic: 122, diastolic: 81 },
+        { name: '3', systolic: 118, diastolic: 78 }, { name: '4', systolic: 125, diastolic: 85 },
+        { name: '5', systolic: 123, diastolic: 82 }, { name: '6', systolic: 130, diastolic: 88 },
+        { name: '7', systolic: 128, diastolic: 86 }, { name: '8', systolic: 124, diastolic: 80 },
+        { name: '9', systolic: 126, diastolic: 83 }, { name: '10', systolic: 121, diastolic: 79 },
+      ];
     case "Temp (F)":
       return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(97.0, 100.0, 1) }));
     case "Resp (/min)":
@@ -63,7 +65,7 @@ const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
       return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 10) }));
     case "Early Warning Sign":
        return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 5) }));
-    default: 
+    default:
       return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 100) }));
   }
 };
@@ -97,7 +99,6 @@ const getYAxisConfig = (vitalName: string): { label: string; domain: [number | s
   }
 };
 
-
 const mockIntakeOutputChartData = [
   { name: '08:00', series1: 400, series2: 240 },
   { name: '10:00', series1: 300, series2: 139 },
@@ -117,7 +118,6 @@ const VitalsView = () => {
   const chartData = getMockDataForVital(selectedVitalForGraph);
   const yAxisConfig = getYAxisConfig(selectedVitalForGraph);
 
-
   return (
     <>
       {/* Vitals Data Area */}
@@ -126,7 +126,6 @@ const VitalsView = () => {
         <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
           <div className="flex items-center space-x-1">
-            
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600">
               <Edit3 className="h-4 w-4" />
             </Button>
@@ -134,7 +133,7 @@ const VitalsView = () => {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex items-center space-x-1 p-1 border-b text-xs font-medium">
+        <div className="flex items-center space-x-2 p-2 border-b text-xs">
           <Label htmlFor="visitDate" className="shrink-0">Visit Date</Label>
           <Select value={visitDate} onValueChange={setVisitDate}>
             <SelectTrigger id="visitDate" className="h-8 w-28 text-xs">
@@ -167,17 +166,17 @@ const VitalsView = () => {
         </div>
 
         {/* Vitals Table Header (Date/Time) */}
-        <div className="flex items-center justify-left p-1 bg-accent text-foreground border-b text-xs font-medium">
-          <div className="w-200 text-left">Date - 19/05/2025</div>
-          <div className="w-20 text-left">Time - 9.30</div>
+        <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
+          <div className="w-20 text-center">Date</div>
+          <div className="w-20 text-center">Time</div>
         </div>
-        
+
         <ScrollArea className="flex-1">
           <Table className="text-xs">
             <TableBody>
               {vitalTypes.map((vital) => (
-                <TableRow 
-                  key={vital} 
+                <TableRow
+                  key={vital}
                   className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-muted' : ''}`}
                   onClick={() => setSelectedVitalForGraph(vital)}
                 >
@@ -191,9 +190,9 @@ const VitalsView = () => {
         </ScrollArea>
 
         <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Vitals Entry</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Multiple Vitals Graph</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">ICU Flow Sheet</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Vitals Entry</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Multiple Vitals Graph</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">ICU Flow Sheet</Button>
         </div>
       </div>
 
@@ -207,10 +206,10 @@ const VitalsView = () => {
             <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Time/Sequence", position: 'insideBottom', offset: -10, fontSize: 10 }} />
-              <YAxis 
-                tick={{ fontSize: 10 }} 
+              <YAxis
+                tick={{ fontSize: 10 }}
                 domain={yAxisConfig.domain as [number | string, number | string]}
-                label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }} 
+                label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }}
               />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend wrapperStyle={{fontSize: "10px"}} />
@@ -271,7 +270,7 @@ const IntakeOutputView = () => {
             </Button>
           </div>
         </div>
-        
+
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
@@ -290,7 +289,7 @@ const IntakeOutputView = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-card">
               <tr>
                 {inputHeaders.map(header => <TableCell key={`input-data-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
                 {outputHeaders.map(header => <TableCell key={`output-data-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
@@ -299,9 +298,9 @@ const IntakeOutputView = () => {
                 {inputHeaders.map(header => <TableCell key={`input-data2-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
                 {outputHeaders.map(header => <TableCell key={`output-data2-${header}`} className="p-1.5 border text-center h-8">-</TableCell>)}
               </tr>
-              <tr className="bg-slate-50">
+              <tr className="bg-muted/30">
                 <TableCell colSpan={inputHeaders.length} className="p-1.5 border text-left font-semibold">Total:</TableCell>
-                <TableCell colSpan={outputHeaders.length} className="p-1.5 border text-left font-semibold"></TableCell> 
+                <TableCell colSpan={outputHeaders.length} className="p-1.5 border text-left font-semibold"></TableCell>
               </tr>
             </tbody>
           </table>
@@ -315,10 +314,10 @@ const IntakeOutputView = () => {
         </div>
 
         <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Intake</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Output</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Update Intake</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Update Output</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Intake</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Output</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Intake</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Output</Button>
         </div>
       </div>
 
@@ -329,14 +328,14 @@ const IntakeOutputView = () => {
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 20, left: 0 }}>
+            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy:0 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
-              <Line type="monotone" dataKey="series1" name="Series 1" stroke="#8884d8" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="series2" name="Series 2" stroke="#82ca9d" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="series2" name="Series 2" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -383,7 +382,7 @@ const ProblemsView = () => {
             </SelectContent>
           </Select>
           <Label htmlFor="statusToggleProblem" className="text-xs">Status</Label>
-          <Switch id="statusToggleProblem" checked={statusToggle} onCheckedChange={setStatusToggle} className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Switch id="statusToggleProblem" checked={statusToggle} onCheckedChange={setStatusToggle} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
           <Label htmlFor="statusToggleProblem" className="text-xs ml-1">ALL</Label>
         </div>
         <div className="flex items-center space-x-2">
@@ -428,7 +427,7 @@ const ProblemsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Problem</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Problem</Button>
         </div>
     </div>
   );
@@ -440,7 +439,7 @@ const FinalDiagnosisView = () => {
   const [searchText, setSearchText] = useState<string>("");
 
   const tableHeaders = ["Primary/Secondary", "Diagnosis Description", "Comment", "Entered Date", "Provider", "Primary", "Add", "Remove"];
-  
+
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       <div className="p-2.5 border-b bg-accent text-foreground rounded-t-md">
@@ -507,12 +506,13 @@ const FinalDiagnosisView = () => {
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
         </div>
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Diagnosis</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Diagnosis</Button>
         </div>
     </div>
   );
@@ -561,7 +561,7 @@ const ChiefComplaintsView = () => {
             </SelectContent>
           </Select>
           <Label htmlFor="statusSwitchComplaint" className="text-xs">Status</Label>
-          <Switch id="statusSwitchComplaint" checked={statusActive} onCheckedChange={setStatusActive}  className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Switch id="statusSwitchComplaint" checked={statusActive} onCheckedChange={setStatusActive}  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
           <Label htmlFor="statusSwitchComplaint" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
         </div>
         <div className="flex items-center space-x-2">
@@ -598,12 +598,13 @@ const ChiefComplaintsView = () => {
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
         </div>
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Chief Complaints</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Chief Complaints</Button>
         </div>
     </div>
   );
@@ -611,8 +612,8 @@ const ChiefComplaintsView = () => {
 
 const AllergiesView = () => {
   const [showEntries, setShowEntries] = useState<string>("10");
-  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10"); 
-  const [statusActive, setStatusActive] = useState<boolean>(true); 
+  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
+  const [statusActive, setStatusActive] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>("");
 
   const tableHeaders = ["S.No", "Allergen", "Reaction", "Severity", "Type", "Onset Date", "Status"];
@@ -652,7 +653,7 @@ const AllergiesView = () => {
             </SelectContent>
           </Select>
           <Label htmlFor="statusSwitchAllergy" className="text-xs">Status</Label>
-          <Switch id="statusSwitchAllergy" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Switch id="statusSwitchAllergy" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
           <Label htmlFor="statusSwitchAllergy" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
         </div>
         <div className="flex items-center space-x-2">
@@ -689,12 +690,13 @@ const AllergiesView = () => {
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
         </div>
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New Allergy</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Allergy</Button>
         </div>
     </div>
   );
@@ -702,12 +704,12 @@ const AllergiesView = () => {
 
 const OpdIpdDetailsView = () => {
   const [showEntries, setShowEntries] = useState<string>("10");
-  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10"); 
-  const [statusActive, setStatusActive] = useState<boolean>(true); 
+  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
+  const [statusActive, setStatusActive] = useState<boolean>(true);
   const [searchText, setSearchText] = useState<string>("");
 
   const tableHeaders = ["S.No", "Visit ID", "Visit Type", "Department", "Doctor", "Date", "Status"];
-  
+
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
@@ -743,7 +745,7 @@ const OpdIpdDetailsView = () => {
             </SelectContent>
           </Select>
           <Label htmlFor="statusSwitchOpdIpd" className="text-xs">Status</Label>
-          <Switch id="statusSwitchOpdIpd" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-sky-600 data-[state=unchecked]:bg-gray-200 h-5 w-9"/>
+          <Switch id="statusSwitchOpdIpd" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
           <Label htmlFor="statusSwitchOpdIpd" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
         </div>
         <div className="flex items-center space-x-2">
@@ -780,12 +782,13 @@ const OpdIpdDetailsView = () => {
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
         </div>
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">New OPD/IPD Entry</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New OPD/IPD Entry</Button>
         </div>
     </div>
   );
@@ -818,10 +821,10 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Chief-Complaints" && <ChiefComplaintsView />}
         {activeVerticalTab === "Allergies" && <AllergiesView />}
         {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
-        
+
          {![
-            "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
-            "Chief-Complaints", "Allergies", "OPD/IPD Details"
+            "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
+            "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
           ].includes(activeVerticalTab) && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
