@@ -80,7 +80,7 @@ export function SidebarNav() {
         </div>
 
         {/* Patient Details List - Left Aligned with Icons */}
-        <ul className="space-y-1 text-xs pt-4"> {/* Increased top padding and space between items */}
+        <ul className="space-y-1 text-xs pt-3"> {/* Increased top padding and space between items */}
           {patientDetails.map((detail) => (
              detail.value && ( // Only render if value exists
               <li key={detail.key} className="flex items-start space-x-1.5">
@@ -112,7 +112,7 @@ export function SidebarNav() {
           <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
             {/* Ensure company-logo.png is in the public folder */}
             <Image
-              src="/company-logo.png"
+              src="/sansys.png"
               alt="Company Logo"
               width={150} // Adjust as needed
               height={50}  // Adjust as needed
