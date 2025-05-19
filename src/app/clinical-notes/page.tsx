@@ -32,23 +32,33 @@ type NoteEntryDataType = {
 const mockNoteEntries: NoteEntryDataType[] = [
   { 
     id: '1', 
-    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress.', 
+    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks.', 
     dateOfEntry: '15 MAY, 2025 20:05', 
     status: 'COMPLETED', 
     signed: true,
     author: 'Sansys Doctor Primary Care Physician', 
-    location: 'ICU ONE - General Ward',
+    location: 'ICU ONE - General Ward, Bed 103B, Room A',
     cosigner: 'Dr. Jane Doe Supervising Physician' 
   },
   { 
     id: '2', 
-    notesTitle: 'Follow-up Visit - Cardiology', 
+    notesTitle: 'Follow-up Visit - Cardiology. ECG reviewed, no acute ischemic changes. Patient advised to continue current medication regimen. Blood pressure stable. Lifestyle modifications reinforced.', 
     dateOfEntry: '16 MAY, 2025 10:30', 
     status: 'PENDING', 
     signed: false,
     author: 'Dr. Smith Attending Cardiologist', 
-    location: 'Cardiology Wing - Outpatient Clinic A',
+    location: 'Cardiology Wing - Outpatient Clinic A, Room 5',
     cosigner: 'Dr. Emily White Cardiology Fellow'
+  },
+  { 
+    id: '3', 
+    notesTitle: 'Progress Note - Neurology. Patient stable, no new neurological deficits. MRI results pending. Family updated on current status.', 
+    dateOfEntry: '17 MAY, 2025 14:15', 
+    status: 'DRAFT', 
+    signed: false,
+    author: 'Dr. Alex Johnson Neurologist', 
+    location: 'Neurology Ward - Room 201, Bed A',
+    cosigner: undefined
   },
 ];
 
@@ -75,7 +85,7 @@ const ClinicalNotesPage: NextPage = () => {
           <Button
             key={item}
             variant={activeSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-blue-700 text-white border-l-4 border-sky-400 hover:bg-blue-700 hover:text-white' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-secondary text-primary border-l-4 border-primary hover:bg-secondary hover:text-primary' : 'hover:bg-muted/50 hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
           >
             {item}
@@ -88,14 +98,14 @@ const ClinicalNotesPage: NextPage = () => {
         {/* For now, only "Notes View" content is implemented */}
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow">
-            <CardHeader className="p-2.5 border-b bg-accent text-foreground rounded-t-md">
+            <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Note View</CardTitle>
                 <div className="flex items-center space-x-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <Settings className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>
@@ -107,7 +117,7 @@ const ClinicalNotesPage: NextPage = () => {
               <div className="flex items-center space-x-2 text-xs mb-2">
                 <Label htmlFor="groupBy" className="shrink-0">Group By</Label>
                 <Select value={groupBy} onValueChange={setGroupBy}>
-                  <SelectTrigger id="groupBy" className="h-7 w-32 text-xs">
+                  <SelectTrigger id="groupBy" className="h-7 w-28 text-xs"> {/* w-32 to w-28 */}
                     <SelectValue placeholder="Visit Date" />
                   </SelectTrigger>
                   <SelectContent>
@@ -119,13 +129,13 @@ const ClinicalNotesPage: NextPage = () => {
 
                 <Label htmlFor="selectedDate" className="shrink-0 hidden sm:inline">Select</Label> {/* Hide on small screens if too cramped */}
                 <div className="relative">
-                    <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 w-36 text-xs pr-7" />
+                    <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 w-32 text-xs pr-7" /> {/* w-36 to w-32 */}
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
 
                 <Label htmlFor="statusFilter" className="shrink-0">Status</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger id="statusFilter" className="h-7 w-24 text-xs">
+                  <SelectTrigger id="statusFilter" className="h-7 w-24 text-xs"> {/* Stays w-24 */}
                     <SelectValue placeholder="ALL" />
                   </SelectTrigger>
                   <SelectContent>
@@ -138,24 +148,24 @@ const ClinicalNotesPage: NextPage = () => {
                 
                 <Label htmlFor="fromDate" className="shrink-0 hidden md:inline">From Date</Label>
                  <div className="relative hidden md:block">
-                    <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-28 text-xs pr-7" />
+                    <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* w-28 to w-24 */}
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
 
                 <Label htmlFor="toDate" className="shrink-0 hidden md:inline">To</Label>
                 <div className="relative hidden md:block">
-                    <Input id="toDate" type="text" value={toDate} onChange={e => setToDate(e.target.value)} className="h-7 w-28 text-xs pr-7" />
+                    <Input id="toDate" type="text" value={toDate} onChange={e => setToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* w-28 to w-24 */}
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
                 <div className="flex-grow"></div> {/* Pushes search to the right */}
                 <Label htmlFor="notesSearch" className="shrink-0">Search:</Label>
-                <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-32 text-xs" />
+                <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-28 text-xs" /> {/* w-32 to w-28 */}
               </div>
 
               {/* Table */}
               <ScrollArea className="flex-1">
                 <Table className="text-xs">
-                  <TableHeader className="bg-accent sticky top-0 z-10">
+                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {[
                         "Notes Title", "Date of Entry", "Status", "Sign", "Edit", 
