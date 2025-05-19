@@ -63,7 +63,7 @@ const OrdersPage: NextPage = () => {
           <Button
             key={item}
             variant={activeOrderSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeOrderSubNav === item ? 'bg-blue-700 text-white border-l-4 border-sky-400 hover:bg-blue-700 hover:text-white' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeOrderSubNav === item ? 'bg-secondary text-primary border-l-4 border-primary hover:bg-secondary hover:text-primary' : 'hover:bg-muted/50 hover:text-foreground'}`}
             onClick={() => setActiveOrderSubNav(item)}
           >
             {item}
@@ -75,17 +75,17 @@ const OrdersPage: NextPage = () => {
       <main className="flex-1 flex flex-col p-3 gap-3 overflow-hidden">
         {activeOrderSubNav === "CPOE Order List" && (
            <Card className="flex-1 flex flex-col shadow">
-            <CardHeader className="p-2.5 border-b bg-accent text-foreground rounded-t-md">
+            <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">All Services</CardTitle>
                 <div className="flex items-center space-x-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <Settings className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <FileEdit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>
@@ -163,7 +163,7 @@ const OrdersPage: NextPage = () => {
               {/* Table */}
               <ScrollArea className="flex-1">
                 <Table className="text-xs">
-                  <TableHeader className="bg-accent sticky top-0 z-10">
+                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
                         <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
@@ -235,5 +235,3 @@ const OrdersPage: NextPage = () => {
 };
 
 export default OrdersPage;
-
-    

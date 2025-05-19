@@ -34,7 +34,7 @@ const EmergencyCarePage: NextPage = () => {
           <Button
             key={item}
             variant={activeSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-blue-700 text-white border-l-4 border-sky-400 hover:bg-blue-700 hover:text-white' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-secondary text-primary border-l-4 border-primary hover:bg-secondary hover:text-primary' : 'hover:bg-muted/50 hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
           >
             {item}
@@ -46,7 +46,7 @@ const EmergencyCarePage: NextPage = () => {
       <main className="flex-1 flex flex-col p-3 gap-3 overflow-hidden">
         {activeSubNav === "COPD List" && (
           <Card className="flex-1 flex flex-col shadow">
-            <CardHeader className="p-2.5 border-b bg-accent text-foreground rounded-t-md">
+            <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Patient COPD List</CardTitle>
                 <div className="flex items-center space-x-2">
@@ -71,7 +71,7 @@ const EmergencyCarePage: NextPage = () => {
                     onChange={e => setSearchText(e.target.value)} 
                     className="h-7 w-40 text-xs" 
                   />
-                   <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+                   <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>
@@ -81,7 +81,7 @@ const EmergencyCarePage: NextPage = () => {
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               <ScrollArea className="flex-1">
                 <Table className="text-xs">
-                  <TableHeader className="bg-accent sticky top-0 z-10">
+                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {copdTableHeaders.map(header => (
                         <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
@@ -141,5 +141,3 @@ const EmergencyCarePage: NextPage = () => {
 };
 
 export default EmergencyCarePage;
-
-    
