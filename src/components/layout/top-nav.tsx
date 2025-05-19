@@ -66,6 +66,20 @@ export function TopNav() {
               </Link>
             );
           }
+          if (label ==="Discharge Summary"){
+            return(
+              <Link key={index} href="/discharge-summary" passHref legacyBehavior>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+                >
+                  <a>{label}</a>
+                </Button>
+              </Link>
+            );
+          }
           return (
             <Button
               key={index}
