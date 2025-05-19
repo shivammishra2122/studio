@@ -80,7 +80,7 @@ const ClinicalNotesPage: NextPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-center space-x-0.5 border-b border-border px-1 py-1 mb-3 overflow-x-auto no-scrollbar bg-card">
+      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
         {clinicalNotesSubNavItems.map((item) => (
           <Button
             key={item}
@@ -242,5 +242,3 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
-    
