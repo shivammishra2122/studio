@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
-  "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
+  "Chief-Complaints", "Allergies", "OPD/IPD Details"
 ];
 
 const vitalTypes = [
@@ -330,8 +330,8 @@ const IntakeOutputView = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 0, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 35 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -805,7 +805,7 @@ const VitalsDashboardPage: NextPage = () => {
           <Button
             key={item}
             variant={activeVerticalTab === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400 hover:bg-blue-700 hover:text-white' : 'hover:bg-muted/50 hover:text-foreground'}`}
             onClick={() => setActiveVerticalTab(item)}
           >
             {item}
@@ -824,7 +824,7 @@ const VitalsDashboardPage: NextPage = () => {
 
          {![
             "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
-            "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
+            "Chief-Complaints", "Allergies", "OPD/IPD Details"
           ].includes(activeVerticalTab) && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
@@ -841,3 +841,4 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
+

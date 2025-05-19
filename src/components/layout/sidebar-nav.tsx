@@ -67,16 +67,9 @@ export function SidebarNav() {
             </AvatarFallback>
           </Avatar>
           <div className="mt-2 w-full px-4">
-            <img
-              alt="Patient Barcode"
-              data-ai-hint="barcode medical"
-              loading="lazy"
-              width="auto"
-              height="auto"
-              decoding="async"
-              className="object-contain mx-auto"
-              src="/barcode.jpg"
-            />
+            
+              <p className="text-sm font-medium"> 2734577854 </p>
+            
           </div>
           <div className="text-center">
             <p className="text-md font-medium">
