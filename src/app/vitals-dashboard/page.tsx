@@ -31,8 +31,9 @@ const vitalTypes = [
 type VitalChartDataPoint = { name: string; value?: number; systolic?: number; diastolic?: number };
 
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
-  const baseDataPoints = 10;
+  // This function should only run on the client after hydration
   const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
+    if (typeof window === 'undefined') return 0; 
     const val = Math.random() * (max - min) + min;
     return parseFloat(val.toFixed(toFixed));
   }
@@ -40,34 +41,39 @@ const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
   switch (vitalName) {
     case "B/P (mmHg)":
       return [
-        { name: '1', systolic: 120, diastolic: 80 }, { name: '2', systolic: 122, diastolic: 81 },
-        { name: '3', systolic: 118, diastolic: 78 }, { name: '4', systolic: 125, diastolic: 85 },
-        { name: '5', systolic: 123, diastolic: 82 }, { name: '6', systolic: 130, diastolic: 88 },
-        { name: '7', systolic: 128, diastolic: 86 }, { name: '8', systolic: 124, diastolic: 80 },
-        { name: '9', systolic: 126, diastolic: 83 }, { name: '10', systolic: 121, diastolic: 79 },
+        { name: '1', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
+        { name: '2', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
+        { name: '3', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
+        { name: '4', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
+        { name: '5', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
+        { name: '6', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
+        { name: '7', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
+        { name: '8', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
+        { name: '9', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
+        { name: '10', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
       ];
     case "Temp (F)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(97.0, 100.0, 1) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(97.0, 100.0, 1) }));
     case "Resp (/min)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(12, 20) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(12, 20) }));
     case "Pulse (/min)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 100) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 100) }));
     case "Height (In)":
-       return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 75) }));
+       return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 75) }));
     case "Weight (kg)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(50, 100, 1) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(50, 100, 1) }));
     case "CVP (cmH2O)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(2, 12, 1) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(2, 12, 1) }));
     case "C/G (In)":
-       return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(28, 40) }));
+       return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(28, 40) }));
     case "Pulse Oximetry (%)":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(95, 100) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(95, 100) }));
     case "Pain":
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 10) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 10) }));
     case "Early Warning Sign":
-       return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 5) }));
+       return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 5) }));
     default:
-      return Array.from({ length: baseDataPoints }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 100) }));
+      return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 100) }));
   }
 };
 
@@ -115,8 +121,12 @@ const VitalsView = () => {
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [selectedVitalForGraph, setSelectedVitalForGraph] = useState<string>(vitalTypes[0]);
+  const [chartData, setChartData] = useState<VitalChartDataPoint[]>([]);
 
-  const chartData = getMockDataForVital(selectedVitalForGraph);
+  useEffect(() => {
+    setChartData(getMockDataForVital(selectedVitalForGraph));
+  }, [selectedVitalForGraph]);
+
   const yAxisConfig = getYAxisConfig(selectedVitalForGraph);
 
   return (
@@ -195,9 +205,9 @@ const VitalsView = () => {
         </ScrollArea>
 
         <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Vitals Entry</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Multiple Vitals Graph</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">ICU Flow Sheet</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Vitals Entry</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Multiple Vitals Graph</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">ICU Flow Sheet</Button>
         </div>
       </div>
 
@@ -319,10 +329,10 @@ const IntakeOutputView = () => {
         </div>
 
         <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Intake</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Output</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Intake</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Output</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Intake</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Output</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Update Intake</Button>
+          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Update Output</Button>
         </div>
       </div>
 
@@ -335,8 +345,8 @@ const IntakeOutputView = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 5, left: -15 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 5 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -806,13 +816,13 @@ const VitalsDashboardPage: NextPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex space-x-1 border-b pb-2 mb-3 overflow-x-auto no-scrollbar">
+      <div className="flex items-center space-x-0.5 border-b border-border px-3 py-2.5 mb-3 overflow-x-auto no-scrollbar bg-card">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
             variant={activeVerticalTab === item ? "default" : "ghost"}
             size="sm"
-            className={`shrink-0 ${activeVerticalTab === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
+            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeVerticalTab === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveVerticalTab(item)}
           >
             {item}
