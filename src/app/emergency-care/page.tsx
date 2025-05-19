@@ -34,7 +34,7 @@ const EmergencyCarePage: NextPage = () => {
           <Button
             key={item}
             variant={activeSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-blue-700 text-white border-l-4 border-sky-400' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-blue-700 text-white border-l-4 border-sky-400 hover:bg-blue-700 hover:text-white' : 'hover:bg-muted/50 hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
           >
             {item}
@@ -141,6 +141,5 @@ const EmergencyCarePage: NextPage = () => {
 };
 
 export default EmergencyCarePage;
-    
 
     
