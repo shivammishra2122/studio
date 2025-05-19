@@ -12,13 +12,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
   "Chief-Complaints", "Allergies", "OPD/IPD Details"
 ];
+
 
 const vitalTypes = [
   "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)",
@@ -125,7 +126,11 @@ const VitalsView = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
+                <Checkbox id="enteredInError" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-blue-700" />
+                <Label htmlFor="enteredInError" className="text-xs text-white">Entered in Error</Label>
+            </div>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600">
               <Edit3 className="h-4 w-4" />
             </Button>
@@ -244,10 +249,10 @@ const IntakeOutputView = () => {
         <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
               <RefreshCw className="h-4 w-4" />
             </Button>
-             <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
               <Edit3 className="h-4 w-4" />
             </Button>
           </div>
@@ -278,7 +283,7 @@ const IntakeOutputView = () => {
                 <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
                 <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
               </tr>
-              <tr className="bg-accent/80 text-foreground">
+              <tr className="bg-accent text-foreground">
                 {inputHeaders.map(header => (
                   <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap">
                     {header.split(" ")[0]}<br/>{header.split(" ")[1] || ""}
@@ -328,10 +333,10 @@ const IntakeOutputView = () => {
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 0, left: 0 }}>
+            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 5, left: -15 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 35 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -355,7 +360,7 @@ const ProblemsView = () => {
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
       {/* Filter Bar */}
-      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -442,7 +447,7 @@ const FinalDiagnosisView = () => {
 
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
-      <div className="p-2.5 border-b bg-accent text-foreground rounded-t-md">
+      <div className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Diagnosis</h2>
       </div>
       <div className="flex items-center justify-between p-2.5 border-b">
@@ -528,9 +533,9 @@ const ChiefComplaintsView = () => {
 
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
-      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Chief-Complaints</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
@@ -620,9 +625,9 @@ const AllergiesView = () => {
 
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
-      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Allergies</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
@@ -712,9 +717,9 @@ const OpdIpdDetailsView = () => {
 
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
-      <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">OPD/IPD Details</h2>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-foreground hover:bg-muted/50">
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
@@ -799,21 +804,24 @@ const VitalsDashboardPage: NextPage = () => {
   const [activeVerticalTab, setActiveVerticalTab] = useState<string>("Vitals");
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      <aside className="w-40 bg-card border-r p-2 flex flex-col space-y-1">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+      {/* Horizontal Navigation Bar */}
+      <div className="flex space-x-1 border-b pb-2 mb-3 overflow-x-auto no-scrollbar">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
-            variant={activeVerticalTab === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 ${activeVerticalTab === item ? 'bg-blue-700 text-white border-l-4 border-sky-400 hover:bg-blue-700 hover:text-white' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            variant={activeVerticalTab === item ? "default" : "ghost"}
+            size="sm"
+            className={`shrink-0 ${activeVerticalTab === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveVerticalTab(item)}
           >
             {item}
           </Button>
         ))}
-      </aside>
+      </div>
 
-      <main className="flex-1 flex p-3 gap-3 overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex-1 flex gap-3 overflow-hidden">
         {activeVerticalTab === "Vitals" && <VitalsView />}
         {activeVerticalTab === "Intake/Output" && <IntakeOutputView />}
         {activeVerticalTab === "Problems" && <ProblemsView />}
@@ -821,7 +829,8 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Chief-Complaints" && <ChiefComplaintsView />}
         {activeVerticalTab === "Allergies" && <AllergiesView />}
         {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
-
+        
+        {/* Placeholder for other views not yet implemented */}
          {![
             "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
             "Chief-Complaints", "Allergies", "OPD/IPD Details"
@@ -835,7 +844,7 @@ const VitalsDashboardPage: NextPage = () => {
             </CardContent>
           </Card>
         )}
-      </main>
+      </div>
     </div>
   );
 };
