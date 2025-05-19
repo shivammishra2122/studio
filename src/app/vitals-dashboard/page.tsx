@@ -123,10 +123,7 @@ const VitalsView = () => {
         <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1.5">
-              <Checkbox id="enteredInError" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-blue-700" />
-              <Label htmlFor="enteredInError" className="text-xs text-white">Entered in Error</Label>
-            </div>
+            
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600">
               <Edit3 className="h-4 w-4" />
             </Button>
@@ -858,4 +855,3 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-update the dashboard code and use the exact color code for the header bg-sky-100
