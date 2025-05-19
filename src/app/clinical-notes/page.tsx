@@ -10,17 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp, X } from 'lucide-react';
 
 const clinicalNotesSubNavItems = [
-  "Notes View", "New Notes", "Scanned Notes", 
-  "Clinical Report", "Clinical Reminder", 
+  "Notes View", "New Notes", "Scanned Notes",
+  "Clinical Report", "Clinical Reminder",
   "Clinical Reminder Analysis", "Clinical Template"
 ];
 
 type NoteEntryDataType = {
   id: string;
-  notesTitle: string;
+  notesTitle: string; // This will store the full note content
   dateOfEntry: string;
   status: "COMPLETED" | "PENDING" | "DRAFT";
   signed: boolean;
@@ -30,33 +31,33 @@ type NoteEntryDataType = {
 };
 
 const mockNoteEntries: NoteEntryDataType[] = [
-  { 
-    id: '1', 
-    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks.', 
-    dateOfEntry: '15 MAY, 2025 20:05', 
-    status: 'COMPLETED', 
+  {
+    id: '1',
+    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+    dateOfEntry: '15 MAY, 2025 20:05',
+    status: 'COMPLETED',
     signed: true,
-    author: 'Sansys Doctor Primary Care Physician', 
+    author: 'Sansys Doctor Primary Care Physician',
     location: 'ICU ONE - General Ward, Bed 103B, Room A',
-    cosigner: 'Dr. Jane Doe Supervising Physician' 
+    cosigner: 'Dr. Jane Doe Supervising Physician'
   },
-  { 
-    id: '2', 
-    notesTitle: 'Follow-up Visit - Cardiology. ECG reviewed, no acute ischemic changes. Patient advised to continue current medication regimen. Blood pressure stable. Lifestyle modifications reinforced.', 
-    dateOfEntry: '16 MAY, 2025 10:30', 
-    status: 'PENDING', 
+  {
+    id: '2',
+    notesTitle: 'Follow-up Visit - Cardiology. ECG reviewed, no acute ischemic changes. Patient advised to continue current medication regimen. Blood pressure stable. Lifestyle modifications reinforced. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. This note is intentionally shorter to test display.',
+    dateOfEntry: '16 MAY, 2025 10:30',
+    status: 'PENDING',
     signed: false,
-    author: 'Dr. Smith Attending Cardiologist', 
+    author: 'Dr. Smith Attending Cardiologist',
     location: 'Cardiology Wing - Outpatient Clinic A, Room 5',
     cosigner: 'Dr. Emily White Cardiology Fellow'
   },
-  { 
-    id: '3', 
-    notesTitle: 'Progress Note - Neurology. Patient stable, no new neurological deficits. MRI results pending. Family updated on current status.', 
-    dateOfEntry: '17 MAY, 2025 14:15', 
-    status: 'DRAFT', 
+  {
+    id: '3',
+    notesTitle: 'Progress Note - Neurology. Patient stable, no new neurological deficits. MRI results pending. Family updated on current status. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
+    dateOfEntry: '17 MAY, 2025 14:15',
+    status: 'DRAFT',
     signed: false,
-    author: 'Dr. Alex Johnson Neurologist', 
+    author: 'Dr. Alex Johnson Neurologist',
     location: 'Neurology Ward - Room 201, Bed A',
     cosigner: undefined
   },
@@ -65,7 +66,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
 
 const ClinicalNotesPage: NextPage = () => {
   const [activeSubNav, setActiveSubNav] = useState<string>(clinicalNotesSubNavItems[0]);
-  
+
   // State for filters
   const [groupBy, setGroupBy] = useState<string>("visitDate");
   const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45");
@@ -74,8 +75,22 @@ const ClinicalNotesPage: NextPage = () => {
   const [toDate, setToDate] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
 
+  // State for Note Detail Dialog
+  const [isNoteDetailDialogOpen, setIsNoteDetailDialogOpen] = useState(false);
+  const [selectedNoteContent, setSelectedNoteContent] = useState<string>("");
+
   // Placeholder for filtered notes
   const filteredNotes = mockNoteEntries;
+
+  const handleNoteClick = (noteContent: string) => {
+    setSelectedNoteContent(noteContent);
+    setIsNoteDetailDialogOpen(true);
+  };
+
+  const truncateText = (text: string, maxLength: number = 100) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
@@ -96,7 +111,6 @@ const ClinicalNotesPage: NextPage = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
-        {/* For now, only "Notes View" content is implemented */}
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow">
             <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
@@ -112,10 +126,10 @@ const ClinicalNotesPage: NextPage = () => {
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar */}
-              <div className="flex items-center space-x-2 text-xs mb-2">
+              <div className="flex flex-wrap items-center space-x-2 text-xs mb-2 gap-y-2">
                 <Label htmlFor="groupBy" className="shrink-0">Group By</Label>
                 <Select value={groupBy} onValueChange={setGroupBy}>
                   <SelectTrigger id="groupBy" className="h-7 w-28 text-xs">
@@ -146,7 +160,7 @@ const ClinicalNotesPage: NextPage = () => {
                     <SelectItem value="DRAFT">DRAFT</SelectItem>
                   </SelectContent>
                 </Select>
-                
+
                 <Label htmlFor="fromDate" className="shrink-0 hidden md:inline">From Date</Label>
                  <div className="relative hidden md:block">
                     <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
@@ -169,7 +183,7 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {[
-                        "Notes Title", "Date of Entry", "Status", "Sign", "Edit", 
+                        "Notes Title", "Date of Entry", "Status", "Sign", "Edit",
                         "Delete", "Action", "Author", "Location", "Cosigner", "Image Upload"
                       ].map(header => (
                         <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
@@ -183,8 +197,8 @@ const ClinicalNotesPage: NextPage = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
-                      <TableRow key={note.id}>
-                        <TableCell className="py-1.5 px-3">{note.notesTitle}</TableCell>
+                      <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/30">
+                        <TableCell className="py-1.5 px-3">{truncateText(note.notesTitle, 100)}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.dateOfEntry}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
@@ -237,8 +251,30 @@ const ClinicalNotesPage: NextPage = () => {
           </Card>
         )}
       </main>
+
+      <Dialog open={isNoteDetailDialogOpen} onOpenChange={setIsNoteDetailDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Note Detail</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] p-1 rounded-md">
+            <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
+                {selectedNoteContent}
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Close
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default ClinicalNotesPage;
+
+    
