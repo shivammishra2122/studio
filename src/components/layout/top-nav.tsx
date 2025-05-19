@@ -4,6 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
@@ -12,12 +13,16 @@ const navButtonLabels = [
 ];
 
 export function TopNav() {
+  const pathname = usePathname();
+
   return (
     <div className="bg-card border-b border-border px-3 py-2.5 sticky top-0 z-30 flex items-center space-x-0.5">
       {/* Hamburger menu for mobile/tablet to toggle sidebar sheet */}
       <div className="md:hidden">
         <SidebarTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8" />
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            {/* The SidebarTrigger will render its own icon if not given a child */}
+          </Button>
         </SidebarTrigger>
       </div>
 
@@ -44,19 +49,19 @@ export function TopNav() {
           } else if (label ==="Lab"){
             href="/lab";
           } else if (label === "Radiology") {
-            // Assuming you might want a placeholder or a specific page
-            href="/radiology"; // You'll need to create this page
+            href="/radiology"; 
           } else if (label === "Blood Center") {
-            href="/blood-center"; // You'll need to create this page
+            href="/blood-center"; 
           } else if (label === "BI") {
-            href="/bi"; // You'll need to create this page
+            href="/bi"; 
           } else if (label === "Report") {
-            href="/report"; // You'll need to create this page
+            href="/report"; 
           }
           
-          // For pages not yet created or default behavior
+          const isActive = pathname === href;
+
+          // For pages not yet created or default behavior for unlinked buttons
           if (href === "/" && label !== "Cover Sheet" && label !== "Dashboard" && label !== "Orders" && label !== "Clinical Notes" && label !== "Discharge Summary" && label !== "Emergency Care" && label !== "Postmortem" && label !== "Nursing Referral" && label !== "Lab") {
-             // Check if the page exists, if not, make it a plain button for now
             if (["Radiology", "Blood Center", "BI", "Report"].includes(label) && !["/radiology", "/blood-center", "/bi", "/report"].includes(href) ) {
                  return (
                     <Button
@@ -71,14 +76,13 @@ export function TopNav() {
             }
           }
 
-
           return (
             <Link key={index} href={href} passHref legacyBehavior>
               <Button
                 asChild
-                variant="ghost"
+                variant={isActive ? "default" : "ghost"}
                 size="sm"
-                className="text-xs px-2 py-1 h-7 whitespace-nowrap hover:bg-accent hover:text-foreground"
+                className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${!isActive ? 'hover:bg-accent hover:text-foreground' : ''}`}
               >
                 <a>{label}</a>
               </Button>
