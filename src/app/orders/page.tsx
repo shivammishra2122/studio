@@ -56,23 +56,24 @@ const OrdersPage: NextPage = () => {
 
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      {/* Left Sub-Navigation Panel */}
-      <aside className="w-48 bg-card border-r p-2 flex flex-col space-y-1">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+      {/* Horizontal Navigation Bar */}
+      <div className="flex items-center space-x-0.5 border-b border-border px-3 py-2.5 mb-3 overflow-x-auto no-scrollbar bg-card">
         {orderSubNavItems.map((item) => (
           <Button
             key={item}
-            variant={activeOrderSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeOrderSubNav === item ? 'bg-secondary text-primary border-l-4 border-primary hover:bg-secondary hover:text-primary' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            variant={activeOrderSubNav === item ? "default" : "ghost"}
+            size="sm"
+            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeOrderSubNav === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveOrderSubNav(item)}
           >
             {item}
           </Button>
         ))}
-      </aside>
+      </div>
 
-      {/* Right Content Panel */}
-      <main className="flex-1 flex flex-col p-3 gap-3 overflow-hidden">
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeOrderSubNav === "CPOE Order List" && (
            <Card className="flex-1 flex flex-col shadow">
             <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">

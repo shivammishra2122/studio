@@ -78,23 +78,24 @@ const ClinicalNotesPage: NextPage = () => {
   const filteredNotes = mockNoteEntries;
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      {/* Left Sub-Navigation Panel */}
-      <aside className="w-48 bg-card border-r p-2 flex flex-col space-y-1">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+      {/* Horizontal Navigation Bar */}
+      <div className="flex items-center space-x-0.5 border-b border-border px-3 py-2.5 mb-3 overflow-x-auto no-scrollbar bg-card">
         {clinicalNotesSubNavItems.map((item) => (
           <Button
             key={item}
-            variant={activeSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-9 px-2.5 text-xs ${activeSubNav === item ? 'bg-secondary text-primary border-l-4 border-primary hover:bg-secondary hover:text-primary' : 'hover:bg-muted/50 hover:text-foreground'}`}
+            variant={activeSubNav === item ? "default" : "ghost"}
+            size="sm"
+            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeSubNav === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
           >
             {item}
           </Button>
         ))}
-      </aside>
+      </div>
 
-      {/* Right Content Panel */}
-      <main className="flex-1 flex flex-col p-3 gap-3 overflow-hidden">
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {/* For now, only "Notes View" content is implemented */}
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow">
@@ -117,7 +118,7 @@ const ClinicalNotesPage: NextPage = () => {
               <div className="flex items-center space-x-2 text-xs mb-2">
                 <Label htmlFor="groupBy" className="shrink-0">Group By</Label>
                 <Select value={groupBy} onValueChange={setGroupBy}>
-                  <SelectTrigger id="groupBy" className="h-7 w-28 text-xs"> {/* w-32 to w-28 */}
+                  <SelectTrigger id="groupBy" className="h-7 w-28 text-xs">
                     <SelectValue placeholder="Visit Date" />
                   </SelectTrigger>
                   <SelectContent>
@@ -127,15 +128,15 @@ const ClinicalNotesPage: NextPage = () => {
                   </SelectContent>
                 </Select>
 
-                <Label htmlFor="selectedDate" className="shrink-0 hidden sm:inline">Select</Label> {/* Hide on small screens if too cramped */}
+                <Label htmlFor="selectedDate" className="shrink-0 hidden sm:inline">Select</Label>
                 <div className="relative">
-                    <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 w-32 text-xs pr-7" /> {/* w-36 to w-32 */}
+                    <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 w-32 text-xs pr-7" />
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
 
                 <Label htmlFor="statusFilter" className="shrink-0">Status</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger id="statusFilter" className="h-7 w-24 text-xs"> {/* Stays w-24 */}
+                  <SelectTrigger id="statusFilter" className="h-7 w-24 text-xs">
                     <SelectValue placeholder="ALL" />
                   </SelectTrigger>
                   <SelectContent>
@@ -148,18 +149,18 @@ const ClinicalNotesPage: NextPage = () => {
                 
                 <Label htmlFor="fromDate" className="shrink-0 hidden md:inline">From Date</Label>
                  <div className="relative hidden md:block">
-                    <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* w-28 to w-24 */}
+                    <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
 
                 <Label htmlFor="toDate" className="shrink-0 hidden md:inline">To</Label>
                 <div className="relative hidden md:block">
-                    <Input id="toDate" type="text" value={toDate} onChange={e => setToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* w-28 to w-24 */}
+                    <Input id="toDate" type="text" value={toDate} onChange={e => setToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
                 <div className="flex-grow"></div> {/* Pushes search to the right */}
                 <Label htmlFor="notesSearch" className="shrink-0">Search:</Label>
-                <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-28 text-xs" /> {/* w-32 to w-28 */}
+                <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-28 text-xs" />
               </div>
 
               {/* Table */}
