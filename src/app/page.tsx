@@ -1,32 +1,33 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import type { ChartConfig } from '@/components/ui/chart'; 
+import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
-  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus,
-  Ban, FileText, ScanLine, ClipboardList, BellRing
+  Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
+  FileText, Ban, ScanLine, ClipboardList, BellRing, Trash2
 } from 'lucide-react';
-import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
-import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent } from '@/lib/constants'; 
-import { useState, useEffect, useRef } from 'react';
+import type { HealthMetric, Medication, Problem } from '@/lib/constants'; 
+import { MOCK_MEDICATIONS, MOCK_PROBLEMS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const keyIndicators: HealthMetric[] = [
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
   { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure' },
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer },
+  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
+  { name: 'Blood Pressure', value: '120/80', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure' },
+  { name: 'Body Temperature', value: '36.8', unit: '°C', icon: Thermometer },
   { name: 'Weight', value: '70', unit: 'kg', icon: Scale },
 ];
 
@@ -52,7 +53,6 @@ const bloodPressureData: Array<{ date: string; systolic: number; diastolic: numb
   { date: 'Sun', systolic: 119, diastolic: 79 },
 ];
 
-
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
 const bloodPressureChartConfig: ChartConfig = { 
@@ -68,8 +68,6 @@ const infoCardIcons: Record<string, React.ElementType> = {
   "Encounter notes": ClipboardList,
   "Clinical reminder": BellRing, 
 };
-
-const secondRowInformationalCardTitles: string[] = ["Allergies", "Medications History", "Report", "Radiology"];
 
 const thirdRowInformationalCardTitles: string[] = [
   "Clinical notes",
@@ -102,7 +100,15 @@ export default function DashboardPage(): JSX.Element {
   const isProblemDialogDragging = useRef(false);
   const problemDragStartCoords = useRef({ x: 0, y: 0 });
   const problemInitialDialogOffset = useRef({ x: 0, y: 0 });
-
+  
+  const openAddProblemDialog = () => {
+    setNewProblemInput('');
+    if (problemDialogRef.current) {
+      problemDialogRef.current.style.transform = 'translate(-50%, -50%)'; 
+    }
+    setIsAddProblemDialogOpen(true);
+  };
+  
   const handleAddProblem = () => {
     if (!newProblemInput.trim()) return;
     const newProb: Problem = {
@@ -114,6 +120,11 @@ export default function DashboardPage(): JSX.Element {
     setIsAddProblemDialogOpen(false);
   };
 
+  const openAddMedicationDialog = () => {
+    setNewMedicationInput('');
+    setIsAddMedicationDialogOpen(true);
+  };
+  
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
     const newMed: Medication = {
@@ -127,20 +138,6 @@ export default function DashboardPage(): JSX.Element {
     setMedications(prev => [newMed, ...prev]);
     setNewMedicationInput('');
     setIsAddMedicationDialogOpen(false);
-  };
-
-  const openAddProblemDialog = () => {
-    setNewProblemInput('');
-    if (problemDialogRef.current) {
-      // Reset dialog position to center
-      problemDialogRef.current.style.transform = 'translate(-50%, -50%)';
-    }
-    setIsAddProblemDialogOpen(true);
-  };
-  
-  const openAddMedicationDialog = () => {
-    setNewMedicationInput('');
-    setIsAddMedicationDialogOpen(true);
   };
 
   const handleOpenAddItemDialog = (title: string) => {
@@ -176,14 +173,13 @@ export default function DashboardPage(): JSX.Element {
     if (problemHeaderRef.current && problemDialogRef.current) {
       isProblemDialogDragging.current = true;
       problemDragStartCoords.current = { x: e.clientX, y: e.clientY };
-      // Get current transform values
       const style = window.getComputedStyle(problemDialogRef.current);
       const matrix = new DOMMatrixReadOnly(style.transform);
       problemInitialDialogOffset.current = { x: matrix.m41, y: matrix.m42 };
 
       problemHeaderRef.current.style.cursor = 'grabbing';
-      document.body.style.cursor = 'grabbing'; // Optional: change cursor for the whole body
-      e.preventDefault(); // Prevent text selection during drag
+      document.body.style.cursor = 'grabbing'; 
+      e.preventDefault(); 
     }
   };
 
@@ -193,7 +189,6 @@ export default function DashboardPage(): JSX.Element {
       const deltaX = e.clientX - problemDragStartCoords.current.x;
       const deltaY = e.clientY - problemDragStartCoords.current.y;
       
-      // Apply delta to the initial offset from the center
       const newX = problemInitialDialogOffset.current.x + deltaX;
       const newY = problemInitialDialogOffset.current.y + deltaY;
 
@@ -206,7 +201,7 @@ export default function DashboardPage(): JSX.Element {
         if (problemHeaderRef.current) {
           problemHeaderRef.current.style.cursor = 'grab';
         }
-        document.body.style.cursor = 'default'; // Reset body cursor
+        document.body.style.cursor = 'default'; 
       }
     };
 
@@ -218,7 +213,6 @@ export default function DashboardPage(): JSX.Element {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
-      // Ensure cursor is reset if dialog closes while dragging
       if (problemHeaderRef.current) {
         problemHeaderRef.current.style.cursor = 'grab';
       }
@@ -228,63 +222,61 @@ export default function DashboardPage(): JSX.Element {
   
 
   return (
-    <div className="flex flex-1 flex-col p-3 bg-background"> {/* Reduced main padding */}
+    <div className="flex flex-1 flex-col p-3 md:p-4 space-y-2">
       
-      {/* Top Row: Problem ,chart,vital */}
+      {/* Top Row: Problem, Charts, Vitals */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
         <Card className="lg:col-span-3 shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3"> {/* Reduced padding */}
-              <div className="flex items-center space-x-1.5">
-                <Clock className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Problem</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
-              </div>
-              <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
-                    <Edit3 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Edit Problems</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
-                    <Plus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Add Problem</span>
-                </Button>
-              </div>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar"> {/* Reduced max-height */}
-              <Table>
-                <TableBody>
-                  {problems.map((problem) => (
-                    <TableRow key={problem.id}>
-                      <TableCell className="px-2 py-1"> {/* Reduced padding */}
-                        <div className="font-medium text-xs">{problem.description}</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {problems.length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No problems listed.</p>
-              )}
-            </CardContent>
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+            <div className="flex items-center space-x-1.5">
+              <Clock className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Problem</CardTitle>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
+            </div>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
+                  <Edit3 className="h-3.5 w-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
+                  <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </ShadcnCardHeader>
+          <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
+            <Table>
+              <TableBody>
+                {problems.map((problem) => (
+                  <TableRow key={problem.id}>
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{problem.description}</div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {problems.length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">No problems listed.</p>
+            )}
+          </CardContent>
         </Card>
         
         <Card className="lg:col-span-6 shadow-lg h-full">
-          <CardContent className="pt-2 px-2 pb-2"> {/* Reduced padding */}
+          <CardContent className="pt-1 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
-            <TabsList className="hidden"> {/* TabsList is hidden as per user request */}
-                <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
-                <TabsTrigger value="blood-glucose">Blood Glucose</TabsTrigger>
-                <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
-                <TabsTrigger value="detail-view">Detail</TabsTrigger> {/* Added for consistency */}
-            </TabsList>
+              <TabsList className="hidden"> {/* TabsList is hidden */}
+                  <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
+                  <TabsTrigger value="blood-glucose">Blood Glucose</TabsTrigger>
+                  <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
+                  <TabsTrigger value="detail-view">Detail</TabsTrigger> 
+              </TabsList>
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced padding and max-height */}
-                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[140px] w-full"> {/* Reduced height */}
-                      <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[160px] w-full">
+                      <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} domain={[60, 120]} />
+                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} domain={[60, 120]} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="hr" type="monotone" stroke="var(--color-hr)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
@@ -294,12 +286,12 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-glucose">
                  <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced padding and max-height */}
-                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full"> {/* Reduced height */}
-                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={glucoseChartConfig} className="h-[160px] w-full">
+                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
@@ -309,12 +301,12 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-pressure">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> {/* Reduced padding and max-height */}
-                    <ChartContainer config={bloodPressureChartConfig} className="h-[140px] w-full"> {/* Reduced height */}
-                      <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={bloodPressureChartConfig} className="h-[160px] w-full">
+                      <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
                         <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={1.5} dot={{r: 2}} />
                         <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} />
@@ -338,51 +330,48 @@ export default function DashboardPage(): JSX.Element {
             </Tabs>
           </CardContent>
         </Card>
-
-        <Card className="lg:col-span-3 shadow-lg h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar"> 
-            {keyIndicators.map((indicator) => (
-              <div 
-                key={indicator.name} 
-                className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
-                onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
-              >
-                <div className="flex items-center">
-                  {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
-                  <span className="text-xs font-medium text-foreground">{indicator.name}</span>
+        
+        <Card className="lg:col-span-3 shadow-lg">
+            <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar"> 
+                {keyIndicators.map((indicator) => (
+                <div 
+                    key={indicator.name} 
+                    className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
+                    onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
+                >
+                    <div className="flex items-center">
+                    {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
+                    <span className="text-xs font-medium text-foreground">{indicator.name}</span>
+                    </div>
+                    <div className="text-right">
+                    <span className="text-xs font-normal text-foreground">{indicator.value}</span>
+                    <span className="text-xs text-foreground/80 ml-0.5">{indicator.unit}</span>
+                    </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-normal text-foreground">{indicator.value}</span>
-                  <span className="text-xs font-normal text-foreground/80 ml-0.5">{indicator.unit}</span>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+                ))}
+            </CardContent>
+            </Card>
       </div>
 
-      {/* Second Row: Allergies (20%), Medications History (30%), Report (30%), Radiology (20%) */}
+      {/* Second Row: Allergies, Medications History, Report, Radiology */}
       <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
-        {/* Allergies Card */}
-        <Card className="md:col-span-2 shadow-lg"> {/* 20% */}
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+        <Card className="md:col-span-2 shadow-lg">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <Ban className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Allergies</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Allergies</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add Allergy</span>
-              </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Allergies")}>
+                    <Edit3 className="h-3.5 w-3.5" />
+                </Button>
+                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
+                    <Plus className="h-3.5 w-3.5" />
+                </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
@@ -397,15 +386,14 @@ export default function DashboardPage(): JSX.Element {
                 ))}
               </TableBody>
             </Table>
-            {(dynamicPageCardSampleContent["Allergies"] || []).length === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+             { (dynamicPageCardSampleContent["Allergies"] || []).length === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
             )}
           </CardContent>
         </Card>
         
-        {/* Medications History Card */}
-        <Card className="md:col-span-3 shadow-lg"> {/* 30% */}
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+        <Card className="md:col-span-3 shadow-lg">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Medications History</CardTitle>
@@ -414,11 +402,9 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center">
                 <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddMedicationDialog}>
                     <Edit3 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Edit Medications</span>
                 </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddMedicationDialog}>
+                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddMedicationDialog}>
                     <Plus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Add Medication</span>
                 </Button>
             </div>
           </ShadcnCardHeader>
@@ -428,7 +414,7 @@ export default function DashboardPage(): JSX.Element {
                 {medications.map((med) => (
                   <TableRow key={med.id}>
                     <TableCell className="px-2 py-1">
-                      <div className="font-medium text-xs">{med.name}: {med.status}</div>
+                        <div className="font-medium text-xs">{med.name}: {med.status}</div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -440,75 +426,61 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Report Card */}
-        <Card className="md:col-span-3 shadow-lg"> {/* 30% */}
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-            <div className="flex items-center space-x-1.5">
-              <FileText className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Report</CardTitle>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
-            </div>
-            <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Report")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Report</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add to Report</span>
-              </Button>
-            </div>
-          </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
-            <Table>
-              <TableBody>
-                {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                  <TableRow 
-                    key={index} 
-                    onClick={() => handleShowItemDetailInChartArea("Report Detail", item)}
-                    className="cursor-pointer hover:bg-muted/50"
-                  >
-                    <TableCell className="px-2 py-1">
-                      <div className="font-medium text-xs">{item}</div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
-            )}
-          </CardContent>
+        <Card className="md:col-span-3 shadow-lg">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+                <div className="flex items-center space-x-1.5">
+                <FileText className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Report</CardTitle>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
+                </div>
+                <div className="flex items-center">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Report")}>
+                        <Edit3 className="h-3.5 w-3.5" />
+                    </Button>
+                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
+                        <Plus className="h-3.5 w-3.5" />
+                    </Button>
+                </div>
+            </ShadcnCardHeader>
+            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+                <Table>
+                    <TableBody>
+                        {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
+                        <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Report Detail", item)} className="cursor-pointer hover:bg-muted/50">
+                           <TableCell className="px-2 py-1">
+                             <div className="font-medium text-xs">{item}</div>
+                           </TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+                )}
+            </CardContent>
         </Card>
 
-        {/* Radiology Card */}
-        <Card className="md:col-span-2 shadow-lg"> {/* 20% */}
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+        <Card className="md:col-span-2 shadow-lg">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
             <div className="flex items-center space-x-1.5">
               <ScanLine className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Radiology</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
             </div>
-            <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                  <Edit3 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Edit Radiology</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                  <Plus className="h-3.5 w-3.5" />
-                  <span className="sr-only">Add to Radiology</span>
-              </Button>
+             <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                    <Edit3 className="h-3.5 w-3.5" />
+                </Button>
+                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                    <Plus className="h-3.5 w-3.5" />
+                </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
               <TableBody>
                 {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
-                  <TableRow 
-                    key={index} 
-                    onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)}
-                    className="cursor-pointer hover:bg-muted/50"
-                  >
+                  <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)} className="cursor-pointer hover:bg-muted/50">
                     <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{item}</div>
                     </TableCell>
@@ -523,44 +495,43 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
       
-      {/* Third Row: clinical notes,encounter notes,clinical reminder */}
+      {/* Third Row: Clinical notes, Encounter notes, Clinical reminder */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {thirdRowInformationalCardTitles.map((title) => {
           const IconComponent = infoCardIcons[title] || FileText; 
           const items = dynamicPageCardSampleContent[title] || [];
+          const itemCount = items.length;
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
                 <div className="flex items-center space-x-1.5">
                   <IconComponent className="h-4 w-4 text-primary" />
                   <CardTitle className="text-base">{title}</CardTitle>
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{itemCount}</Badge>
                 </div>
                 <div className="flex items-center">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
-                      <Edit3 className="h-3.5 w-3.5" />
-                      <span className="sr-only">Edit {title}</span>
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                      <Plus className="h-3.5 w-3.5" />
-                      <span className="sr-only">Add to {title}</span>
-                  </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
+                        <Edit3 className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
+                        <Plus className="h-3.5 w-3.5" />
+                    </Button>
                 </div>
               </ShadcnCardHeader>
               <CardContent className="p-0 max-h-24 overflow-y-auto no-scrollbar">
                 <Table>
                   <TableBody>
-                    {items.map((item, index) => (
-                      <TableRow key={index} onClick={() => handleShowItemDetailInChartArea(`${title} Detail`, item)} className="cursor-pointer hover:bg-muted/50">
+                    {(items.slice(0,4) || []).map((item, index) => (
+                      <TableRow key={index} onClick={() => items.length > 0 && handleShowItemDetailInChartArea(`${title} Detail`, item)} className={items.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""}>
                         <TableCell className="px-2 py-1">
-                          <div className="font-medium text-xs">{item}</div>
+                           <div className="font-medium text-xs">{item}</div>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-                {items.length === 0 && (
-                  <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+                { items.length === 0 && (
+                    <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
                 )}
               </CardContent>
             </Card>
@@ -568,9 +539,9 @@ export default function DashboardPage(): JSX.Element {
         })}
       </div>
 
-      {/* Common Dialog for adding items to informational cards (excluding Problem and Medications History) */}
+      {/* Common Dialog for adding items to informational cards */}
       <Dialog 
-        open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle!)} 
+        open={isAddItemDialogOpen && !!editingInfoCardTitle} 
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             setIsAddItemDialogOpen(false);
@@ -581,9 +552,7 @@ export default function DashboardPage(): JSX.Element {
         }}
       >
         <DialogContent>
-          <DialogHeader>
-            <DialogUITitle>Add New Item to {editingInfoCardTitle}</DialogUITitle>
-          </DialogHeader>
+          <DialogUITitle>Add New Item to {editingInfoCardTitle}</DialogUITitle>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="itemName" className="text-right">Item</Label>
@@ -603,7 +572,6 @@ export default function DashboardPage(): JSX.Element {
           if (open) { 
             setNewProblemInput('');
             if (problemDialogRef.current) {
-                 // Reset dialog position to center
                  problemDialogRef.current.style.transform = 'translate(-50%, -50%)';
             }
           }
@@ -611,18 +579,18 @@ export default function DashboardPage(): JSX.Element {
           <DialogContent
             ref={problemDialogRef}
             style={{
-              position: 'fixed', // Ensure it's fixed to allow transform
+              position: 'fixed', 
               left: '50%', 
-              top: '50%',  // Centered by default
-              transform: 'translate(-50%, -50%)', // Ensure it's centered initially
+              top: '50%',  
+              transform: 'translate(-50%, -50%)', 
             }}
-            className="sm:max-w-[425px]" // Standard shadcn dialog class
-            onOpenAutoFocus={(e) => e.preventDefault()} // Prevent auto-focus on first input for smoother drag start
+            className="sm:max-w-[425px]" 
+            onOpenAutoFocus={(e) => e.preventDefault()} 
           >
             <DialogHeader
               ref={problemHeaderRef}
               onMouseDown={handleProblemDialogMouseDown}
-              style={{ cursor: 'grab', userSelect: 'none', paddingBottom: '1rem' }} // Add paddingBottom for visual separation
+              style={{ cursor: 'grab', userSelect: 'none', paddingBottom: '1rem' }} 
             >
               <DialogUITitle>Add New Problem</DialogUITitle>
             </DialogHeader>
@@ -647,9 +615,7 @@ export default function DashboardPage(): JSX.Element {
           }
         }}>
         <DialogContent>
-          <DialogHeader>
-            <DialogUITitle>Add New Medication</DialogUITitle>
-          </DialogHeader>
+          <DialogUITitle>Add New Medication</DialogUITitle>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="medName" className="text-right">Name</Label>
@@ -666,3 +632,5 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
+```
