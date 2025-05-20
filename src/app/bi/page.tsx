@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const biSubNavItems = ["BI Dashboard", "Key Performance Indicators", "Custom BI Reports"];
 
-const B интеллекPage: NextPage = () => {
+const BiPage: NextPage = () => {
   const [activeSubNav, setActiveSubNav] = useState<string>(biSubNavItems[0]);
 
   return (
@@ -45,4 +45,4 @@ const B интеллекPage: NextPage = () => {
   );
 };
 
-export default B интеллекPage;
+export default BiPage;

@@ -9,8 +9,8 @@ import { Menu } from 'lucide-react'; // Assuming Menu icon for sidebar trigger
 
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
-  "Emergency Care", "Postmortem", "Nursing Referral", "Lab", "Radiology",
-  "Blood Center", "BI", "Report"
+  "Emergency Care", "Postmortem", "Nursing", "Referral", "Lab", "Radiology",
+  "BI", "Report"
 ];
 
 export function TopNav() {
@@ -45,24 +45,24 @@ export function TopNav() {
             href="/emergency-care";
           } else if (label ==="Postmortem"){
             href="/postmortem";
-          } else if (label ==="Nursing Referral"){
-            href="/nursing-referral";
+          } else if (label ==="Nursing "){
+            href="/nursing";
           } else if (label ==="Lab"){
             href="/lab";
           } else if (label === "Radiology") {
             href="/radiology"; 
-          } else if (label === "Blood Center") {
-            href="/blood-center"; // Assuming a new page, placeholder for now
-          } else if (label === "BI") {
+          }  else if (label === "BI") {
             href="/bi"; 
           } else if (label === "Report") {
             href="/report"; 
+          }else if (label === "Referral") {
+            href="/referral"; 
           }
           
           const isActive = pathname === href;
           
           // For pages not yet created (like Blood Center)
-          if (href === "/" && !["Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary", "Emergency Care", "Postmortem", "Nursing Referral", "Lab", "Radiology", "BI", "Report"].includes(label) || (label === "Blood Center" && href === "/")) {
+          if (href === "/" && !["Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary", "Emergency Care", "Postmortem", "Nursing ","Referral", "Lab", "Radiology", "BI", "Report"].includes(label) || (label === "Blood Center" && href === "/")) {
              return (
                 <Button
                 key={index}
