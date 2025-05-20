@@ -1,35 +1,33 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart'; 
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
 import { 
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
-  User, Hospital, CalendarDays, Phone, BedDouble, BriefcaseMedical, FileQuestion,
-  FileText, Ban, ScanLine, ClipboardList, BellRing
+  Ban, FileText, ScanLine, ClipboardList, BellRing, User // Added User for AvatarFallback consistency
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
-import { MOCK_PROBLEMS, MOCK_MEDICATIONS, MOCK_PATIENT, pageCardSampleContent } from '@/lib/constants'; 
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const keyIndicators: HealthMetric[] = [
-  { name: 'Heart Rate', value: '108', unit: 'F', icon: Droplet },
-  { name: 'B/P', value: '120/95', unit: '(mmHg)', icon: Activity },
-  { name: 'Body Temperature', value: '36.8', unit: '°C', icon: Thermometer },
-  { name: 'Weight', value: '70', unit: 'kg', icon: Scale },
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet },
+  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
+  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
+  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure' },
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
+  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
 ];
 
 const heartRateMonitorData: Array<{ time: string; hr: number }> = [
@@ -54,23 +52,37 @@ const bloodPressureData: Array<{ date: string; systolic: number; diastolic: numb
   { date: 'Sun', systolic: 119, diastolic: 79 },
 ];
 
+
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
 const bloodPressureChartConfig: ChartConfig = { 
   systolic: { label: 'Systolic (mmHg)', color: 'hsl(var(--chart-1))' },
   diastolic: { label: 'Diastolic (mmHg)', color: 'hsl(var(--chart-3))' },
 };
+// Placeholder chart configs for new vitals if needed for more complex charts later
+const bodyTemperatureChartConfig: ChartConfig = { temp: { label: 'Temperature (°F)', color: 'hsl(var(--chart-4))' } };
+const weightChartConfig: ChartConfig = { weight: { label: 'Weight (kg)', color: 'hsl(var(--chart-5))' } };
+
 
 const infoCardIcons: Record<string, React.ElementType> = {
   "Allergies": Ban,
   "Radiology": ScanLine,
+  "Report": FileText,
+  "Clinical notes": FileText, 
   "Encounter notes": ClipboardList,
   "Clinical reminder": BellRing, 
-  "Clinical notes": FileText,
-  "Report": FileText,
 };
 
-const thirdRowInformationalCardTitles: string[] = ["Clinical notes", "Encounter notes", "Clinical reminder"];
+// Updated: "Allergies", "Medications History", "Report", "Radiology" are in the second row
+// "Problem" is in the top row.
+const secondRowInformationalCardTitles: string[] = ["Allergies", "Medications History", "Report", "Radiology"];
+
+// Cards for the third row
+const thirdRowInformationalCardTitles: string[] = [
+  "Clinical notes",
+  "Encounter notes",
+  "Clinical reminder"
+];
 
 
 export default function DashboardPage(): JSX.Element {
@@ -97,15 +109,7 @@ export default function DashboardPage(): JSX.Element {
   const isProblemDialogDragging = useRef(false);
   const problemDragStartCoords = useRef({ x: 0, y: 0 });
   const problemInitialDialogOffset = useRef({ x: 0, y: 0 });
-  
-  const openAddProblemDialog = () => {
-    setNewProblemInput('');
-    if (problemDialogRef.current) {
-      problemDialogRef.current.style.transform = 'translate(-50%, -50%)'; 
-    }
-    setIsAddProblemDialogOpen(true);
-  };
-  
+
   const handleAddProblem = () => {
     if (!newProblemInput.trim()) return;
     const newProb: Problem = {
@@ -117,11 +121,6 @@ export default function DashboardPage(): JSX.Element {
     setIsAddProblemDialogOpen(false);
   };
 
-  const openAddMedicationDialog = () => {
-    setNewMedicationInput('');
-    setIsAddMedicationDialogOpen(true);
-  };
-  
   const handleAddMedication = () => {
     if (!newMedicationInput.trim()) return;
     const newMed: Medication = {
@@ -130,11 +129,24 @@ export default function DashboardPage(): JSX.Element {
       reason: 'General', 
       amount: 'N/A',
       timing: 'N/A',
-      status: 'Pending', 
+      status: 'Pending', // Default status
     };
     setMedications(prev => [newMed, ...prev]);
     setNewMedicationInput('');
     setIsAddMedicationDialogOpen(false);
+  };
+
+  const openAddProblemDialog = () => {
+    setNewProblemInput('');
+    if (problemDialogRef.current) {
+      problemDialogRef.current.style.transform = 'translate(-50%, -50%)';
+    }
+    setIsAddProblemDialogOpen(true);
+  };
+  
+  const openAddMedicationDialog = () => {
+    setNewMedicationInput('');
+    setIsAddMedicationDialogOpen(true);
   };
 
   const handleOpenAddItemDialog = (title: string) => {
@@ -219,62 +231,65 @@ export default function DashboardPage(): JSX.Element {
   
 
   return (
-    <div className="flex flex-1 flex-col p-3 md:p-4 space-y-2"> 
+    <div className="flex flex-1 flex-col p-3 bg-background">
       
-      {/* Top Row: Problem, Charts, Vitals */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-2">
-        <Card className="md:col-span-3 lg:col-span-3 shadow-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
-            <div className="flex items-center space-x-1.5">
-              <Clock className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Problem</CardTitle>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
-            </div>
-            <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
-                  <Edit3 className="h-3.5 w-3.5" />
-              </Button>
-               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
-                  <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-[180px] overflow-y-auto no-scrollbar">
-            <Table>
-              <TableBody>
-                {problems.slice(0,5).map((problem) => (
-                  <TableRow key={problem.id}>
-                    <TableCell className="px-2 py-1 text-xs font-medium">
-                      {problem.description}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            {problems.length === 0 && (
-              <p className="py-4 text-center text-xs text-muted-foreground">No problems listed.</p>
-            )}
-          </CardContent>
+      {/* Top Row: Problem ,chart,vital */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
+        <Card className="lg:col-span-3 shadow-lg">
+            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+              <div className="flex items-center space-x-1.5">
+                <Clock className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Problem</CardTitle>
+                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
+              </div>
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit Problems</span>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-only">Add Problem</span>
+                </Button>
+              </div>
+            </ShadcnCardHeader>
+            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+              <Table>
+                <TableBody>
+                  {problems.slice(0,5).map((problem) => (
+                    <TableRow key={problem.id}>
+                      <TableCell className="px-2 py-1">
+                        <div className="font-medium text-xs">{problem.description}</div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {problems.length === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">No problems listed.</p>
+              )}
+            </CardContent>
         </Card>
         
-        {/* Health Data Visualizations (Charts) Card */}
-        <Card className="md:col-span-6 lg:col-span-6 shadow-lg">
-          <CardContent className="pt-1 px-2 pb-2">
+        <Card className="lg:col-span-6 shadow-lg h-full">
+          <CardContent className="pt-2 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
-              <TabsList className="hidden"> {/* TabsList is hidden */}
-                  <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
-                  <TabsTrigger value="blood-glucose">Blood Glucose</TabsTrigger>
-                  <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
-                  <TabsTrigger value="detail-view">Detail</TabsTrigger> 
-              </TabsList>
+            <TabsList className="hidden"> {/* TabsList is hidden */}
+                <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
+                <TabsTrigger value="blood-glucose">Blood Glucose</TabsTrigger>
+                <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
+                <TabsTrigger value="body-temperature">Temperature</TabsTrigger>
+                <TabsTrigger value="weight">Weight</TabsTrigger>
+                <TabsTrigger value="detail-view">Detail</TabsTrigger>
+            </TabsList>
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[160px] w-full">
-                      <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} domain={[60, 120]} />
+                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} domain={[60, 120]} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="hr" type="monotone" stroke="var(--color-hr)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
@@ -284,12 +299,12 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-glucose">
                  <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={glucoseChartConfig} className="h-[160px] w-full">
-                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                         <Line dataKey="level" type="monotone" stroke="var(--color-level)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
@@ -299,17 +314,31 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-pressure">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={bloodPressureChartConfig} className="h-[160px] w-full">
-                      <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 10, top: 5, bottom: 0 }}>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={bloodPressureChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
-                        <YAxis tickLine={false} axisLine={false} tickMargin={6} fontSize={9} />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                        <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={1.5} dot={{r: 2}} name="Systolic" />
-                        <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} name="Diastolic" />
+                        <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={1.5} dot={{r: 2}} />
+                        <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} />
                       </RechartsLineChart>
                     </ChartContainer>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+               <TabsContent value="body-temperature">
+                <Card className="border-0 shadow-none">
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">Chart for Body Temperature not yet available.</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="weight">
+                <Card className="border-0 shadow-none">
+                   <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar flex items-center justify-center">
+                    <p className="text-sm text-muted-foreground">Chart for Weight not yet available.</p>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -328,50 +357,51 @@ export default function DashboardPage(): JSX.Element {
             </Tabs>
           </CardContent>
         </Card>
-        
-        {/* Vitals Card */}
-        <Card className="md:col-span-3 lg:col-span-3 shadow-lg">
-            <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar">
-                {keyIndicators.map((indicator) => (
-                <div 
-                    key={indicator.name} 
-                    className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
-                    onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
-                >
-                    <div className="flex items-center">
-                    {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
-                    <span className="text-xs font-medium text-foreground">{indicator.name}</span>
-                    </div>
-                    <div className="text-right">
-                    <span className="text-xs font-normal text-foreground">{indicator.value}</span>
-                    <span className="text-xs text-foreground/80 ml-0.5">{indicator.unit}</span>
-                    </div>
+
+        <Card className="lg:col-span-3 shadow-lg h-full">
+          <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar"> 
+            {keyIndicators.map((indicator) => (
+              <div 
+                key={indicator.name} 
+                className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
+                onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
+              >
+                <div className="flex items-center">
+                  {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
+                  <span className="text-xs font-medium text-foreground">{indicator.name}</span>
                 </div>
-                ))}
-            </CardContent>
-            </Card>
+                <div className="text-right">
+                  <span className="text-xs font-normal text-foreground">{indicator.value}</span>
+                  <span className="text-xs font-normal text-foreground/80 ml-0.5">{indicator.unit}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Second Row: Allergies, Medications History, Report, Radiology */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-10 gap-3 mb-2">
+      {/* Second Row: Allergies (20%), Medications History (30%), Report (30%), Radiology (20%) */}
+      <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
         {/* Allergies Card */}
         <Card className="md:col-span-2 shadow-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <Ban className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Allergies</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                    <Edit3 className="h-3.5 w-3.5" />
-                </Button>
-                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Allergies")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Allergies</span>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add Allergy</span>
+              </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
@@ -379,22 +409,22 @@ export default function DashboardPage(): JSX.Element {
               <TableBody>
                 {(dynamicPageCardSampleContent["Allergies"] || []).slice(0,5).map((item, index) => (
                   <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Allergy Detail", item)} className="cursor-pointer hover:bg-muted/50">
-                    <TableCell className="px-2 py-1 text-xs font-medium">
-                      {item}
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{item}</div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-             { (dynamicPageCardSampleContent["Allergies"] || []).length === 0 && (
-                <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+            {(dynamicPageCardSampleContent["Allergies"] || []).length === 0 && (
+              <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
             )}
           </CardContent>
         </Card>
         
         {/* Medications History Card */}
         <Card className="md:col-span-3 shadow-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Medications History</CardTitle>
@@ -403,9 +433,11 @@ export default function DashboardPage(): JSX.Element {
             <div className="flex items-center">
                 <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddMedicationDialog}>
                     <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit Medications</span>
                 </Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddMedicationDialog}>
-                  <Plus className="h-4 w-4" />
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-only">Add Medication</span>
                 </Button>
             </div>
           </ShadcnCardHeader>
@@ -414,18 +446,8 @@ export default function DashboardPage(): JSX.Element {
               <TableBody>
                 {medications.slice(0,5).map((med) => (
                   <TableRow key={med.id}>
-                    <TableCell className="px-2 py-1 text-xs font-medium">
-                      {med.name}
-                    </TableCell>
-                    <TableCell className="px-2 py-1 text-xs">{med.amount}</TableCell>
-                    <TableCell className="px-2 py-1 text-xs">{med.timing}</TableCell>
-                    <TableCell className="text-right px-2 py-1">
-                      <Badge 
-                        variant={med.status === 'Active' ? 'default' : med.status === 'Pending' ? 'secondary' : 'destructive'}
-                        className={`text-xs px-1 py-0.5 ${med.status === 'Active' ? 'bg-green-100 text-green-700 border-green-300' : med.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-red-100 text-red-700 border-red-300'}`}
-                      >
-                        {med.status}
-                      </Badge>
+                    <TableCell className="px-2 py-1">
+                       <div className="font-medium text-xs">{med.name}: {med.status}</div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -439,63 +461,75 @@ export default function DashboardPage(): JSX.Element {
 
         {/* Report Card */}
         <Card className="md:col-span-3 shadow-lg">
-            <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
-              <div className="flex items-center space-x-1.5">
-                <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base">Report</CardTitle>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
-              </div>
-              <div className="flex items-center">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Report")}>
-                      <Edit3 className="h-3.5 w-3.5" />
-                  </Button>
-                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </ShadcnCardHeader>
-            <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
-              <Table>
-                  <TableBody>
-                      {(dynamicPageCardSampleContent["Report"] || []).slice(0,5).map((item, index) => (
-                      <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Report Detail", item)} className="cursor-pointer hover:bg-muted/50">
-                         <TableCell className="px-2 py-1 text-xs font-medium">
-                           {item}
-                         </TableCell>
-                      </TableRow>
-                      ))}
-                  </TableBody>
-              </Table>
-              {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
+            <div className="flex items-center space-x-1.5">
+              <FileText className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Report</CardTitle>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
+            </div>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Report")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Report</span>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Report</span>
+              </Button>
+            </div>
+          </ShadcnCardHeader>
+          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
+            <Table>
+              <TableBody>
+                {(dynamicPageCardSampleContent["Report"] || []).slice(0,5).map((item, index) => (
+                  <TableRow 
+                    key={index} 
+                    onClick={() => handleShowItemDetailInChartArea("Report Detail", item)}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{item}</div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {(dynamicPageCardSampleContent["Report"] || []).length === 0 && (
               <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
-              )}
-            </CardContent>
+            )}
+          </CardContent>
         </Card>
 
         {/* Radiology Card */}
         <Card className="md:col-span-2 shadow-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <ScanLine className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Radiology</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Radiology"] || []).length}</Badge>
             </div>
-             <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                    <Edit3 className="h-3.5 w-3.5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                  <Edit3 className="h-3.5 w-3.5" />
+                  <span className="sr-only">Edit Radiology</span>
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
+                  <Plus className="h-3.5 w-3.5" />
+                  <span className="sr-only">Add to Radiology</span>
+              </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
               <TableBody>
                 {(dynamicPageCardSampleContent["Radiology"] || []).slice(0,5).map((item, index) => (
-                  <TableRow key={index} onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)} className="cursor-pointer hover:bg-muted/50">
-                    <TableCell className="px-2 py-1 text-xs font-medium">
-                      {item}
+                  <TableRow 
+                    key={index} 
+                    onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
+                    <TableCell className="px-2 py-1">
+                      <div className="font-medium text-xs">{item}</div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -508,43 +542,44 @@ export default function DashboardPage(): JSX.Element {
         </Card>
       </div>
       
-      {/* Third Row: Clinical notes, Encounter notes, Clinical reminder */}
+      {/* Third Row: clinical notes,encounter notes,clinical reminder */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {thirdRowInformationalCardTitles.map((title) => {
           const IconComponent = infoCardIcons[title] || FileText; 
           const items = dynamicPageCardSampleContent[title] || [];
-          const itemCount = items.length;
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
-              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-1 px-3">
+              <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
                 <div className="flex items-center space-x-1.5">
                   <IconComponent className="h-4 w-4 text-primary" />
                   <CardTitle className="text-base">{title}</CardTitle>
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{itemCount}</Badge>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{items.length}</Badge>
                 </div>
                 <div className="flex items-center">
-                    <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
-                        <Edit3 className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
+                      <Edit3 className="h-3.5 w-3.5" />
+                      <span className="sr-only">Edit {title}</span>
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
+                      <Plus className="h-3.5 w-3.5" />
+                      <span className="sr-only">Add to {title}</span>
+                  </Button>
                 </div>
               </ShadcnCardHeader>
               <CardContent className="p-0 max-h-24 overflow-y-auto no-scrollbar">
                 <Table>
                   <TableBody>
-                    {(items.slice(0,4) || []).map((item, index) => (
-                      <TableRow key={index} onClick={() => items.length > 0 && handleShowItemDetailInChartArea(`${title} Detail`, item)} className={items.length > 0 ? "cursor-pointer hover:bg-muted/50" : ""}>
-                        <TableCell className="px-2 py-1 text-xs font-medium">
-                           {item}
+                    {items.slice(0,4).map((item, index) => (
+                      <TableRow key={index} onClick={() => handleShowItemDetailInChartArea(`${title} Detail`, item)} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell className="px-2 py-1">
+                          <div className="font-medium text-xs">{item}</div>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-                { items.length === 0 && (
-                    <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
+                {items.length === 0 && (
+                  <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
                 )}
               </CardContent>
             </Card>
@@ -552,9 +587,9 @@ export default function DashboardPage(): JSX.Element {
         })}
       </div>
 
-      {/* Common Dialog for adding items to informational cards */}
+      {/* Common Dialog for adding items to informational cards (excluding Problem and Medications History) */}
       <Dialog 
-        open={isAddItemDialogOpen && !!editingInfoCardTitle} 
+        open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle!)} 
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             setIsAddItemDialogOpen(false);
@@ -630,9 +665,9 @@ export default function DashboardPage(): JSX.Element {
           }
         }}>
         <DialogContent>
-         <DialogHeader>
-          <DialogUITitle>Add New Medication</DialogUITitle>
-         </DialogHeader>
+          <DialogHeader>
+            <DialogUITitle>Add New Medication</DialogUITitle>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="medName" className="text-right">Name</Label>
