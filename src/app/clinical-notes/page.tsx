@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card'; // Renamed CardHeader to ShadcnCardHeader
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog'; // Renamed DialogTitle
-import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp, X } from 'lucide-react';
+import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X } from 'lucide-react';
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -38,7 +38,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Sansys Doctor',
-    location: 'ICU ONE - Gen Ward, 103B, Rm A',
+    location: 'ICU ONE - Gen Ward',
     cosigner: 'Dr. Jane Doe'
   },
   {
@@ -48,7 +48,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'PENDING',
     signed: false,
     author: 'Dr. Smith',
-    location: 'Cardio Wing - Clinic A, Rm 5',
+    location: 'Cardio Wing - Clinic A',
     cosigner: 'Dr. Emily White'
   },
   {
@@ -58,7 +58,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'DRAFT',
     signed: false,
     author: 'Dr. Alex Johnson',
-    location: 'Neuro Ward - Rm 201, Bed A',
+    location: 'Neuro Ward - Rm 201',
     cosigner: undefined
   },
   {
@@ -68,7 +68,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Dr. Lisa Ray',
-    location: 'Community Clinic - Ste 100',
+    location: 'Community Clinic',
     cosigner: 'Dr. John Davis'
   },
   {
@@ -78,7 +78,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Dr. Michael Chen',
-    location: 'Surgical Pre-Op - Fl 3',
+    location: 'Surgical Pre-Op',
     cosigner: 'Dr. Sarah Bell'
   },
   {
@@ -98,7 +98,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'DRAFT',
     signed: false,
     author: 'Dr. Olivia Green',
-    location: 'Behavioral Health - Off 3B',
+    location: 'Behavioral Health',
     cosigner: undefined
   },
   {
@@ -108,7 +108,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Laura White',
-    location: 'Rehab Center - Gym',
+    location: 'Rehab Center',
     cosigner: 'Dr. Robert Brown'
   }
 ];
@@ -215,7 +215,7 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table Container - This div will handle the vertical scroll for the table */}
-              <div className="flex-1 overflow-y-auto no-scrollbar"> {/* Added min-h-0 */}
+              <div className="flex-1 overflow-y-auto no-scrollbar min-h-0"> {/* Added min-h-0 */}
                 <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
                   <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
@@ -225,7 +225,6 @@ const ClinicalNotesPage: NextPage = () => {
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
                         { name: "Edit" },
-                        { name: "Delete" }, 
                         { name: "Action" }, 
                         { name: "Author", className: "whitespace-nowrap" }, 
                         { name: "Location", className: "whitespace-nowrap" }, 
@@ -254,21 +253,18 @@ const ClinicalNotesPage: NextPage = () => {
                           <Button variant="ghost" size="icon" className="h-6 w-6"><Edit2 className="h-3.5 w-3.5" /></Button>
                         </TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
-                          <Button variant="ghost" size="icon" className="h-6 w-6"><Trash2 className="h-3.5 w-3.5" /></Button>
-                        </TableCell>
-                        <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={11} className="text-center py-10 text-muted-foreground">
+                        <TableCell colSpan={10} className="text-center py-10 text-muted-foreground">
                           No notes found.
                         </TableCell>
                       </TableRow>
@@ -322,3 +318,4 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
+
