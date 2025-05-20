@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area'; // Kept for Dialog content, not for main table
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp, X } from 'lucide-react';
 
 const clinicalNotesSubNavItems = [
@@ -215,7 +214,7 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table Container - This div will handle the vertical scroll for the table */}
-              <div className="flex-1 overflow-hidden"> {/* Use overflow-hidden for parent, Table's internal div handles scrolling */}
+              <div className="flex-1 overflow-y-auto min-h-0"> {/* Added min-h-0 */}
                 <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
@@ -301,7 +300,7 @@ const ClinicalNotesPage: NextPage = () => {
       <Dialog open={isNoteDetailDialogOpen} onOpenChange={setIsNoteDetailDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Note Detail</DialogTitle>
+            <DialogUITitle>Note Detail</DialogUITitle>
           </DialogHeader>
           <ScrollArea className="max-h-[60vh] p-1 rounded-md">
             <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
