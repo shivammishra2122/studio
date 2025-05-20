@@ -38,8 +38,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Sansys Doctor Primary Care Physician',
-    location: 'ICU ONE - General Ward, Bed 103B, Room A',
-    cosigner: 'Dr. Jane Doe Supervising Physician'
+    location: 'ICU ONE - General Ward, Bed 103B, Room A, North Wing, Sunshine Building',
+    cosigner: 'Dr. Jane Doe Supervising Physician, MD, PhD'
   },
   {
     id: '2',
@@ -48,7 +48,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'PENDING',
     signed: false,
     author: 'Dr. Smith Attending Cardiologist',
-    location: 'Cardiology Wing - Outpatient Clinic A, Room 5',
+    location: 'Cardiology Wing - Outpatient Clinic A, Room 5, Heart Center',
     cosigner: 'Dr. Emily White Cardiology Fellow'
   },
   {
@@ -57,10 +57,60 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '17 MAY, 2025 14:15',
     status: 'DRAFT',
     signed: false,
-    author: 'Dr. Alex Johnson Neurologist',
-    location: 'Neurology Ward - Room 201, Bed A',
+    author: 'Dr. Alex Johnson Neurologist, Dept. of Neurology',
+    location: 'Neurology Ward - Room 201, Bed A, Main Hospital Building',
     cosigner: undefined
   },
+  {
+    id: '4',
+    notesTitle: 'Routine Checkup - General Medicine. Patient reports feeling well overall. Discussed annual vaccinations and preventative care. No acute complaints. Blood work ordered for routine screening. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
+    dateOfEntry: '18 MAY, 2025 09:00',
+    status: 'COMPLETED',
+    signed: true,
+    author: 'Dr. Lisa Ray General Practitioner',
+    location: 'Community Clinic - Suite 100, Wellness Plaza',
+    cosigner: 'Dr. John Davis Clinic Supervisor'
+  },
+  {
+    id: '5',
+    notesTitle: 'Pre-operative Assessment - Surgery. Patient cleared for upcoming procedure. Anesthesia plan reviewed. Consent forms signed. All questions answered. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.',
+    dateOfEntry: '19 MAY, 2025 11:45',
+    status: 'COMPLETED',
+    signed: true,
+    author: 'Dr. Michael Chen Surgeon',
+    location: 'Surgical Pre-Op - Floor 3, Surgical Tower',
+    cosigner: 'Dr. Sarah Bell Anesthesiologist'
+  },
+  {
+    id: '6',
+    notesTitle: 'Discharge Summary - Pediatrics. Patient discharged in stable condition. Follow-up appointment scheduled with primary care physician. Instructions provided to parents for home care and medication administration. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae.',
+    dateOfEntry: '20 MAY, 2025 16:30',
+    status: 'PENDING',
+    signed: false,
+    author: 'Dr. Kevin Young Pediatrician',
+    location: 'Pediatric Ward - Room P102, Children\'s Hospital',
+    cosigner: 'Dr. Maria Garcia Pediatric Chief Resident'
+  },
+  {
+    id: '7',
+    notesTitle: 'Mental Health Consultation - Psychiatry. Patient reports improvement in mood and anxiety levels. Medication adherence discussed. Coping strategies reinforced. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.',
+    dateOfEntry: '21 MAY, 2025 13:00',
+    status: 'DRAFT',
+    signed: false,
+    author: 'Dr. Olivia Green Psychiatrist',
+    location: 'Behavioral Health Center - Office 3B, MindWell Pavilion',
+    cosigner: undefined
+  },
+  {
+    id: '8',
+    notesTitle: 'Physical Therapy Session - Rehabilitation. Patient completed all prescribed exercises. Range of motion improved by 10 degrees in the affected joint. Home exercise program updated. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
+    dateOfEntry: '22 MAY, 2025 15:00',
+    status: 'COMPLETED',
+    signed: true,
+    author: 'Laura White Physical Therapist',
+    location: 'Rehabilitation Center - Gym Area, Recovery Wing',
+    cosigner: 'Dr. Robert Brown Physiatrist'
+  }
 ];
 
 
@@ -112,7 +162,7 @@ const ClinicalNotesPage: NextPage = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
-           <Card className="flex-1 flex flex-col shadow">
+           <Card className="flex-1 flex flex-col shadow overflow-hidden"> {/* Added overflow-hidden */}
             <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Note View</CardTitle>
@@ -127,7 +177,7 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
             </CardHeader>
 
-            <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+            <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden"> {/* Ensure this parent flexes */}
               {/* Filter Bar */}
               <div className="flex flex-wrap items-center space-x-2 text-xs mb-2 gap-y-2">
                 <Label htmlFor="groupBy" className="shrink-0">Group By</Label>
@@ -178,7 +228,7 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table */}
-              <ScrollArea className="flex-1">
+              <ScrollArea className="flex-1 min-h-0"> {/* Removed max-h, added min-h-0 */}
                 <Table className="text-xs">
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
@@ -213,9 +263,9 @@ const ClinicalNotesPage: NextPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -241,7 +291,7 @@ const ClinicalNotesPage: NextPage = () => {
         )}
          {/* Placeholder for other Clinical Notes sub-views */}
          {activeSubNav !== "Notes View" && (
-          <Card className="flex-1 flex items-center justify-center">
+          <Card className="flex-1 flex items-center justify-center shadow">
             <CardContent className="text-center">
               <CardTitle className="text-xl text-muted-foreground">
                 {activeSubNav} View
