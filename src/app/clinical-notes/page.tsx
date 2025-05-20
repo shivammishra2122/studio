@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -216,7 +215,7 @@ const ClinicalNotesPage: NextPage = () => {
 
               {/* Table */}
               <ScrollArea className="flex-1 min-h-0 overflow-x-auto">
-                <Table className="text-xs">
+                <Table className="text-xs min-w-[80rem]"> {/* Added min-width to Table */}
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {[
@@ -322,5 +321,3 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
-    
