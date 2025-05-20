@@ -215,12 +215,12 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table Container - This div will handle the vertical scroll for the table */}
-              <div className="flex-1 overflow-y-auto no-scrollbar"> {/* Removed min-h-0 */}
+              <div className="flex-1 overflow-y-auto no-scrollbar"> {/* Added min-h-0 */}
                 <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
                   <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        { name: "Notes Title", className: "min-w-[20rem]" }, 
+                        { name: "Notes Title", className: "min-w-[15rem]" }, 
                         { name: "Date of Entry", className: "whitespace-nowrap" }, 
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
@@ -244,7 +244,7 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/30">
-                        <TableCell className="py-1.5 px-3 min-w-[20rem]">{truncateText(note.notesTitle, 100)}</TableCell>
+                        <TableCell className="py-1.5 px-3 min-w-[15rem]">{truncateText(note.notesTitle, 100)}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.dateOfEntry}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
