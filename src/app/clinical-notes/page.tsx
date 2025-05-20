@@ -37,9 +37,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '15 MAY, 2025 20:05',
     status: 'COMPLETED',
     signed: true,
-    author: 'Sansys Doctor Primary Care Physician',
-    location: 'ICU ONE - General Ward, Bed 103B, Room A, North Wing, Sunshine Building', // Shortened for display
-    cosigner: 'Dr. Jane Doe Supervising Physician, MD, PhD' // Shortened
+    author: 'Sansys Doctor',
+    location: 'ICU ONE - Gen Ward, 103B, Rm A',
+    cosigner: 'Dr. Jane Doe'
   },
   {
     id: '2',
@@ -47,9 +47,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '16 MAY, 2025 10:30',
     status: 'PENDING',
     signed: false,
-    author: 'Dr. Smith Attending Cardiologist',
-    location: 'Cardiology Wing - Outpatient Clinic A, Room 5, Heart Center', // Shortened
-    cosigner: 'Dr. Emily White Cardiology Fellow' // Shortened
+    author: 'Dr. Smith',
+    location: 'Cardio Wing - Clinic A, Rm 5',
+    cosigner: 'Dr. Emily White'
   },
   {
     id: '3',
@@ -57,8 +57,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '17 MAY, 2025 14:15',
     status: 'DRAFT',
     signed: false,
-    author: 'Dr. Alex Johnson Neurologist, Dept. of Neurology', // Shortened
-    location: 'Neurology Ward - Room 201, Bed A, Main Hospital Building', // Shortened
+    author: 'Dr. Alex Johnson',
+    location: 'Neuro Ward - Rm 201, Bed A',
     cosigner: undefined
   },
   {
@@ -67,9 +67,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '18 MAY, 2025 09:00',
     status: 'COMPLETED',
     signed: true,
-    author: 'Dr. Lisa Ray General Practitioner',
-    location: 'Community Clinic - Suite 100, Wellness Plaza',
-    cosigner: 'Dr. John Davis Clinic Supervisor'
+    author: 'Dr. Lisa Ray',
+    location: 'Community Clinic - Ste 100',
+    cosigner: 'Dr. John Davis'
   },
   {
     id: '5',
@@ -77,9 +77,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '19 MAY, 2025 11:45',
     status: 'COMPLETED',
     signed: true,
-    author: 'Dr. Michael Chen Surgeon',
-    location: 'Surgical Pre-Op - Floor 3, Surgical Tower',
-    cosigner: 'Dr. Sarah Bell Anesthesiologist'
+    author: 'Dr. Michael Chen',
+    location: 'Surgical Pre-Op - Fl 3',
+    cosigner: 'Dr. Sarah Bell'
   },
   {
     id: '6',
@@ -87,9 +87,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '20 MAY, 2025 16:30',
     status: 'PENDING',
     signed: false,
-    author: 'Dr. Kevin Young Pediatrician',
-    location: 'Pediatric Ward - Room P102, Children\'s Hospital',
-    cosigner: 'Dr. Maria Garcia Pediatric Chief Resident'
+    author: 'Dr. Kevin Young',
+    location: 'Peds Ward - Rm P102',
+    cosigner: 'Dr. Maria Garcia'
   },
   {
     id: '7',
@@ -97,8 +97,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '21 MAY, 2025 13:00',
     status: 'DRAFT',
     signed: false,
-    author: 'Dr. Olivia Green Psychiatrist',
-    location: 'Behavioral Health Center - Office 3B, MindWell Pavilion',
+    author: 'Dr. Olivia Green',
+    location: 'Behavioral Health - Off 3B',
     cosigner: undefined
   },
   {
@@ -107,9 +107,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '22 MAY, 2025 15:00',
     status: 'COMPLETED',
     signed: true,
-    author: 'Laura White Physical Therapist',
-    location: 'Rehabilitation Center - Gym Area, Recovery Wing',
-    cosigner: 'Dr. Robert Brown Physiatrist'
+    author: 'Laura White',
+    location: 'Rehab Center - Gym',
+    cosigner: 'Dr. Robert Brown'
   }
 ];
 
@@ -259,9 +259,9 @@ const ClinicalNotesPage: NextPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -322,5 +322,3 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
-    
