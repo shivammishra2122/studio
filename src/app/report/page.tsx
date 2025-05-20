@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -62,66 +63,61 @@ const ReportPage: NextPage = () => {
   const [activeReportTab, setActiveReportTab] = useState<string>(reportNavItems[0]);
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      {/* Left Vertical Navigation Panel */}
-      <aside className="w-48 bg-card border-r p-2 flex flex-col space-y-1">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-2">
+      {/* Horizontal Navigation Bar */}
+      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-2 overflow-x-auto no-scrollbar bg-card">
         {reportNavItems.map((item) => (
           <Button
             key={item}
-            variant={activeReportTab === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 text-sm ${
-              activeReportTab === item
-                ? 'bg-secondary text-primary-foreground border-l-4 border-primary hover:bg-secondary hover:text-primary-foreground'
-                : 'hover:bg-accent hover:text-foreground'
-            }`}
+            variant={activeReportTab === item ? "default" : "ghost"}
+            size="sm"
+            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeReportTab === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveReportTab(item)}
           >
             {item}
           </Button>
         ))}
-      </aside>
+      </div>
 
-      {/* Right Content Panel */}
-      <main className="flex-1 p-2 flex flex-col overflow-hidden">
-        {activeReportTab === "Patient Report" && (
-          <Card className="flex-1 flex flex-col shadow-sm overflow-hidden border-border">
-            <CardContent className="p-2 flex-1 flex space-x-2 overflow-x-auto no-scrollbar">
-              {patientReportCategories.map((category) => (
-                <div key={category.title} className="flex flex-col w-52 shrink-0 border bg-card rounded-md shadow-sm">
-                  <div className="p-2 text-sm font-semibold text-center bg-accent text-accent-foreground border-b rounded-t-md">
-                    {category.title}
-                  </div>
-                  <ScrollArea className="flex-1 min-h-0"> {/* Ensures ScrollArea can shrink and scroll */}
-                    <div className="p-2 space-y-1.5">
-                      {category.items.map((item) => (
-                        <Button
-                          key={item}
-                          variant="outline"
-                          size="sm"
-                          className="w-full justify-start text-left h-8 text-xs bg-card hover:bg-muted/80 rounded-md border-border shadow-sm"
-                        >
-                          {item}
-                        </Button>
-                      ))}
-                    </div>
-                  </ScrollArea>
+      {/* Main Content Area */}
+      {activeReportTab === "Patient Report" && (
+        <Card className="flex-1 flex flex-col shadow-sm overflow-hidden border-border">
+          <CardContent className="p-2 flex-1 flex space-x-2 overflow-x-auto no-scrollbar">
+            {patientReportCategories.map((category) => (
+              <div key={category.title} className="flex flex-col w-52 shrink-0 border bg-card rounded-md shadow-sm">
+                <div className="p-2 text-sm font-semibold text-center bg-accent text-accent-foreground border-b rounded-t-md">
+                  {category.title}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+                <ScrollArea className="flex-1 min-h-0"> {/* Ensures ScrollArea can shrink and scroll */}
+                  <div className="p-2 space-y-1.5">
+                    {category.items.map((item) => (
+                      <Button
+                        key={item}
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start text-left h-8 text-xs bg-card hover:bg-muted/80 rounded-md border-border shadow-sm"
+                      >
+                        {item}
+                      </Button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
-        {activeReportTab === "Graph Report" && (
-          <Card className="flex-1 flex items-center justify-center shadow-sm">
-            <CardContent className="text-center">
-              <CardTitle className="text-xl text-muted-foreground">
-                Graph Report
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
-            </CardContent>
-          </Card>
-        )}
-      </main>
+      {activeReportTab === "Graph Report" && (
+        <Card className="flex-1 flex items-center justify-center shadow-sm">
+          <CardContent className="text-center">
+            <CardTitle className="text-xl text-muted-foreground">
+              Graph Report
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
