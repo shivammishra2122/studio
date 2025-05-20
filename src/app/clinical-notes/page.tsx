@@ -163,20 +163,7 @@ const ClinicalNotesPage: NextPage = () => {
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow overflow-hidden">
-            <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-semibold">Note View</CardTitle>
-                <div className="flex items-center space-x-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-
+            {/* CardHeader removed */}
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar */}
               <div className="flex flex-wrap items-center space-x-2 text-xs mb-2 gap-y-2">
@@ -335,6 +322,5 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
 
     
