@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area'; // Kept for Dialog content, not for main table
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card'; // Renamed CardHeader to ShadcnCardHeader
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog'; // Renamed DialogTitle
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp, X } from 'lucide-react';
 
 const clinicalNotesSubNavItems = [
@@ -38,8 +38,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Sansys Doctor Primary Care Physician',
-    location: 'ICU ONE - General Ward, Bed 103B, Room A, North Wing, Sunshine Building',
-    cosigner: 'Dr. Jane Doe Supervising Physician, MD, PhD'
+    location: 'ICU ONE - General Ward, Bed 103B, Room A, North Wing, Sunshine Building', // Shortened for display
+    cosigner: 'Dr. Jane Doe Supervising Physician, MD, PhD' // Shortened
   },
   {
     id: '2',
@@ -48,8 +48,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'PENDING',
     signed: false,
     author: 'Dr. Smith Attending Cardiologist',
-    location: 'Cardiology Wing - Outpatient Clinic A, Room 5, Heart Center',
-    cosigner: 'Dr. Emily White Cardiology Fellow'
+    location: 'Cardiology Wing - Outpatient Clinic A, Room 5, Heart Center', // Shortened
+    cosigner: 'Dr. Emily White Cardiology Fellow' // Shortened
   },
   {
     id: '3',
@@ -57,8 +57,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '17 MAY, 2025 14:15',
     status: 'DRAFT',
     signed: false,
-    author: 'Dr. Alex Johnson Neurologist, Dept. of Neurology',
-    location: 'Neurology Ward - Room 201, Bed A, Main Hospital Building',
+    author: 'Dr. Alex Johnson Neurologist, Dept. of Neurology', // Shortened
+    location: 'Neurology Ward - Room 201, Bed A, Main Hospital Building', // Shortened
     cosigner: undefined
   },
   {
@@ -215,9 +215,9 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table Container - This div will handle the vertical scroll for the table */}
-              <div className="flex-1 overflow-y-auto"> {/* Removed min-h-0 */}
+              <div className="flex-1 overflow-y-auto no-scrollbar"> {/* Removed min-h-0 */}
                 <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
-                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
+                  <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
                         { name: "Notes Title", className: "min-w-[25rem]" }, 
@@ -322,3 +322,6 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
+
+
+    
