@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Kept for Dialog content, not for main table
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp, X } from 'lucide-react';
@@ -121,7 +122,7 @@ const ClinicalNotesPage: NextPage = () => {
   const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [fromDate, setFromDate] = useState<string>("");
-  const [toDate, setToDate] = useState<string>("");
+  const [toDateValue, setToDateValue] = useState<string>(""); // Renamed to avoid conflict
   const [searchText, setSearchText] = useState<string>("");
 
   // State for Note Detail Dialog
@@ -205,7 +206,7 @@ const ClinicalNotesPage: NextPage = () => {
 
                 <Label htmlFor="toDate" className="shrink-0 hidden md:inline">To</Label>
                 <div className="relative hidden md:block">
-                    <Input id="toDate" type="text" value={toDate} onChange={e => setToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+                    <Input id="toDate" type="text" value={toDateValue} onChange={e => setToDateValue(e.target.value)} className="h-7 w-24 text-xs pr-7" />
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>
                 <div className="flex-grow"></div> {/* Pushes search to the right */}
@@ -213,9 +214,9 @@ const ClinicalNotesPage: NextPage = () => {
                 <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-28 text-xs" />
               </div>
 
-              {/* Table */}
-              <ScrollArea className="flex-1 min-h-0 overflow-x-auto">
-                <Table className="text-xs min-w-[80rem]"> {/* Added min-width to Table */}
+              {/* Table Container - This div will handle the vertical scroll for the table */}
+              <div className="flex-1 overflow-hidden"> {/* Use overflow-hidden for parent, Table's internal div handles scrolling */}
+                <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {[
@@ -274,7 +275,7 @@ const ClinicalNotesPage: NextPage = () => {
                     )}
                   </TableBody>
                 </Table>
-              </ScrollArea>
+              </div>
 
               {/* Footer */}
               <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
