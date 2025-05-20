@@ -48,8 +48,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'PENDING',
     signed: false,
     author: 'Dr. Smith',
-    location: 'Cardio Wing - Clinic A',
-    cosigner: 'Dr. Emily White'
+    location: 'Cardio Wing',
+    cosigner: 'Dr. E. White'
   },
   {
     id: '3',
@@ -57,8 +57,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '17 MAY, 2025 14:15',
     status: 'DRAFT',
     signed: false,
-    author: 'Dr. Alex Johnson',
-    location: 'Neuro Ward - Rm 201',
+    author: 'Dr. A. Johnson',
+    location: 'Neuro Ward',
     cosigner: undefined
   },
   {
@@ -77,7 +77,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '19 MAY, 2025 11:45',
     status: 'COMPLETED',
     signed: true,
-    author: 'Dr. Michael Chen',
+    author: 'Dr. M. Chen',
     location: 'Surgical Pre-Op',
     cosigner: 'Dr. Sarah Bell'
   },
@@ -87,8 +87,8 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '20 MAY, 2025 16:30',
     status: 'PENDING',
     signed: false,
-    author: 'Dr. Kevin Young',
-    location: 'Peds Ward - Rm P102',
+    author: 'Dr. K. Young',
+    location: 'Peds Ward',
     cosigner: 'Dr. Maria Garcia'
   },
   {
@@ -97,7 +97,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '21 MAY, 2025 13:00',
     status: 'DRAFT',
     signed: false,
-    author: 'Dr. Olivia Green',
+    author: 'Dr. O. Green',
     location: 'Behavioral Health',
     cosigner: undefined
   },
@@ -143,7 +143,7 @@ const ClinicalNotesPage: NextPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
       <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
         {clinicalNotesSubNavItems.map((item) => (
@@ -244,7 +244,7 @@ const ClinicalNotesPage: NextPage = () => {
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/30">
                         <TableCell className="py-1.5 px-3 min-w-[15rem]">{truncateText(note.notesTitle, 100)}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.dateOfEntry}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> {/* Removed whitespace-nowrap */}
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           {note.signed && <CheckCircle2 className="h-4 w-4 text-green-600" />}
