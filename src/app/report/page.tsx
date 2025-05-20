@@ -82,20 +82,20 @@ const ReportPage: NextPage = () => {
       {/* Main Content Area */}
       {activeReportTab === "Patient Report" && (
         <Card className="flex-1 flex flex-col shadow-sm overflow-hidden border-border">
-          <CardContent className="p-2 flex-1 flex space-x-1 overflow-x-auto"> {/* Changed space-x-2 to space-x-1 */}
+          <CardContent className="p-2 flex-1 flex space-x-1 overflow-x-auto">
             {patientReportCategories.map((category) => (
               <div key={category.title} className="flex flex-col w-52 shrink-0 border bg-card rounded-md shadow-sm">
                 <div className="p-2 text-sm font-semibold text-center bg-accent text-accent-foreground border-b rounded-t-md">
                   {category.title}
                 </div>
-                <ScrollArea className="flex-1 min-h-0"> {/* Ensures ScrollArea can shrink and scroll */}
+                <ScrollArea className="flex-1 min-h-0">
                   <div className="p-2 space-y-1.5">
                     {category.items.map((item) => (
                       <Button
                         key={item}
                         variant="outline"
                         size="sm"
-                        className="w-full justify-start text-left h-8 text-xs bg-card hover:bg-muted/80 rounded-md border-border shadow-sm"
+                        className="w-full justify-start text-left h-7 text-xs bg-card hover:bg-muted/80 rounded-md border-border shadow-sm"
                       >
                         {item}
                       </Button>
