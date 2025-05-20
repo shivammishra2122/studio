@@ -111,9 +111,9 @@ const DischargeSummaryPage: NextPage = () => {
             <Input id="summarySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-32 text-xs" />
           </div>
 
-          {/* Table */}
-          <div className="flex-1 overflow-y-auto"> {/* This div will handle vertical scroll */}
-            <Table className="text-xs min-w-[75rem]"> {/* This table will handle horizontal scroll */}
+          {/* Table Section */}
+          <ScrollArea className="flex-1 min-h-0"> 
+            <Table className="text-xs min-w-[75rem]">
               <TableHeader className="bg-muted/50 sticky top-0 z-10">
                 <TableRow>
                   {[
@@ -171,7 +171,7 @@ const DischargeSummaryPage: NextPage = () => {
                 )}
               </TableBody>
             </Table>
-          </div>
+          </ScrollArea>
 
           {/* Footer */}
           <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
@@ -189,4 +189,6 @@ const DischargeSummaryPage: NextPage = () => {
 };
 
 export default DischargeSummaryPage;
+    
+
     
