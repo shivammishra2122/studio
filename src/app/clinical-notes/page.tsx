@@ -162,7 +162,7 @@ const ClinicalNotesPage: NextPage = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
-           <Card className="flex-1 flex flex-col shadow overflow-hidden"> {/* Added overflow-hidden */}
+           <Card className="flex-1 flex flex-col shadow overflow-hidden">
             <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Note View</CardTitle>
@@ -177,7 +177,7 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
             </CardHeader>
 
-            <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden"> {/* Ensure this parent flexes */}
+            <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar */}
               <div className="flex flex-wrap items-center space-x-2 text-xs mb-2 gap-y-2">
                 <Label htmlFor="groupBy" className="shrink-0">Group By</Label>
@@ -228,17 +228,26 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table */}
-              <ScrollArea className="flex-1 min-h-0"> {/* Removed max-h, added min-h-0 */}
+              <ScrollArea className="flex-1 min-h-0 overflow-x-auto">
                 <Table className="text-xs">
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
                       {[
-                        "Notes Title", "Date of Entry", "Status", "Sign", "Edit",
-                        "Delete", "Action", "Author", "Location", "Cosigner", "Image Upload"
+                        { name: "Notes Title", className: "min-w-[25rem]" }, 
+                        { name: "Date of Entry", className: "whitespace-nowrap" }, 
+                        { name: "Status", className: "whitespace-nowrap" }, 
+                        { name: "Sign" }, 
+                        { name: "Edit" },
+                        { name: "Delete" }, 
+                        { name: "Action" }, 
+                        { name: "Author", className: "whitespace-nowrap" }, 
+                        { name: "Location", className: "whitespace-nowrap" }, 
+                        { name: "Cosigner", className: "whitespace-nowrap" }, 
+                        { name: "Image Upload" }
                       ].map(header => (
-                        <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
+                        <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 ${header.className || 'whitespace-nowrap'}`}>
                           <div className="flex items-center justify-between">
-                            {header}
+                            {header.name}
                             <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                           </div>
                         </TableHead>
@@ -248,7 +257,7 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/30">
-                        <TableCell className="py-1.5 px-3">{truncateText(note.notesTitle, 100)}</TableCell>
+                        <TableCell className="py-1.5 px-3 min-w-[25rem]">{truncateText(note.notesTitle, 100)}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.dateOfEntry}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
@@ -291,7 +300,7 @@ const ClinicalNotesPage: NextPage = () => {
         )}
          {/* Placeholder for other Clinical Notes sub-views */}
          {activeSubNav !== "Notes View" && (
-          <Card className="flex-1 flex items-center justify-center shadow">
+          <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
               <CardTitle className="text-xl text-muted-foreground">
                 {activeSubNav} View
@@ -326,5 +335,6 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
+
 
     
