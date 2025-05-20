@@ -12,7 +12,7 @@ import {
   Ban, FileText, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
 import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
-import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_PATIENT } from '@/lib/constants'; 
+import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent, MOCK_KEY_INDICATORS as keyIndicators, MOCK_HEART_RATE_MONITOR_DATA as heartRateMonitorData, MOCK_HEART_RATE_MONITOR_CHART_CONFIG as heartRateMonitorChartConfig } from '@/lib/constants'; 
 import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -22,20 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
-const keyIndicators: HealthMetric[] = [
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
-  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure' },
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
-  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
-];
-
-const heartRateMonitorData: Array<{ time: string; hr: number }> = [
-  { time: '0s', hr: 75 }, { time: '1s', hr: 78 }, { time: '2s', hr: 72 },
-  { time: '3s', hr: 80 }, { time: '4s', hr: 77 }, { time: '5s', hr: 75 },
-  { time: '6s', hr: 79 }, { time: '7s', hr: 76 },
-];
-
+// Definitions for glucoseData and bloodPressureData remain local as they are specific to this page's chart variations.
 const glucoseData: Array<{ date: string; level: number }> = [
   { date: 'Mon', level: 95 }, { date: 'Tue', level: 102 }, { date: 'Wed', level: 98 },
   { date: 'Thu', level: 110 }, { date: 'Fri', level: 105 }, { date: 'Sat', level: 99 },
@@ -52,26 +39,27 @@ const bloodPressureData: Array<{ date: string; systolic: number; diastolic: numb
   { date: 'Sun', systolic: 119, diastolic: 79 },
 ];
 
-const bodyTemperatureData: Array<{ date: string; temp: number }> = [
-    { date: 'Day 1', temp: 98.6 }, { date: 'Day 2', temp: 98.2 }, { date: 'Day 3', temp: 100.1 },
-    { date: 'Day 4', temp: 99.0 }, { date: 'Day 5', temp: 98.7 }, { date: 'Day 6', temp: 98.5 },
-    { date: 'Day 7', temp: 98.8 },
-];
-
-const weightData: Array<{ date: string; weight: number }> = [
-    { date: 'Week 1', weight: 70.5 }, { date: 'Week 2', weight: 70.1 }, { date: 'Week 3', weight: 69.8 },
-    { date: 'Week 4', weight: 69.5 }, { date: 'Week 5', weight: 70.0 }, { date: 'Week 6', weight: 69.2 },
-];
-
-
-const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
 const bloodPressureChartConfig: ChartConfig = { 
   systolic: { label: 'Systolic (mmHg)', color: 'hsl(var(--chart-1))' },
   diastolic: { label: 'Diastolic (mmHg)', color: 'hsl(var(--chart-3))' },
 };
+
+// Placeholder for Body Temperature and Weight chart data/config if needed
+const bodyTemperatureData: Array<{ date: string; temp: number }> = [
+  { date: 'Mon', temp: 98.6 }, { date: 'Tue', temp: 98.2 }, { date: 'Wed', temp: 98.9 },
+  { date: 'Thu', temp: 98.5 }, { date: 'Fri', temp: 99.1 }, { date: 'Sat', temp: 98.7 },
+  { date: 'Sun', temp: 98.4 },
+];
 const bodyTemperatureChartConfig: ChartConfig = { temp: { label: 'Temperature (°F)', color: 'hsl(var(--chart-4))' } };
+
+const weightData: Array<{ date: string; weight: number }> = [
+  { date: 'Mon', weight: 70.0 }, { date: 'Tue', weight: 70.2 }, { date: 'Wed', weight: 69.8 },
+  { date: 'Thu', weight: 70.1 }, { date: 'Fri', weight: 69.9 }, { date: 'Sat', weight: 70.3 },
+  { date: 'Sun', weight: 70.0 },
+];
 const weightChartConfig: ChartConfig = { weight: { label: 'Weight (kg)', color: 'hsl(var(--chart-5))' } };
+
 
 const infoCardIcons: Record<string, React.ElementType> = {
   "Allergies": Ban,
@@ -82,11 +70,11 @@ const infoCardIcons: Record<string, React.ElementType> = {
   "Clinical reminder": BellRing, 
 };
 
+const secondRowInformationalCardTitles: string[] = ["Allergies", "Medications History", "Report", "Radiology"];
 
-// Updated to show only 3 cards in the last row
 const thirdRowInformationalCardTitles: string[] = [
-  "Clinical notes", 
-  "Encounter notes", 
+  "Clinical notes",
+  "Encounter notes",
   "Clinical reminder"
 ];
 
@@ -237,10 +225,10 @@ export default function DashboardPage(): JSX.Element {
   
 
   return (
-    <div className="flex flex-1 flex-col p-3 bg-background"> 
+    <div className="flex flex-1 flex-col p-3 bg-background"> {/* Reduced main padding */}
       
-      {/* Top Row: Problem, Charts, Vitals */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
+      {/* Top Row: Problem ,chart,vital */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2"> {/* Reduced mb */}
         <Card className="lg:col-span-3 shadow-lg">
             <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3"> 
               <div className="flex items-center space-x-1.5">
@@ -249,6 +237,10 @@ export default function DashboardPage(): JSX.Element {
                 <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
               </div>
               <div className="flex items-center">
+                <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddProblemDialog}>
+                    <Edit3 className="h-3.5 w-3.5" />
+                    <span className="sr-only">Edit Problems</span>
+                </Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
                     <Plus className="h-3.5 w-3.5" />
                     <span className="sr-only">Add Problem</span>
@@ -258,7 +250,7 @@ export default function DashboardPage(): JSX.Element {
             <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar"> 
               <Table>
                 <TableBody>
-                  {problems.slice(0, 5).map((problem) => (
+                  {problems.map((problem) => (
                     <TableRow key={problem.id}>
                       <TableCell className="px-2 py-1"> 
                         <div className="font-medium text-xs">{problem.description}</div>
@@ -274,9 +266,9 @@ export default function DashboardPage(): JSX.Element {
         </Card>
         
         <Card className="lg:col-span-6 shadow-lg h-full">
-          <CardContent className="pt-1 px-2 pb-2"> 
+          <CardContent className="pt-2 px-2 pb-2"> 
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
-            <TabsList className="hidden"> 
+            <TabsList className="hidden"> {/* TabsList is hidden */}
                 <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
                 <TabsTrigger value="blood-glucose">Blood Glucose</TabsTrigger>
                 <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
@@ -286,8 +278,8 @@ export default function DashboardPage(): JSX.Element {
             </TabsList>
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[160px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
+                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[140px] w-full"> 
                       <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -301,8 +293,8 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-glucose">
                  <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={glucoseChartConfig} className="h-[160px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
+                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full"> 
                       <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -316,46 +308,46 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-pressure">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={bloodPressureChartConfig} className="h-[160px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
+                    <ChartContainer config={bloodPressureChartConfig} className="h-[140px] w-full"> 
                       <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
                         <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                        <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={1.5} dot={{r: 2}} />
-                        <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} />
+                        <Line dataKey="systolic" type="monotone" stroke="var(--color-systolic)" strokeWidth={1.5} dot={{r: 2}} name="Systolic" />
+                        <Line dataKey="diastolic" type="monotone" stroke="var(--color-diastolic)" strokeWidth={1.5} dot={{r: 2}} name="Diastolic" />
                       </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="body-temperature">
+               <TabsContent value="body-temperature">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
-                    <ChartContainer config={bodyTemperatureChartConfig} className="h-[160px] w-full">
-                        <RechartsLineChart data={bodyTemperatureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
-                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                            <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                            <Line dataKey="temp" type="monotone" stroke="var(--color-temp)" strokeWidth={1.5} dot={{r: 2}} />
-                        </RechartsLineChart>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={bodyTemperatureChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={bodyTemperatureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} domain={[95, 105]}/>
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                        <Line dataKey="temp" type="monotone" stroke="var(--color-temp)" strokeWidth={1.5} dot={{r: 2}} name="Temp" />
+                      </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
                 </Card>
               </TabsContent>
               <TabsContent value="weight">
                 <Card className="border-0 shadow-none">
-                   <CardContent className="p-1.5 max-h-[170px] overflow-y-auto no-scrollbar">
-                     <ChartContainer config={weightChartConfig} className="h-[160px] w-full">
-                        <RechartsLineChart data={weightData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
-                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                            <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
-                            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                            <Line dataKey="weight" type="monotone" stroke="var(--color-weight)" strokeWidth={1.5} dot={{r: 2}} />
-                        </RechartsLineChart>
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={weightChartConfig} className="h-[140px] w-full">
+                      <RechartsLineChart data={weightData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={4} fontSize={9} domain={[60, 80]}/>
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                        <Line dataKey="weight" type="monotone" stroke="var(--color-weight)" strokeWidth={1.5} dot={{r: 2}} name="Weight"/>
+                      </RechartsLineChart>
                     </ChartContainer>
                   </CardContent>
                 </Card>
@@ -365,7 +357,7 @@ export default function DashboardPage(): JSX.Element {
                   <ShadcnCardHeader className="pt-2 pb-1 px-3">
                     <CardTitle className="text-base">{detailViewTitle}</CardTitle>
                   </ShadcnCardHeader>
-                  <CardContent className="p-3 text-sm text-foreground max-h-[170px] overflow-y-auto no-scrollbar">
+                  <CardContent className="p-3 text-sm text-foreground max-h-[120px] overflow-y-auto no-scrollbar"> {/* Reduced max-height */}
                     {detailViewContent.split('\n').map((line, index) => (
                       <div key={index}>{line}</div>
                     ))}
@@ -403,8 +395,7 @@ export default function DashboardPage(): JSX.Element {
 
       {/* Second Row: Allergies (20%), Medications History (30%), Report (30%), Radiology (20%) */}
       <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
-        {/* Allergies Card */}
-        <Card className="md:col-span-2 shadow-lg"> 
+        <Card className="md:col-span-2 shadow-lg"> {/* 20% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <Ban className="h-4 w-4 text-primary" />
@@ -412,7 +403,7 @@ export default function DashboardPage(): JSX.Element {
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Allergies"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
+               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
                   <Plus className="h-3.5 w-3.5" />
                   <span className="sr-only">Add Allergy</span>
               </Button>
@@ -436,8 +427,7 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
         
-        {/* Medications History Card */}
-        <Card className="md:col-span-3 shadow-lg"> 
+        <Card className="md:col-span-3 shadow-lg"> {/* 30% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
@@ -453,26 +443,23 @@ export default function DashboardPage(): JSX.Element {
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
-              <ShadcnTableHeader>
-                <TableRow>
-                  <TableHead className="px-2 py-1 text-xs w-[60%]">Medicine</TableHead>
-                  <TableHead className="px-2 py-1 text-xs text-right">Status</TableHead>
-                </TableRow>
-              </ShadcnTableHeader>
               <TableBody>
                 {medications.slice(0,5).map((med) => (
                   <TableRow key={med.id}>
                     <TableCell className="px-2 py-1">
-                      <div className="font-medium text-xs">{med.name}</div>
-                      {med.reason && <div className="text-xs text-muted-foreground">{med.reason}</div>}
-                    </TableCell>
-                    <TableCell className="px-2 py-1 text-right">
-                      <Badge 
-                        variant={med.status === 'Active' ? 'default' : med.status === 'Pending' ? 'secondary' : 'outline'}
-                        className={`text-xs px-1.5 py-0.5 ${med.status === 'Active' ? 'bg-green-100 text-green-700 border-green-200' : med.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-red-100 text-red-700 border-red-200'}`}
-                      >
-                        {med.status}
-                      </Badge>
+                       <div className="flex justify-between items-center">
+                        <span className="font-medium text-xs">{med.name}</span>
+                        <Badge 
+                          variant={med.status === 'Active' ? 'default' : med.status === 'Pending' ? 'secondary' : 'outline'}
+                          className={`text-[10px] px-1.5 py-0.5 ${
+                            med.status === 'Active' ? 'bg-green-100 text-green-700 border-green-200' : 
+                            med.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                            'bg-red-100 text-red-700 border-red-200' 
+                          }`}
+                        >
+                          {med.status}
+                        </Badge>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -484,8 +471,7 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Report Card */}
-        <Card className="md:col-span-3 shadow-lg"> 
+        <Card className="md:col-span-3 shadow-lg"> {/* 30% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <FileText className="h-4 w-4 text-primary" />
@@ -521,8 +507,7 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
 
-        {/* Radiology Card */}
-        <Card className="md:col-span-2 shadow-lg"> 
+        <Card className="md:col-span-2 shadow-lg"> {/* 20% */}
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <ScanLine className="h-4 w-4 text-primary" />
@@ -697,3 +682,4 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+use this code and fix the error of MOCK_APPOINTMENTS
