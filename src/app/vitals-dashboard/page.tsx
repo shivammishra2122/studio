@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Edit3, CalendarDays, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
@@ -20,38 +20,28 @@ const verticalNavItems = [
   "Chief-Complaints", "Allergies", "OPD/IPD Details"
 ];
 
-
 const vitalTypes = [
   "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)",
   "Height (In)", "Weight (kg)", "CVP (cmH2O)", "C/G (In)",
-  "Pulse Oximetry (%)", "Pain",
-  "Early Warning Sign", "Location", "Entered By"
+  "Pulse Oximetry (%)", "Pain", "Early Warning Sign", "Location", "Entered By"
 ];
 
 type VitalChartDataPoint = { name: string; value?: number; systolic?: number; diastolic?: number };
 
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
-  // This function should only run on the client after hydration
   const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
-    if (typeof window === 'undefined') return 0; 
+    if (typeof window === 'undefined') return 0;
     const val = Math.random() * (max - min) + min;
     return parseFloat(val.toFixed(toFixed));
   }
 
   switch (vitalName) {
     case "B/P (mmHg)":
-      return [
-        { name: '1', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
-        { name: '2', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
-        { name: '3', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
-        { name: '4', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
-        { name: '5', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
-        { name: '6', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
-        { name: '7', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
-        { name: '8', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
-        { name: '9', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) }, 
-        { name: '10', systolic: generateRandomValue(100, 140), diastolic: generateRandomValue(60, 90) },
-      ];
+      return Array.from({ length: 10 }, (_, i) => ({
+        name: (i + 1).toString(),
+        systolic: generateRandomValue(100, 140),
+        diastolic: generateRandomValue(60, 90)
+      }));
     case "Temp (F)":
       return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(97.0, 100.0, 1) }));
     case "Resp (/min)":
@@ -134,21 +124,21 @@ const VitalsView = () => {
       {/* Vitals Data Area */}
       <div className="flex-[19] flex flex-col border rounded-md bg-card shadow">
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b bg-blue-700 text-white rounded-t-md">
+        <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-1">
-                <Checkbox id="enteredInError" className="border-white data-[state=checked]:bg-white data-[state=checked]:text-blue-700" />
-                <Label htmlFor="enteredInError" className="text-xs text-white">Entered in Error</Label>
+                <Checkbox id="enteredInError" />
+                <Label htmlFor="enteredInError" className="text-xs">Entered in Error</Label>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-blue-600">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
               <Edit3 className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         {/* Filter Bar */}
-        <div className="flex items-center space-x-2 p-2 border-b text-xs">
+        <div className="flex items-center space-x-2 p-2.5 border-b text-xs">
           <Label htmlFor="visitDate" className="shrink-0">Visit Date</Label>
           <Select value={visitDate} onValueChange={setVisitDate}>
             <SelectTrigger id="visitDate" className="h-8 w-28 text-xs">
@@ -181,7 +171,7 @@ const VitalsView = () => {
         </div>
 
         {/* Vitals Table Header (Date/Time) */}
-        <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
+        <div className="flex items-center justify-end p-2.5 bg-muted/50 text-foreground border-b text-xs font-medium">
           <div className="w-20 text-center">Date</div>
           <div className="w-20 text-center">Time</div>
         </div>
@@ -195,25 +185,25 @@ const VitalsView = () => {
                   className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-muted' : ''}`}
                   onClick={() => setSelectedVitalForGraph(vital)}
                 >
-                  <TableCell className="font-medium py-1.5 border-r w-48">{vital}</TableCell>
-                  <TableCell className="py-1.5 border-r w-20 text-center">-</TableCell>
-                  <TableCell className="py-1.5 w-20 text-center">-</TableCell>
+                  <TableCell className="font-medium py-1.5 px-3 border-r w-48">{vital}</TableCell>
+                  <TableCell className="py-1.5 px-3 border-r w-20 text-center">-</TableCell>
+                  <TableCell className="py-1.5 px-3 w-20 text-center">-</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </ScrollArea>
 
-        <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Vitals Entry</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Multiple Vitals Graph</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">ICU Flow Sheet</Button>
+        <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
+          <Button size="sm" className="text-xs h-8">Vitals Entry</Button>
+          <Button size="sm" className="text-xs h-8">Multiple Vitals Graph</Button>
+          <Button size="sm" className="text-xs h-8">ICU Flow Sheet</Button>
         </div>
       </div>
 
       {/* Vitals Graph Area */}
       <div className="flex-[31] flex flex-col border rounded-md bg-card shadow">
-        <div className="flex items-center p-2 border-b bg-blue-700 text-white rounded-t-md">
+        <div className="flex items-center p-2.5 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
         </div>
         <div className="flex-1 p-2">
@@ -256,7 +246,7 @@ const IntakeOutputView = () => {
       {/* Patient Intake/Output Summary Area */}
       <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-2.5 border-b bg-accent text-foreground rounded-t-md">
+        <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
           <div className="flex items-center space-x-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
@@ -289,11 +279,11 @@ const IntakeOutputView = () => {
         <div className="flex-1 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-accent text-foreground">
+              <tr className="bg-muted/50 text-foreground">
                 <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
                 <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
               </tr>
-              <tr className="bg-accent text-foreground">
+              <tr className="bg-muted/50 text-foreground">
                 {inputHeaders.map(header => (
                   <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap">
                     {header.split(" ")[0]}<br/>{header.split(" ")[1] || ""}
@@ -329,16 +319,16 @@ const IntakeOutputView = () => {
         </div>
 
         <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Intake</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Add Output</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Update Intake</Button>
-          <Button size="sm" className="text-xs bg-orange-400 hover:bg-orange-500 text-white h-8">Update Output</Button>
+          <Button size="sm" className="text-xs h-8">Add Intake</Button>
+          <Button size="sm" className="text-xs h-8">Add Output</Button>
+          <Button size="sm" className="text-xs h-8">Update Intake</Button>
+          <Button size="sm" className="text-xs h-8">Update Output</Button>
         </div>
       </div>
 
       {/* Intake/Output Graph Area */}
       <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
-        <div className="flex items-center p-2.5 border-b bg-accent text-foreground rounded-t-md">
+        <div className="flex items-center p-2.5 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
         </div>
         <div className="flex-1 p-2">
@@ -369,7 +359,7 @@ const ProblemsView = () => {
 
   return (
     <div className="flex-1 flex flex-col border rounded-md bg-card shadow text-xs">
-      {/* Filter Bar */}
+      {/* Header & Filter Bar */}
       <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
@@ -409,7 +399,7 @@ const ProblemsView = () => {
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-accent sticky top-0 z-10">
+          <TableHeader className="bg-muted/50 sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
                 <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
@@ -442,7 +432,7 @@ const ProblemsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Problem</Button>
+          <Button size="sm" className="text-xs h-8">New Problem</Button>
         </div>
     </div>
   );
@@ -495,7 +485,7 @@ const FinalDiagnosisView = () => {
 
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-accent sticky top-0 z-10">
+          <TableHeader className="bg-muted/50 sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
                 <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
@@ -527,7 +517,7 @@ const FinalDiagnosisView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Diagnosis</Button>
+          <Button size="sm" className="text-xs h-8">New Diagnosis</Button>
         </div>
     </div>
   );
@@ -587,7 +577,7 @@ const ChiefComplaintsView = () => {
 
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-accent sticky top-0 z-10">
+          <TableHeader className="bg-muted/50 sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
                 <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
@@ -619,7 +609,7 @@ const ChiefComplaintsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Chief Complaints</Button>
+          <Button size="sm" className="text-xs h-8">New Chief Complaints</Button>
         </div>
     </div>
   );
@@ -679,7 +669,7 @@ const AllergiesView = () => {
 
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-accent sticky top-0 z-10">
+          <TableHeader className="bg-muted/50 sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
                 <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
@@ -711,7 +701,7 @@ const AllergiesView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New Allergy</Button>
+          <Button size="sm" className="text-xs h-8">New Allergy</Button>
         </div>
     </div>
   );
@@ -771,7 +761,7 @@ const OpdIpdDetailsView = () => {
 
       <div className="flex-1 overflow-y-auto">
         <Table className="text-xs">
-          <TableHeader className="bg-accent sticky top-0 z-10">
+          <TableHeader className="bg-muted/50 sticky top-0 z-10">
             <TableRow>
               {tableHeaders.map(header => (
                 <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
@@ -803,7 +793,7 @@ const OpdIpdDetailsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">New OPD/IPD Entry</Button>
+          <Button size="sm" className="text-xs h-8">New OPD/IPD Entry</Button>
         </div>
     </div>
   );
@@ -816,7 +806,7 @@ const VitalsDashboardPage: NextPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-center space-x-0.5 border-b border-border px-3 py-2.5 mb-3 overflow-x-auto no-scrollbar bg-card">
+      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
@@ -860,3 +850,4 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
+replace the whole code with this
