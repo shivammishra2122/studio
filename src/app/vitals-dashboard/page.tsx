@@ -127,10 +127,6 @@ const VitalsView = () => {
         <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-                <Checkbox id="enteredInError" />
-                <Label htmlFor="enteredInError" className="text-xs">Entered in Error</Label>
-            </div>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
               <Edit3 className="h-4 w-4" />
             </Button>
@@ -850,4 +846,3 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-replace the whole code with this
