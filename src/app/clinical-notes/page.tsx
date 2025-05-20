@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -214,7 +215,7 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table Container - This div will handle the vertical scroll for the table */}
-              <div className="flex-1 overflow-y-auto min-h-0"> {/* Added min-h-0 */}
+              <div className="flex-1 overflow-y-auto"> {/* Removed min-h-0 */}
                 <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
                   <TableHeader className="bg-muted/50 sticky top-0 z-10">
                     <TableRow>
