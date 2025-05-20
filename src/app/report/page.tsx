@@ -84,7 +84,7 @@ const ReportPage: NextPage = () => {
         <Card className="flex-1 flex flex-col shadow-sm overflow-hidden border-border">
           <CardContent className="p-2 flex-1 flex space-x-2 overflow-x-auto">
             {patientReportCategories.map((category) => (
-              <div key={category.title} className="flex flex-col w-50 shrink-0 border bg-card rounded-md shadow-sm">
+              <div key={category.title} className="flex flex-col w-48 shrink-0 border bg-card rounded-md shadow-sm">
                 <div className="p-2 text-sm font-semibold text-center bg-accent text-accent-foreground border-b rounded-t-md">
                   {category.title}
                 </div>
