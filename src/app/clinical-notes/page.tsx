@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Kept for Dialog content, not for main table
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card'; // Renamed CardHeader to ShadcnCardHeader
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog'; // Renamed DialogTitle
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, Trash2, CheckCircle2, ImageUp, X } from 'lucide-react';
@@ -220,7 +220,7 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        { name: "Notes Title", className: "min-w-[25rem]" }, 
+                        { name: "Notes Title", className: "min-w-[20rem]" }, 
                         { name: "Date of Entry", className: "whitespace-nowrap" }, 
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
@@ -244,7 +244,7 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/30">
-                        <TableCell className="py-1.5 px-3 min-w-[25rem]">{truncateText(note.notesTitle, 100)}</TableCell>
+                        <TableCell className="py-1.5 px-3 min-w-[20rem]">{truncateText(note.notesTitle, 100)}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.dateOfEntry}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
@@ -322,6 +322,5 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
 
     
