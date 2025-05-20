@@ -82,7 +82,7 @@ const ReportPage: NextPage = () => {
       {/* Main Content Area */}
       {activeReportTab === "Patient Report" && (
         <Card className="flex-1 flex flex-col shadow-sm overflow-hidden border-border">
-          <CardContent className="p-2 flex-1 flex space-x-2 overflow-x-auto no-scrollbar">
+          <CardContent className="p-2 flex-1 flex space-x-1 overflow-x-auto"> {/* Changed space-x-2 to space-x-1 */}
             {patientReportCategories.map((category) => (
               <div key={category.title} className="flex flex-col w-52 shrink-0 border bg-card rounded-md shadow-sm">
                 <div className="p-2 text-sm font-semibold text-center bg-accent text-accent-foreground border-b rounded-t-md">
@@ -123,3 +123,4 @@ const ReportPage: NextPage = () => {
 };
 
 export default ReportPage;
+
