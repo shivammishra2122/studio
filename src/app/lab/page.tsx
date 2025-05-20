@@ -36,27 +36,24 @@ const LabPage: NextPage = () => {
   const [activeSubNav, setActiveSubNav] = useState<string>(labSubNavItems[0]);
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      {/* Left Vertical Navigation Panel */}
-      <aside className="w-48 bg-card border-r p-2 flex flex-col space-y-1">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+      {/* Horizontal Navigation Bar */}
+      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
         {labSubNavItems.map((item) => (
           <Button
             key={item}
             variant={activeSubNav === item ? "default" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 text-sm ${
-              activeSubNav === item
-                ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground'
-                : 'hover:bg-accent hover:text-foreground'
-            }`}
+            size="sm"
+            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeSubNav === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
           >
             {item}
           </Button>
         ))}
-      </aside>
+      </div>
 
-      {/* Right Content Panel */}
-      <main className="flex-1 p-3 flex flex-col">
+      {/* Main Content Panel */}
+      <main className="flex-1 flex flex-col overflow-hidden">
         {activeSubNav === "Most Recent" && (
           <Card className="flex-1 flex flex-col shadow-sm">
             <CardHeader className="p-0">
@@ -128,5 +125,3 @@ const LabPage: NextPage = () => {
 
 export default LabPage;
 
-
-    
