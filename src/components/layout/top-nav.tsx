@@ -5,12 +5,19 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu } from 'lucide-react';
+import { Menu, MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
   "Emergency Care", "Postmortem", "Nursing", "Referral", "Lab", "Radiology",
-  "Blood Center", "BI", "Report"
+  "Blood Center", "Report" // "BI" removed
 ];
 
 export function TopNav() {
@@ -27,7 +34,7 @@ export function TopNav() {
       </div>
 
       <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar">
-        {navButtonLabels.map((label, index) => {
+        {navButtonLabels.map((label) => {
           let href = "/";
           if (label === "Cover Sheet") {
             href = "/";
@@ -43,26 +50,25 @@ export function TopNav() {
             href="/emergency-care";
           } else if (label === "Postmortem"){
             href="/postmortem";
-          } else if (label === "Nursing"){ // Changed from "Nursing "
+          } else if (label === "Nursing"){
             href="/nursing";
           } else if (label === "Referral") {
             href="/referral";
           } else if (label === "Lab"){
             href="/lab";
           } else if (label === "Radiology") {
-            href="/radiology"; 
-          }  else if (label === "BI") {
-            href="/bi"; 
+            href="/radiology";
           } else if (label === "Report") {
-            href="/report"; 
+            href="/report";
           }
           
           const isActive = pathname === href;
           
-          if (label === "Blood Center" && href === "/") { // Example for an unlinked button
+          // For "Blood Center" or any other non-linked button currently
+          if (label === "Blood Center" && href === "/") {
              return (
                 <Button
-                key={index}
+                key={label}
                 variant="ghost"
                 size="sm"
                 className="text-xs px-2 py-1 h-7 whitespace-nowrap hover:bg-accent hover:text-foreground"
@@ -73,7 +79,7 @@ export function TopNav() {
           }
 
           return (
-            <Link key={index} href={href} passHref legacyBehavior>
+            <Link key={label} href={href} passHref legacyBehavior>
               <Button
                 asChild
                 variant={isActive ? "default" : "ghost"}
@@ -86,6 +92,21 @@ export function TopNav() {
           );
         })}
       </div>
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-7 w-7">
+            <MoreVertical className="h-4 w-4" />
+            <span className="sr-only">More options</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Help</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
