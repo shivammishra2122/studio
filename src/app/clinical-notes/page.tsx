@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -9,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card'; // Renamed CardHeader to ShadcnCardHeader
-import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog'; // Renamed DialogTitle
+import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card'; 
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog'; 
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X } from 'lucide-react';
 
 const clinicalNotesSubNavItems = [
@@ -21,7 +20,7 @@ const clinicalNotesSubNavItems = [
 
 type NoteEntryDataType = {
   id: string;
-  notesTitle: string; // This will store the full note content
+  notesTitle: string; 
   dateOfEntry: string;
   status: "COMPLETED" | "PENDING" | "DRAFT";
   signed: boolean;
@@ -38,7 +37,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Sansys Doctor',
-    location: 'ICU ONE - Gen Ward',
+    location: 'ICU Gen Ward',
     cosigner: 'Dr. Jane Doe'
   },
   {
@@ -68,7 +67,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'COMPLETED',
     signed: true,
     author: 'Dr. Lisa Ray',
-    location: 'Community Clinic',
+    location: 'Clinic A',
     cosigner: 'Dr. John Davis'
   },
   {
@@ -79,7 +78,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     signed: true,
     author: 'Dr. M. Chen',
     location: 'Surgical Pre-Op',
-    cosigner: 'Dr. Sarah Bell'
+    cosigner: 'Dr. S. Bell'
   },
   {
     id: '6',
@@ -89,7 +88,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     signed: false,
     author: 'Dr. K. Young',
     location: 'Peds Ward',
-    cosigner: 'Dr. Maria Garcia'
+    cosigner: 'Dr. M. Garcia'
   },
   {
     id: '7',
@@ -107,9 +106,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '22 MAY, 2025 15:00',
     status: 'COMPLETED',
     signed: true,
-    author: 'Laura White',
+    author: 'Laura White, PT',
     location: 'Rehab Center',
-    cosigner: 'Dr. Robert Brown'
+    cosigner: 'Dr. R. Brown'
   }
 ];
 
@@ -163,7 +162,6 @@ const ClinicalNotesPage: NextPage = () => {
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow overflow-hidden">
-            {/* CardHeader removed */}
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar */}
               <div className="flex flex-wrap items-center space-x-2 text-xs mb-2 gap-y-2">
@@ -215,8 +213,8 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               {/* Table Container - This div will handle the vertical scroll for the table */}
-              <div className="flex-1 overflow-y-auto no-scrollbar min-h-0"> {/* Added min-h-0 */}
-                <Table className="text-xs min-w-[80rem]"> {/* Table itself handles horizontal scroll via its internal div */}
+              <div className="flex-1 overflow-y-auto no-scrollbar min-h-0"> 
+                <Table className="text-xs min-w-[80rem]"> 
                   <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
@@ -242,9 +240,9 @@ const ClinicalNotesPage: NextPage = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map(note => (
-                      <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/30">
+                      <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className="cursor-pointer hover:bg-muted/50 even:bg-muted/30">
                         <TableCell className="py-1.5 px-3 min-w-[15rem]">{truncateText(note.notesTitle, 100)}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> {/* Removed whitespace-nowrap */}
+                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           {note.signed && <CheckCircle2 className="h-4 w-4 text-green-600" />}
@@ -318,4 +316,3 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
