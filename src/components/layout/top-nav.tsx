@@ -1,11 +1,10 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, MoreVertical, MapPin, Lock, PenLine, LogOut, HelpCircle, Package, User } from 'lucide-react';
+import { Menu, MoreVertical, MapPin, Lock, PenLine, LogOut, HelpCircle, Package, User, Building2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
   "Emergency Care", "Postmortem", "Nursing", "Referral", "Lab", "Radiology",
-  "Report" // BI removed, Report is separate
+  "Blood Center", "Report" 
 ];
 
 // Custom SVG Icon Components for the dropdown header
@@ -74,12 +73,14 @@ export function TopNav() {
           else if (label === "Referral") href = "/referral";
           else if (label === "Lab") href = "/lab";
           else if (label === "Radiology") href = "/radiology";
+          else if (label === "Blood Center") href = "/blood-center"; // Assuming this path
+          else if (label === "BI") href = "/bi"; 
           else if (label === "Report") href = "/report";
-          // "Blood Center" and "BI" are not linked based on previous setup
+          
 
           const isActive = pathname === href && href !== "#";
           
-          if (href === "#") { // For buttons that are not links yet
+          if (href === "#") { 
              return (
                 <Button
                 key={label}
@@ -129,6 +130,10 @@ export function TopNav() {
             </Avatar>
             SANSYS DOCTOR
           </DropdownMenuItem>
+          <DropdownMenuItem className="py-2 px-3 text-xs" disabled>
+            <Building2 className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            Location: Main Clinic
+          </DropdownMenuItem>
           <DropdownMenuItem className="py-2 px-3 text-xs">
             <MapPin className="h-4 w-4 mr-2.5 text-muted-foreground" />
             CHANGE LOCATION
@@ -146,7 +151,7 @@ export function TopNav() {
             SIGNATURE BLOCK
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="py-2 px-3 text-xs text-red-600 hover:!text-red-600 hover:!bg-red-50">
+          <DropdownMenuItem className="py-2 px-3 text-xs text-red-600 hover:!text-red-600 hover:!bg-red-50 focus:!text-red-600 focus:!bg-red-50">
             <LogOut className="h-4 w-4 mr-2.5" />
             LOG OUT
           </DropdownMenuItem>
