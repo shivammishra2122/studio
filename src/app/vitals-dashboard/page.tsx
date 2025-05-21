@@ -1073,4 +1073,3 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-use this code
