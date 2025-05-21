@@ -3,9 +3,9 @@
 import type { Patient } from '@/lib/constants';
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { SidebarContent, SidebarHeader } from '@/components/ui/sidebar'; // Added SidebarHeader
-import { Button } from '@/components/ui/button';
+import { SidebarContent } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button'; // Added this import
 import {
   Phone,
   CalendarDays,
@@ -26,29 +26,28 @@ const patient: Patient = MOCK_PATIENT;
 type PatientDetailItem = {
   key: keyof Patient | 'wardAndBed';
   label: string;
-  value?: string; // Made value optional as some might be constructed
-  icon?: React.ElementType; // Changed to React.ElementType for flexibility
+  value?: string; 
+  icon?: React.ElementType; 
 };
 
-// This array defines the order and content of patient details in the sidebar
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
-    label: 'DOB', // Only DOB and AD show labels
+    label: 'DOB', 
     value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays,
   },
   { key: 'wardAndBed', label: '', value: patient.wardNo && patient.bedDetails ? `${patient.wardNo}, ${patient.bedDetails}` : patient.wardNo || patient.bedDetails, icon: BedDouble },
   {
     key: 'admissionDate',
-    label: 'AD', // Only DOB and AD show labels
+    label: 'AD', 
     value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
     icon: CalendarDays,
   },
   { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
-  { key: 'primaryConsultant', label: 'Consultant', value: patient.primaryConsultant, icon: User },
-  { key: 'encounterProvider', label: 'Provider', value: patient.encounterProvider, icon: Hospital },
+  { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
+  { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
   { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
   { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical },
   { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
@@ -59,38 +58,38 @@ export function SidebarNav() {
 
   return (
     <SidebarContent className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground px-3 pt-3">
-      {/* Main content area of the sidebar, allows scrolling if content overflows */}
+      
       <div className="min-h-0 gap-2 overflow-y-auto no-scrollbar flex flex-col flex-1">
-        {/* Patient Avatar, Name, Gender, Age - Centered */}
-        <div className="flex flex-col items-center space-y-2 mb-2">
-          <Avatar className="h-20 w-20">
+        {/* Patient Avatar, Name, UID Section */}
+        <div className="flex flex-col items-center space-y-1 mb-2"> 
+          <Avatar className="h-16 w-16"> 
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback className="bg-white">
-              <User className="h-10 w-10 text-primary" />
+              <User className="h-8 w-8 text-primary" /> 
             </AvatarFallback>
           </Avatar>
-          <div className="mt-2 w-full px-4 text-center"> {/* UID container */}
+           <div className="mt-1 w-full px-4 text-center">
             <p className="text-sm font-medium text-sidebar-primary-foreground">
-              UHID: 2734577854
+              {patient.name} ({genderDisplay} {patient.age})
             </p>
           </div>
-          <div className="text-center">
-            <p className="text-md font-medium">
-              {patient.name} ({genderDisplay} {patient.age})
+          <div className="mt-0.5 w-full px-4"> {/* UID/Barcode container */}
+            <p className="text-xs font-medium text-sidebar-primary-foreground text-center">
+              UID: 2734577854
             </p>
           </div>
         </div>
 
-        {/* Patient Details List - Left Aligned with Icons */}
-        <ul className="space-y-1 text-xs pt-3">
+        {/* Patient Details List */}
+        <ul className="space-y-1 text-xs pt-2"> 
           {patientDetails.map((detail) => (
-             detail.value && ( // Only render if value exists
-              <li key={detail.key} className="flex items-start space-x-1.5">
+            detail.value && (
+              <li key={detail.key} className="flex items-start space-x-1"> 
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sidebar-primary-foreground" />}
                 <div className="flex-1 min-w-0">
-                  {detail.label && <span className={(detail.key === 'dob' || detail.key === 'admissionDate') ? "font-normal" : "font-medium"}>{detail.label}: </span>}
+                  {detail.label && <span className={detail.key === 'dob' || detail.key === 'admissionDate' ? "font-normal" : "font-semibold"}>{detail.label}</span>}
                   <span className="font-normal">
-                    {detail.value}
+                    {detail.label ? ' ' : ''}{detail.value}
                   </span>
                 </div>
               </li>
@@ -113,7 +112,7 @@ export function SidebarNav() {
           </div>
           <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
             <Image
-              src="/sansys.png" 
+              src="/sansys.png" // Placeholder, ensure this is in /public
               alt="Company Logo"
               width={150} 
               height={50}  

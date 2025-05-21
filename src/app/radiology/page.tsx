@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea removed
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarDays, ArrowUpDown, FileSearch2 } from 'lucide-react';
 
@@ -36,23 +35,25 @@ const RadiologyPage: NextPage = () => {
   // State for filters
   const [visitDate, setVisitDate] = useState<string>("18 DEC, 2022 23:36 - ICU ONE");
   const [orderFrom, setOrderFrom] = useState<string>("");
-  const [orderTo, setOrderTo] = useState<string>("");
+  const [orderTo, setToDate] = useState<string>(""); // Renamed to avoid conflict with potential date-fns import
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
 
-  const filteredEntries = mockRadiologyEntries; // Placeholder
+  const filteredEntries = mockRadiologyEntries; 
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Sub-Navigation Bar */}
-      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {radiologySubNavItems.map((item) => (
-          <Button
+           <Button
             key={item}
-            variant={activeSubNav === item ? "default" : "ghost"}
-            size="sm"
-            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeSubNav === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
+            className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
+              ${activeSubNav === item
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
+              }`}
           >
             {item}
           </Button>
@@ -62,7 +63,7 @@ const RadiologyPage: NextPage = () => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Radiology Test" && (
-          <Card className="flex-1 flex flex-col shadow">
+          <Card className="flex-1 flex flex-col shadow overflow-hidden">
             <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <CardTitle className="text-base font-semibold">Radiology List - Active &amp; Completed</CardTitle>
             </CardHeader>
@@ -78,7 +79,6 @@ const RadiologyPage: NextPage = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="18 DEC, 2022 23:36 - ICU ONE">18 DEC, 2022 23:36 - ICU ONE</SelectItem>
-                      {/* Add other visit dates */}
                     </SelectContent>
                   </Select>
 
@@ -108,16 +108,16 @@ const RadiologyPage: NextPage = () => {
                         </SelectContent>
                     </Select>
                   <Label className="shrink-0">entries</Label>
-                  <div className="flex-grow"></div> {/* Pushes search to the right */}
+                  <div className="flex-grow"></div> 
                   <Label htmlFor="radiologySearch" className="shrink-0">Search:</Label>
                   <Input id="radiologySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
                 </div>
               </div>
 
               {/* Table */}
-              <ScrollArea className="flex-1 min-h-0">
-                <Table className="text-xs">
-                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
+              <div className="flex-1 overflow-hidden min-h-0">
+                <Table className="text-xs min-w-[80rem] flex-1 min-h-0">
+                  <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
                         "S No.", "Imaging Procedure", "Imaging Type", "Order Date and Time", 
@@ -133,14 +133,14 @@ const RadiologyPage: NextPage = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredEntries.length > 0 ? filteredEntries.map(entry => (
-                      <TableRow key={entry.id} className="hover:bg-muted/30">
-                        <TableCell className="py-1.5 px-3">{entry.sNo}</TableCell>
-                        <TableCell className="py-1.5 px-3">{entry.imagingProcedure}</TableCell>
-                        <TableCell className="py-1.5 px-3">{entry.imagingType}</TableCell>
+                    {filteredEntries.length > 0 ? filteredEntries.map((entry, index) => (
+                      <TableRow key={entry.id} className={`hover:bg-muted/30 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.sNo}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.imagingProcedure}</TableCell> {/* Keep this nowrap */}
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.imagingType}</TableCell>
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.orderDateTime}</TableCell>
-                        <TableCell className="py-1.5 px-3">{entry.status}</TableCell>
-                        <TableCell className="py-1.5 px-3">{entry.provider}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.status}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.provider}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
                         </TableCell>
@@ -160,7 +160,7 @@ const RadiologyPage: NextPage = () => {
                     )}
                   </TableBody>
                 </Table>
-              </ScrollArea>
+              </div>
 
               {/* Footer */}
               <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea removed
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Edit3, RefreshCw, ArrowUpDown, MessageSquare, FileSignature, Trash2, CheckCircle2 } from 'lucide-react';
 
@@ -17,7 +17,7 @@ type SummaryEntryDataType = {
   summaryTitle: string;
   dateOfEntry: string;
   status: "UNSIGNED" | "COMPLETED";
-  signedBy?: string; // For the sign icon, if needed
+  signedBy?: string; 
   author: string;
   location: string;
   cosigner?: string;
@@ -93,7 +93,7 @@ const DischargeSummaryPage: NextPage = () => {
             </Select>
             <Label className="shrink-0">entries</Label>
 
-            <div className="flex-grow"></div> {/* Pushes Visit Date and Search to the right */}
+            <div className="flex-grow"></div> 
 
             <Label htmlFor="visitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
@@ -112,8 +112,8 @@ const DischargeSummaryPage: NextPage = () => {
           </div>
 
           {/* Table Section */}
-          <ScrollArea className="flex-1 min-h-0"> 
-            <Table className="text-xs min-w-[75rem]">
+          <div className="flex-1 overflow-hidden min-h-0">
+            <Table className="text-xs min-w-[75rem] flex-1 min-h-0">
               <TableHeader className="bg-muted/50 sticky top-0 z-10">
                 <TableRow>
                   {[
@@ -138,8 +138,8 @@ const DischargeSummaryPage: NextPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSummaries.length > 0 ? filteredSummaries.map(summary => (
-                  <TableRow key={summary.id} className="hover:bg-muted/30">
+                {filteredSummaries.length > 0 ? filteredSummaries.map((summary, index) => (
+                  <TableRow key={summary.id} className={`hover:bg-muted/30 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                     <TableCell className={`py-1.5 px-3 ${summary.summaryTitle.length > 50 ? '' : 'whitespace-nowrap'}`}>{summary.summaryTitle}</TableCell>
                     <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.dateOfEntry}</TableCell>
                     <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.status}</TableCell>
@@ -171,7 +171,7 @@ const DischargeSummaryPage: NextPage = () => {
                 )}
               </TableBody>
             </Table>
-          </ScrollArea>
+          </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
@@ -185,10 +185,4 @@ const DischargeSummaryPage: NextPage = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
-
-export default DischargeSummaryPage;
-    
-
-    
+  

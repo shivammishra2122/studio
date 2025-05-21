@@ -8,17 +8,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea removed
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpDown, RefreshCw } from 'lucide-react';
-import { Progress } from '@/components/ui/progress'; // Assuming a progress bar component
+import { Progress } from '@/components/ui/progress'; 
 
 const subNavItems = ["COPD List", "MLC/Non-MLC Note"];
 
 const copdTableHeaders = [
   "Visit", "Visit Date/Time", "Type", "MLC", "MLC/Progress Id", 
   "Treating Facility", "Injury", "Criticality", "Consultant Name", 
-  "Attended By", "Refered From" // Typo from image, kept for matching
+  "Attended By", "Refered From" 
 ];
 
 const EmergencyCarePage: NextPage = () => {
@@ -27,26 +27,27 @@ const EmergencyCarePage: NextPage = () => {
   const [searchText, setSearchText] = useState<string>("");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {subNavItems.map((item) => (
-          <Button
+           <Button
             key={item}
-            variant={activeSubNav === item ? "default" : "ghost"}
-            size="sm"
-            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeSubNav === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveSubNav(item)}
+            className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
+              ${activeSubNav === item
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
+              }`}
           >
             {item}
           </Button>
         ))}
       </div>
 
-      {/* Right Content Panel */}
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "COPD List" && (
-          <Card className="flex-1 flex flex-col shadow">
+          <Card className="flex-1 flex flex-col shadow overflow-hidden">
             <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Patient COPD List</CardTitle>
@@ -80,9 +81,9 @@ const EmergencyCarePage: NextPage = () => {
             </CardHeader>
             
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
-              <ScrollArea className="flex-1">
-                <Table className="text-xs">
-                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
+              <div className="flex-1 overflow-hidden min-h-0">
+                <Table className="text-xs min-w-[90rem] flex-1 min-h-0"> {/* Increased min-width */}
+                  <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {copdTableHeaders.map(header => (
                         <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
@@ -102,9 +103,8 @@ const EmergencyCarePage: NextPage = () => {
                     </TableRow>
                   </TableBody>
                 </Table>
-              </ScrollArea>
+              </div>
               
-              {/* Placeholder for Progress Bar/Slider */}
               <div className="py-2 mt-2">
                 <Progress value={33} className="h-2" /> 
               </div>
@@ -134,11 +134,4 @@ const EmergencyCarePage: NextPage = () => {
               </CardTitle>
               <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
             </CardContent>
-          </Card>
-        )}
-      </main>
-    </div>
-  );
-};
-
-export default EmergencyCarePage;
+          </Card

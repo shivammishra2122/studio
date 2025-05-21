@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea removed
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Settings, 
@@ -31,7 +31,6 @@ const orderSubNavItems = [
   "Procedure Order", "Nursing Care"
 ];
 
-// Type for CPOE Order List
 type OrderDataType = {
   id: string;
   service: string;
@@ -53,7 +52,6 @@ const mockOrderData: OrderDataType[] = [
     { id: '5', service: 'Consult', order: 'Cardiology Consult', startDate: '12 Sep 2024', startTime: '14:00', provider: 'Dr. Green', status: 'Cancelled', location: 'Cardiology Clinic' },
 ];
 
-// Type for IP Medication List
 type IpMedicationEntryDataType = {
   id: string;
   services: string;
@@ -181,8 +179,8 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto min-h-0">
-          <Table className="text-xs">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <Table className="text-xs min-w-[70rem] flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
@@ -197,9 +195,9 @@ const CpoeOrderListView = () => {
             </ShadcnTableHeader>
             <TableBody>
               {filteredOrders.length > 0 ? filteredOrders.map((order, index) => (
-                <TableRow key={order.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
-                  <TableCell className="py-1.5 px-3">{order.service}</TableCell>
-                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{order.service}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.order}</TableCell> {/* Allow order to wrap */}
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
                     <div>Start: {order.startDate} {order.startTime}</div>
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
@@ -216,7 +214,7 @@ const CpoeOrderListView = () => {
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-1.5 px-3">{order.location}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{order.location}</TableCell>
                 </TableRow>
               )) : (
                 <TableRow>
@@ -335,8 +333,8 @@ const IpMedicationView = () => {
             <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-auto min-h-0">
-          <Table className="text-xs">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <Table className="text-xs min-w-[90rem] flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
@@ -351,19 +349,19 @@ const IpMedicationView = () => {
             </ShadcnTableHeader>
             <TableBody>
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
-                <TableRow key={med.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
-                  <TableCell className="py-1.5 px-3">{med.services}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell>
+                <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.services}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationName}</TableCell> {/* Usually medication names are kept on one line */}
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
                     <div>Start: {med.startDate} {med.startTime}</div>
                     {med.stopDate && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
-                  <TableCell className="py-1.5 px-3">{med.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.status}</TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.orderedBy}</TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
-                  <TableCell className="py-1.5 px-3">{med.medicationDay}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationDay}</TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.schedule}</TableCell>
                 </TableRow>
               )) : (
@@ -417,7 +415,6 @@ const OrdersPage: NextPage = () => {
         {activeOrderSubNav === "CPOE Order List" && <CpoeOrderListView />}
         {activeOrderSubNav === "IP Medication" && <IpMedicationView />}
         
-        {/* Placeholder for other Order sub-views */}
         {activeOrderSubNav !== "CPOE Order List" && activeOrderSubNav !== "IP Medication" && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
@@ -433,4 +430,4 @@ const OrdersPage: NextPage = () => {
   );
 };
 
-export default OrdersPage;
+export default OrdersPage

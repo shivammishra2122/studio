@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea is removed as Table component will handle its own scrolling
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Re-added for Dialog content
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -42,7 +43,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '2',
-    notesTitle: 'Follow-up Visit - Cardiology. ECG reviewed, no acute ischemic changes. Patient advised to continue current medication regimen. Blood pressure stable. Lifestyle modifications reinforced. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. This note is intentionally shorter to test display.',
+    notesTitle: 'Follow-up Visit - Cardiology. ECG reviewed, no acute ischemic changes. Patient advised to continue current medication regimen. Blood pressure stable. Lifestyle modifications reinforced.',
     dateOfEntry: '16 MAY, 2025 10:30',
     status: 'PENDING',
     signed: false,
@@ -52,7 +53,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '3',
-    notesTitle: 'Progress Note - Neurology. Patient stable, no new neurological deficits. MRI results pending. Family updated on current status. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
+    notesTitle: 'Progress Note - Neurology. Patient stable, no new neurological deficits. MRI results pending. Family updated on current status.',
     dateOfEntry: '17 MAY, 2025 14:15',
     status: 'DRAFT',
     signed: false,
@@ -62,7 +63,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '4',
-    notesTitle: 'Routine Checkup - General Medicine. Patient reports feeling well overall. Discussed annual vaccinations and preventative care. No acute complaints. Blood work ordered for routine screening. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.',
+    notesTitle: 'Routine Checkup - General Medicine. Patient reports feeling well overall. Discussed annual vaccinations and preventative care. No acute complaints.',
     dateOfEntry: '18 MAY, 2025 09:00',
     status: 'COMPLETED',
     signed: true,
@@ -72,7 +73,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '5',
-    notesTitle: 'Pre-operative Assessment - Surgery. Patient cleared for upcoming procedure. Anesthesia plan reviewed. Consent forms signed. All questions answered. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.',
+    notesTitle: 'Pre-operative Assessment - Surgery. Patient cleared for upcoming procedure. Anesthesia plan reviewed. Consent forms signed.',
     dateOfEntry: '19 MAY, 2025 11:45',
     status: 'COMPLETED',
     signed: true,
@@ -82,7 +83,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '6',
-    notesTitle: 'Discharge Summary - Pediatrics. Patient discharged in stable condition. Follow-up appointment scheduled with primary care physician. Instructions provided to parents for home care and medication administration. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae.',
+    notesTitle: 'Discharge Summary - Pediatrics. Patient discharged in stable condition. Follow-up appointment scheduled. Instructions provided.',
     dateOfEntry: '20 MAY, 2025 16:30',
     status: 'PENDING',
     signed: false,
@@ -92,7 +93,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '7',
-    notesTitle: 'Mental Health Consultation - Psychiatry. Patient reports improvement in mood and anxiety levels. Medication adherence discussed. Coping strategies reinforced. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.',
+    notesTitle: 'Mental Health Consultation - Psychiatry. Patient reports improvement in mood and anxiety levels. Medication adherence discussed.',
     dateOfEntry: '21 MAY, 2025 13:00',
     status: 'DRAFT',
     signed: false,
@@ -102,7 +103,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '8',
-    notesTitle: 'Physical Therapy Session - Rehabilitation. Patient completed all prescribed exercises. Range of motion improved by 10 degrees in the affected joint. Home exercise program updated. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.',
+    notesTitle: 'Physical Therapy Session - Rehabilitation. Patient completed all prescribed exercises. Range of motion improved.',
     dateOfEntry: '22 MAY, 2025 15:00',
     status: 'COMPLETED',
     signed: true,
@@ -121,14 +122,13 @@ const ClinicalNotesPage: NextPage = () => {
   const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [fromDate, setFromDate] = useState<string>("");
-  const [toDateValue, setToDateValue] = useState<string>(""); // Renamed to avoid conflict
+  const [toDateValue, setToDateValue] = useState<string>(""); 
   const [searchText, setSearchText] = useState<string>("");
 
   // State for Note Detail Dialog
   const [isNoteDetailDialogOpen, setIsNoteDetailDialogOpen] = useState(false);
   const [selectedNoteContent, setSelectedNoteContent] = useState<string>("");
 
-  // Placeholder for filtered notes
   const filteredNotes = mockNoteEntries;
 
   const handleNoteClick = (noteContent: string) => {
@@ -164,7 +164,6 @@ const ClinicalNotesPage: NextPage = () => {
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow overflow-hidden">
-            {/* CardHeader removed for "Notes View" as per user request */}
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar */}
               <div className="space-y-2 mb-2 text-xs">
@@ -218,10 +217,9 @@ const ClinicalNotesPage: NextPage = () => {
                 </div>
               </div>
 
-
-              {/* Table Container: This div will handle both vertical and horizontal scrolling */}
-              <div className="flex-1 overflow-auto"> 
-                <Table className="text-xs min-w-[80rem]"> 
+              {/* Table Container: This div will handle vertical scrolling, Table handles horizontal */}
+              <div className="flex-1 overflow-hidden min-h-0"> 
+                <Table className="text-xs min-w-[80rem] flex-1 min-h-0"> {/* Table itself manages its scroll */}
                   <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
@@ -281,12 +279,10 @@ const ClinicalNotesPage: NextPage = () => {
               {/* Footer */}
               <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
                 <div>Showing {filteredNotes.length > 0 ? 1 : 0} to {filteredNotes.length} of {filteredNotes.length} entries</div>
-                {/* Pagination can be added here if needed */}
               </div>
             </CardContent>
           </Card>
         )}
-         {/* Placeholder for other Clinical Notes sub-views */}
          {activeSubNav !== "Notes View" && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
@@ -302,7 +298,7 @@ const ClinicalNotesPage: NextPage = () => {
       <Dialog open={isNoteDetailDialogOpen} onOpenChange={setIsNoteDetailDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogUITitle>Note Detail</DialogUITitle>
+            <DialogUITitle>Note Detail</DialogUITitle> {/* Changed from DialogTitle to DialogUITitle */}
           </DialogHeader>
           <ScrollArea className="max-h-[60vh] p-1 rounded-md">
             <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
@@ -321,7 +317,3 @@ const ClinicalNotesPage: NextPage = () => {
     </div>
   );
 };
-
-export default ClinicalNotesPage;
-
-    

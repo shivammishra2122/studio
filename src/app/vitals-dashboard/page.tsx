@@ -8,17 +8,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea removed
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown, Settings, FileEdit } from 'lucide-react';
-import { Switch } from "@/components/ui/switch";
+import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown, Settings, FileEdit, Switch as SwitchIcon } from 'lucide-react'; // Renamed Switch to SwitchIcon
+import { Switch } from "@/components/ui/switch"; // Shadcn Switch
 import { Badge } from '@/components/ui/badge';
 
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
-  "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
+  "Chief-Complaints", "Allergies", "OPD/IPD Details"
 ];
 
 
@@ -48,16 +48,16 @@ const VitalsView = () => {
     respirationQualifier: undefined as string | undefined,
     temperatureValue: '',
     temperatureUnit: 'F',
-    temperatureSite: undefined as string | undefined, // Added for consistency with image
+    temperatureSite: undefined as string | undefined, 
     temperatureQualifier: undefined as string | undefined,
     weightValue: '',
     weightUnit: 'kg',
     weightQualifier: undefined as string | undefined,
     cvpValue: '',
-    cvpUnit: 'mmHg', // Changed to mmHg as per image
-    cvpQualifier: undefined as string | undefined, // Added though not visible in image
+    cvpUnit: 'mmHg', 
+    cvpQualifier: undefined as string | undefined, 
     cgValue: '',
-    cgUnit: 'cm', // Changed to cm as per image
+    cgUnit: 'cm', 
     cgQualifier: undefined as string | undefined,
     pulseOximetryValue: '',
     pulseOximetryQualifier: undefined as string | undefined,
@@ -139,9 +139,7 @@ const VitalsView = () => {
 
   return (
     <div className="flex-1 flex gap-3 overflow-hidden">
-        {/* Vitals Data Area */}
-        <div className={`flex flex-col border rounded-md bg-card shadow ${isVitalsEntryMode ? 'flex-1' : 'flex-1'}`}> {/* Changed from flex-[19] to flex-1 */}
-          {/* Header */}
+        <div className={`flex flex-col border rounded-md bg-card shadow ${isVitalsEntryMode ? 'flex-1' : 'flex-1'}`}> 
           <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
             <h2 className="text-base font-semibold">{isVitalsEntryMode ? "Vitals Entry" : "Vitals"}</h2>
             {!isVitalsEntryMode && (
@@ -159,7 +157,6 @@ const VitalsView = () => {
 
           {!isVitalsEntryMode ? (
             <>
-              {/* Filter Bar */}
               <div className="flex flex-wrap items-center space-x-2 p-2 border-b text-xs gap-y-2">
                 <Label htmlFor="visitDateVitals" className="shrink-0">Visit Date</Label>
                 <Select value={visitDate} onValueChange={setVisitDate}>
@@ -192,14 +189,13 @@ const VitalsView = () => {
                 </div>
               </div>
 
-              {/* Vitals Table Header (Date/Time) */}
               <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
                 <div className="w-20 text-center">Date</div>
                 <div className="w-20 text-center">Time</div>
               </div>
 
-              <ScrollArea className="flex-1">
-                <Table className="text-xs">
+              <div className="flex-1 overflow-hidden min-h-0">
+                <Table className="text-xs flex-1 min-h-0">
                   <TableBody>
                     {vitalTypes.map((vital, index) => (
                       <TableRow
@@ -207,14 +203,14 @@ const VitalsView = () => {
                         className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-secondary text-primary' : ''} ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                         onClick={() => setSelectedVitalForGraph(vital)}
                       >
-                        <TableCell className="font-medium py-1.5 px-3 border-r w-48">{vital}</TableCell>
-                        <TableCell className="py-1.5 px-3 border-r w-20 text-center">-</TableCell>
-                        <TableCell className="py-1.5 px-3 w-20 text-center">-</TableCell>
+                        <TableCell className="font-medium py-1.5 px-3 border-r w-48 whitespace-nowrap">{vital}</TableCell>
+                        <TableCell className="py-1.5 px-3 border-r w-20 text-center whitespace-nowrap">-</TableCell>
+                        <TableCell className="py-1.5 px-3 w-20 text-center whitespace-nowrap">-</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              </ScrollArea>
+              </div>
 
               <div className="flex items-center justify-center space-x-2 p-2 border-t">
                 <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Vitals Entry</Button>
@@ -224,8 +220,8 @@ const VitalsView = () => {
             </>
           ) : (
             // Vitals Entry Form
-            <ScrollArea className="flex-1 p-2">
-              <Table className="text-xs">
+            <div className="flex-1 overflow-hidden min-h-0">
+              <Table className="text-xs flex-1 min-h-0">
                 <ShadcnTableHeader className="bg-accent">
                   <TableRow>
                     <TableHead className="text-foreground font-semibold">Vitals</TableHead>
@@ -258,7 +254,7 @@ const VitalsView = () => {
                    {/* Temperature Row */}
                    <TableRow className={vitalTypes.indexOf("Temp (F)") % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell>Temp</TableCell>
-                    <TableCell></TableCell> {/* No Not Recordable for Temp */}
+                    <TableCell></TableCell> 
                     <TableCell>
                       <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.temperatureValue} onChange={e => handleVitalsEntryChange('temperatureValue', e.target.value)} />
                     </TableCell>
@@ -275,7 +271,6 @@ const VitalsView = () => {
                       </Select>
                     </TableCell>
                   </TableRow>
-                   {/* Pain Row */}
                   <TableRow className={vitalTypes.indexOf("Pain") % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell>Pain</TableCell>
                     <TableCell></TableCell>
@@ -289,13 +284,12 @@ const VitalsView = () => {
                     </TableCell>
                     <TableCell></TableCell>
                      <TableCell>
-                      <Select value={vitalsEntryData.temperatureQualifier /* TODO: This should be painQualifier */} onValueChange={val => handleVitalsEntryChange('temperatureQualifier' /* TODO */, val)}>
+                      <Select value={vitalsEntryData.temperatureQualifier} onValueChange={val => handleVitalsEntryChange('temperatureQualifier' , val)}>
                         <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Location" /></SelectTrigger>
                         <SelectContent><SelectItem value="head">Head</SelectItem><SelectItem value="chest">Chest</SelectItem></SelectContent>
                       </Select>
                     </TableCell>
                   </TableRow>
-                  {/* Pulse Row */}
                   <TableRow className={vitalTypes.indexOf("Pulse (/min)") % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell>Pulse</TableCell>
                     <TableCell></TableCell>
@@ -308,7 +302,6 @@ const VitalsView = () => {
                       </Select>
                     </TableCell>
                   </TableRow>
-                   {/* Height Row */}
                   <TableRow className={vitalTypes.indexOf("Height (In)") % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell>Height</TableCell>
                     <TableCell></TableCell>
@@ -326,7 +319,6 @@ const VitalsView = () => {
                       </Select>
                     </TableCell>
                   </TableRow>
-                  {/* Weight Row */}
                   <TableRow className={vitalTypes.indexOf("Weight (kg)") % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell>Weight</TableCell>
                     <TableCell></TableCell>
@@ -344,7 +336,6 @@ const VitalsView = () => {
                       </Select>
                     </TableCell>
                   </TableRow>
-                   {/* Respiration Row */}
                   <TableRow className={vitalTypes.indexOf("Resp (/min)") % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell>Resp</TableCell>
                     <TableCell></TableCell>
@@ -357,7 +348,6 @@ const VitalsView = () => {
                       </Select>
                     </TableCell>
                   </TableRow>
-                  {/* CVP Row */}
                   <TableRow className={vitalTypes.indexOf("CVP (cmH2O)") % 2 === 0 ? 'bg-muted/30' : ''}>
                       <TableCell>CVP</TableCell>
                       <TableCell></TableCell>
@@ -368,9 +358,8 @@ const VitalsView = () => {
                               <SelectContent><SelectItem value="mmHg">mmHg</SelectItem><SelectItem value="cmH2O">cmH2O</SelectItem></SelectContent>
                           </Select>
                       </TableCell>
-                      <TableCell></TableCell> {/* No qualifier in image */}
+                      <TableCell></TableCell> 
                   </TableRow>
-                  {/* C/G Row */}
                   <TableRow className={vitalTypes.indexOf("C/G (In)") % 2 === 0 ? 'bg-muted/30' : ''}>
                       <TableCell>C/G</TableCell>
                       <TableCell></TableCell>
@@ -388,7 +377,6 @@ const VitalsView = () => {
                           </Select>
                       </TableCell>
                   </TableRow>
-                  {/* Pulse Oximetry Row */}
                   <TableRow className={vitalTypes.indexOf("Pulse Oximetry (%)") % 2 === 0 ? 'bg-muted/30' : ''}>
                       <TableCell>Pulse Oximetry</TableCell>
                       <TableCell></TableCell>
@@ -405,15 +393,14 @@ const VitalsView = () => {
               </Table>
                <div className="flex justify-end space-x-2 mt-4 p-2 border-t">
                   <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setIsVitalsEntryMode(false)}>Cancel</Button>
-                  <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => { /* Handle Save */ setIsVitalsEntryMode(false); } }>Save</Button>
+                  <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => { setIsVitalsEntryMode(false); } }>Save</Button>
               </div>
-            </ScrollArea>
+            </div>
           )}
         </div>
 
-        {/* Vitals Graph Area */}
         {!isVitalsEntryMode && (
-           <div className="flex-1 flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[31] to flex-1 */}
+           <div className="flex-1 flex flex-col border rounded-md bg-card shadow"> 
             <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
               <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
             </div>
@@ -501,7 +488,6 @@ const IntakeOutputView = () => {
 
   return (
     <div className="flex-1 flex gap-3 overflow-hidden">
-      {/* Patient Intake/Output Summary Area */}
       <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
@@ -545,7 +531,6 @@ const IntakeOutputView = () => {
         </div>
       </div>
 
-      {/* Intake/Output Graph Area */}
       <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
@@ -554,10 +539,10 @@ const IntakeOutputView = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -10, fontSize: 10 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
               <YAxis 
                 tick={{ fontSize: 10 }} 
-                label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0, dx:-5 }} 
+                label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} 
               />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
@@ -618,9 +603,8 @@ const ProblemsView = () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-hidden">
-        <ScrollArea className="h-full">
-          <Table className="text-xs">
+      <CardContent className="flex-1 p-0 overflow-hidden min-h-0">
+          <Table className="text-xs flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
               <TableRow>
                 {tableHeaders.map(header => (
@@ -641,7 +625,6 @@ const ProblemsView = () => {
               </TableRow>
             </TableBody>
           </Table>
-        </ScrollArea>
       </CardContent>
       <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
@@ -704,8 +687,8 @@ const FinalDiagnosisView = () => {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <Table className="text-xs">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <Table className="text-xs flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
               <TableRow>
                 {tableHeaders.map(header => (
@@ -726,7 +709,7 @@ const FinalDiagnosisView = () => {
               </TableRow>
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
          <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
             <div>Showing 0 to 0 of 0 entries</div>
             <div className="flex items-center space-x-1">
@@ -798,8 +781,8 @@ const ChiefComplaintsView = () => {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <Table className="text-xs">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <Table className="text-xs flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
               <TableRow>
                 {tableHeaders.map(header => (
@@ -820,7 +803,7 @@ const ChiefComplaintsView = () => {
               </TableRow>
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
           <div>Showing 0 to 0 of 0 entries</div>
           <div className="flex items-center space-x-1">
@@ -892,8 +875,8 @@ const AllergiesView = () => {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <Table className="text-xs">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <Table className="text-xs flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
               <TableRow>
                 {tableHeaders.map(header => (
@@ -914,7 +897,7 @@ const AllergiesView = () => {
               </TableRow>
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
           <div>Showing 0 to 0 of 0 entries</div>
           <div className="flex items-center space-x-1">
@@ -986,8 +969,8 @@ const OpdIpdDetailsView = () => {
           </div>
         </div>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <Table className="text-xs">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <Table className="text-xs flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
               <TableRow>
                 {tableHeaders.map(header => (
@@ -1008,7 +991,7 @@ const OpdIpdDetailsView = () => {
               </TableRow>
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
           <div>Showing 0 to 0 of 0 entries</div>
           <div className="flex items-center space-x-1">
@@ -1049,25 +1032,30 @@ const VitalsDashboardPage: NextPage = () => {
       </div>
 
       {/* Main Content Area */}
-      {activeVerticalTab === "Vitals" && <VitalsView />}
-      {activeVerticalTab === "Intake/Output" && <IntakeOutputView />}
-      {activeVerticalTab === "Problems" && <ProblemsView />}
-      {activeVerticalTab === "Final Diagnosis" && <FinalDiagnosisView />}
-      {activeVerticalTab === "Chief-Complaints" && <ChiefComplaintsView />}
-      {activeVerticalTab === "Allergies" && <AllergiesView />}
-      {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
-      
-      {/* Placeholder for Orders & Clinical Notes, or any other views not explicitly handled */}
-      {!["Vitals", "Intake/Output", "Problems", "Final Diagnosis", "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"].includes(activeVerticalTab) && (
-        <Card className="flex-1 flex items-center justify-center">
-          <CardContent className="text-center">
-            <CardTitle className="text-xl text-muted-foreground">
-              {activeVerticalTab} View
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
-          </CardContent>
-        </Card>
-      )}
+      <main className="flex-1 flex flex-col gap-3 overflow-hidden">
+        {activeVerticalTab === "Vitals" && <VitalsView />}
+        {activeVerticalTab === "Intake/Output" && <IntakeOutputView />}
+        {activeVerticalTab === "Problems" && <ProblemsView />}
+        {activeVerticalTab === "Final Diagnosis" && <FinalDiagnosisView />}
+        {activeVerticalTab === "Chief-Complaints" && <ChiefComplaintsView />}
+        {activeVerticalTab === "Allergies" && <AllergiesView />}
+        {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
+        
+        
+        {![
+            "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
+            "Chief-Complaints", "Allergies", "OPD/IPD Details",
+        ].includes(activeVerticalTab) && (
+          <Card className="flex-1 flex items-center justify-center">
+            <CardContent className="text-center">
+              <CardTitle className="text-xl text-muted-foreground">
+                {activeVerticalTab} View
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
+            </CardContent>
+          </Card>
+        )}
+      </main>
     </div>
   );
 };
