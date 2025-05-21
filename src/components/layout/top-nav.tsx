@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, MoreVertical, MapPin, Lock, PenLine, LogOut, User } from 'lucide-react';
+import { Menu, MoreVertical, HelpCircle, Package, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
@@ -62,7 +61,7 @@ export function TopNav() {
 
       <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar">
         {navButtonLabels.map((label) => {
-          let href = "#"; // Default for non-linked items or placeholders
+          let href = "#"; 
           if (label === "Cover Sheet") href = "/";
           else if (label === "Dashboard") href = "/vitals-dashboard";
           else if (label === "Orders") href = "/orders";
@@ -120,33 +119,18 @@ export function TopNav() {
             <AlertIcon className="h-6 w-6" />
             <PowerIcon className="h-6 w-6" />
           </div>
-          <DropdownMenuItem className="text-sm py-2 px-3">
-            <Avatar className="h-7 w-7 mr-2.5">
-              <AvatarImage src="https://placehold.co/40x40.png" alt="SANSYS DOCTOR" data-ai-hint="doctor person"/>
-              <AvatarFallback><User className="h-4 w-4"/></AvatarFallback>
-            </Avatar>
-            SANSYS DOCTOR
+          <DropdownMenuItem className="py-2 px-3 text-xs">
+            <HelpCircle className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            Help Desk
           </DropdownMenuItem>
-          <DropdownMenuItem className="text-sm py-2 px-3">
-            <MapPin className="h-4 w-4 mr-2.5 text-muted-foreground" />
-            CHANGE LOCATION
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-sm py-2 px-3">
-            <Lock className="h-4 w-4 mr-2.5 text-muted-foreground" />
-            CHANGE PASSWORD
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-sm py-2 px-3">
-            <PenLine className="h-4 w-4 mr-2.5 text-muted-foreground" />
-            CHANGE SIGNATURE
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-sm py-2 px-3">
-            <PenLine className="h-4 w-4 mr-2.5 text-muted-foreground" />
-            SIGNATURE BLOCK
+          <DropdownMenuItem className="py-2 px-3 text-xs">
+            <Package className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            Product Release
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-sm py-2 px-3 text-red-600 hover:!text-red-600 hover:!bg-red-50">
+          <DropdownMenuItem className="py-2 px-3 text-xs text-red-600 hover:!text-red-600 hover:!bg-red-50">
             <LogOut className="h-4 w-4 mr-2.5" />
-            LOG OUT
+            Logout
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
