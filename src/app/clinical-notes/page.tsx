@@ -1,6 +1,7 @@
+
 'use client';
 
-import type { NextPage } from 'next';
+import type { NextPage } from 'next'; // This import will be removed if NextPage is no longer used.
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,7 +115,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
 ];
 
 
-const ClinicalNotesPage: NextPage = () => {
+const ClinicalNotesPage = () => { // Removed : NextPage type annotation
   const [activeSubNav, setActiveSubNav] = useState<string>(clinicalNotesSubNavItems[0]);
 
   // State for filters
@@ -317,3 +318,7 @@ const ClinicalNotesPage: NextPage = () => {
     </div>
   );
 };
+
+export default ClinicalNotesPage;
+
+    
