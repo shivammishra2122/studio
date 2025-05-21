@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -14,9 +15,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Edit3, CalendarDays, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 
-const verticalNavItems = [ // Renamed to pageNavItems as it's horizontal now
+const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
-  "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
+  "Chief-Complaints", "Allergies", "OPD/IPD Details"
 ];
 
 const vitalTypes = [
@@ -29,7 +30,7 @@ type VitalChartDataPoint = { name: string; value?: number; systolic?: number; di
 
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
   const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
-    if (typeof window === 'undefined') return 0; // Guard for server-side rendering
+    if (typeof window === 'undefined') return 0; 
     const val = Math.random() * (max - min) + min;
     return parseFloat(val.toFixed(toFixed));
   }
@@ -121,9 +122,9 @@ const VitalsView = () => {
   return (
     <>
       {/* Vitals Data Area */}
-      <div className="flex-[19] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[2] */}
+      <div className="flex-[19] flex flex-col border rounded-md bg-card shadow">
         {/* Header */}
-        <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Vitals</h2>
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
@@ -133,7 +134,7 @@ const VitalsView = () => {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex flex-wrap items-center space-x-2 p-2.5 border-b text-xs gap-y-2">
+        <div className="flex flex-wrap items-center space-x-2 p-2 border-b text-xs gap-y-2">
           <Label htmlFor="visitDate" className="shrink-0">Visit Date</Label>
           <Select value={visitDate} onValueChange={setVisitDate}>
             <SelectTrigger id="visitDate" className="h-8 w-28 text-xs">
@@ -166,7 +167,7 @@ const VitalsView = () => {
         </div>
 
         {/* Vitals Table Header (Date/Time) */}
-        <div className="flex items-center justify-end p-2.5 bg-accent text-foreground border-b text-xs font-medium">
+        <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
           <div className="w-20 text-center">Date</div>
           <div className="w-20 text-center">Time</div>
         </div>
@@ -189,7 +190,7 @@ const VitalsView = () => {
           </Table>
         </ScrollArea>
 
-        <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
+        <div className="flex items-center justify-center space-x-2 p-2 border-t">
           <Button size="sm" className="text-xs h-8">Vitals Entry</Button>
           <Button size="sm" className="text-xs h-8">Multiple Vitals Graph</Button>
           <Button size="sm" className="text-xs h-8">ICU Flow Sheet</Button>
@@ -197,8 +198,8 @@ const VitalsView = () => {
       </div>
 
       {/* Vitals Graph Area */}
-      <div className="flex-[31] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[3] */}
-        <div className="flex items-center p-2.5 border-b bg-card text-foreground rounded-t-md">
+      <div className="flex-[31] flex flex-col border rounded-md bg-card shadow">
+        <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
         </div>
         <div className="flex-1 p-2">
@@ -241,7 +242,7 @@ const IntakeOutputView = () => {
       {/* Patient Intake/Output Summary Area */}
       <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
           <div className="flex items-center space-x-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
@@ -254,7 +255,7 @@ const IntakeOutputView = () => {
         </div>
 
         {/* Filter Bar */}
-        <div className="flex flex-wrap items-center space-x-3 p-2.5 border-b text-xs gap-y-2">
+        <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
           <Label htmlFor="intakeFromDate" className="shrink-0">From Date</Label>
           <div className="relative">
             <Input id="intakeFromDate" type="text" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="h-8 w-36 text-xs pr-8" />
@@ -306,32 +307,32 @@ const IntakeOutputView = () => {
           </table>
         </div>
 
-        <div className="p-2.5 border-t text-xs space-y-1">
+        <div className="p-2 border-t text-xs space-y-1">
             <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
             <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
             <div className="flex justify-between"><span>Total Balanced Measured:</span><span> ml</span></div>
             <div className="text-green-600 text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
         </div>
 
-        <div className="flex items-center justify-center space-x-2 p-2.5 border-t">
-          <Button size="sm" className="text-xs h-8">Add Intake</Button>
-          <Button size="sm" className="text-xs h-8">Add Output</Button>
-          <Button size="sm" className="text-xs h-8">Update Intake</Button>
-          <Button size="sm" className="text-xs h-8">Update Output</Button>
+        <div className="flex items-center justify-center space-x-2 p-2 border-t">
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Add Intake</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Add Output</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Update Intake</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Update Output</Button>
         </div>
       </div>
 
       {/* Intake/Output Graph Area */}
-      <div className="flex-[3] flex flex-col border rounded-md bg-card shadow"> {/* Changed from flex-[5] */}
-        <div className="flex items-center p-2.5 border-b bg-card text-foreground rounded-t-md">
+      <div className="flex-[3] flex flex-col border rounded-md bg-card shadow">
+        <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 30, bottom: 5, left: -20 }}>
+            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 20, bottom: 5, left: -25 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 15, fontSize: 10, dy: 40 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -355,7 +356,7 @@ const ProblemsView = () => {
   return (
     <Card className="flex-1 flex flex-col shadow text-xs">
       {/* Header & Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md gap-y-2">
+      <div className="flex flex-wrap items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md gap-y-2">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -417,7 +418,7 @@ const ProblemsView = () => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+      <div className="flex items-center justify-between p-2 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
@@ -426,8 +427,8 @@ const ProblemsView = () => {
         </div>
       </div>
 
-       <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs h-8">New Problem</Button>
+       <div className="flex items-center justify-center p-2 border-t">
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Problem</Button>
         </div>
     </Card>
   );
@@ -442,10 +443,10 @@ const FinalDiagnosisView = () => {
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs">
-      <div className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+      <div className="p-2 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Diagnosis</h2>
       </div>
-      <div className="flex flex-wrap items-center justify-between p-2.5 border-b gap-y-2">
+      <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesDiagnosis" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -502,7 +503,7 @@ const FinalDiagnosisView = () => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+      <div className="flex items-center justify-between p-2 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
@@ -511,8 +512,8 @@ const FinalDiagnosisView = () => {
         </div>
       </div>
 
-       <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs h-8">New Diagnosis</Button>
+       <div className="flex items-center justify-center p-2 border-t">
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Diagnosis</Button>
         </div>
     </Card>
   );
@@ -528,13 +529,13 @@ const ChiefComplaintsView = () => {
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs">
-      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Chief-Complaints</h2>
         <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
-      <div className="flex flex-wrap items-center justify-between p-2.5 border-b gap-y-2">
+      <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesComplaint" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -594,7 +595,7 @@ const ChiefComplaintsView = () => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+      <div className="flex items-center justify-between p-2 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
@@ -603,8 +604,8 @@ const ChiefComplaintsView = () => {
         </div>
       </div>
 
-       <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs h-8">New Chief Complaints</Button>
+       <div className="flex items-center justify-center p-2 border-t">
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Chief Complaints</Button>
         </div>
     </Card>
   );
@@ -620,13 +621,13 @@ const AllergiesView = () => {
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs">
-      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">Allergies</h2>
         <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
-      <div className="flex flex-wrap items-center justify-between p-2.5 border-b gap-y-2">
+      <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesAllergy" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -686,7 +687,7 @@ const AllergiesView = () => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+      <div className="flex items-center justify-between p-2 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
@@ -695,8 +696,8 @@ const AllergiesView = () => {
         </div>
       </div>
 
-       <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs h-8">New Allergy</Button>
+       <div className="flex items-center justify-center p-2 border-t">
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Allergy</Button>
         </div>
     </Card>
   );
@@ -712,13 +713,13 @@ const OpdIpdDetailsView = () => {
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs">
-      <div className="flex items-center justify-between p-2.5 border-b bg-card text-foreground rounded-t-md">
+      <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
         <h2 className="text-base font-semibold">OPD/IPD Details</h2>
         <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
           <Edit3 className="h-4 w-4" />
         </Button>
       </div>
-      <div className="flex flex-wrap items-center justify-between p-2.5 border-b gap-y-2">
+      <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2">
         <div className="flex items-center space-x-2">
           <Label htmlFor="showEntriesOpdIpd" className="text-xs">Show</Label>
           <Select value={showEntries} onValueChange={setShowEntries}>
@@ -778,7 +779,7 @@ const OpdIpdDetailsView = () => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
+      <div className="flex items-center justify-between p-2 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
         <div className="flex items-center space-x-1">
           <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
@@ -787,8 +788,8 @@ const OpdIpdDetailsView = () => {
         </div>
       </div>
 
-       <div className="flex items-center justify-center p-2.5 border-t">
-          <Button size="sm" className="text-xs h-8">New OPD/IPD Entry</Button>
+       <div className="flex items-center justify-center p-2 border-t">
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New OPD/IPD Entry</Button>
         </div>
     </Card>
   );
@@ -799,17 +800,17 @@ const VitalsDashboardPage: NextPage = () => {
   const [activeVerticalTab, setActiveVerticalTab] = useState<string>("Vitals");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pt-2 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+      <div className="flex items-end space-x-1 px-1 pt-2 pb-1 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
             onClick={() => setActiveVerticalTab(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeVerticalTab === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-background shadow-sm relative -mb-px z-10' // Active tab
-                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground border-x border-t border-transparent' // Inactive tab
+                ? 'bg-background text-primary border-x border-t border-border border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >
             {item}
@@ -827,10 +828,9 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Allergies" && <AllergiesView />}
         {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
         
-        {/* Placeholder for other views not yet implemented (Orders, Clinical Notes) */}
-         {![
+        {![
             "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
-            "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
+            "Chief-Complaints", "Allergies", "OPD/IPD Details"
           ].includes(activeVerticalTab) && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
@@ -847,3 +847,4 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
+update the code
