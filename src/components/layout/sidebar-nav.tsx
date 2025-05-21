@@ -71,7 +71,7 @@ export function SidebarNav() {
           </Avatar>
           <div className="mt-2 w-full px-4 text-center"> {/* UID container */}
             <p className="text-sm font-medium text-sidebar-primary-foreground">
-              UID: 2734577854
+              UHID: 2734577854
             </p>
           </div>
           <div className="text-center">
