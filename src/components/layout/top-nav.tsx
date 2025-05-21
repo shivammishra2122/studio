@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, MoreVertical, HelpCircle, Package, LogOut } from 'lucide-react';
+import { Menu, MoreVertical, MapPin, Lock, PenLine, LogOut, HelpCircle, Package, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,11 +13,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
   "Emergency Care", "Postmortem", "Nursing", "Referral", "Lab", "Radiology",
-  "Blood Center", "Report"
+  "Report" // BI removed, Report is separate
 ];
 
 // Custom SVG Icon Components for the dropdown header
@@ -78,7 +79,7 @@ export function TopNav() {
 
           const isActive = pathname === href && href !== "#";
           
-          if (href === "#") {
+          if (href === "#") { // For buttons that are not links yet
              return (
                 <Button
                 key={label}
@@ -113,28 +114,44 @@ export function TopNav() {
             <span className="sr-only">More options</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-60"> {/* Increased width for better layout */}
+        <DropdownMenuContent align="end" className="w-60">
           <div className="flex items-center justify-end space-x-2 p-2 border-b mb-1">
             <HeadsetIcon className="h-6 w-6" />
             <AlertIcon className="h-6 w-6" />
             <PowerIcon className="h-6 w-6" />
           </div>
           <DropdownMenuItem className="py-2 px-3 text-xs">
-            <HelpCircle className="h-4 w-4 mr-2.5 text-muted-foreground" />
-            Help Desk
+            <Avatar className="h-5 w-5 mr-2.5">
+              <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="person user" />
+              <AvatarFallback className="text-xs">
+                <User className="h-3 w-3" /> 
+              </AvatarFallback>
+            </Avatar>
+            SANSYS DOCTOR
           </DropdownMenuItem>
           <DropdownMenuItem className="py-2 px-3 text-xs">
-            <Package className="h-4 w-4 mr-2.5 text-muted-foreground" />
-            Product Release
+            <MapPin className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            CHANGE LOCATION
+          </DropdownMenuItem>
+          <DropdownMenuItem className="py-2 px-3 text-xs">
+            <Lock className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            CHANGE PASSWORD
+          </DropdownMenuItem>
+          <DropdownMenuItem className="py-2 px-3 text-xs">
+            <PenLine className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            CHANGE SIGNATURE
+          </DropdownMenuItem>
+          <DropdownMenuItem className="py-2 px-3 text-xs">
+            <PenLine className="h-4 w-4 mr-2.5 text-muted-foreground" />
+            SIGNATURE BLOCK
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="py-2 px-3 text-xs text-red-600 hover:!text-red-600 hover:!bg-red-50">
             <LogOut className="h-4 w-4 mr-2.5" />
-            Logout
+            LOG OUT
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );
 }
-
