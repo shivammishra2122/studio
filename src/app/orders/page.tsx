@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -9,7 +10,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, FileEdit, RefreshCw, CalendarDays, ArrowUpDown, Ban, FileText } from 'lucide-react';
+import { 
+  Settings, 
+  FileEdit, 
+  RefreshCw, 
+  CalendarDays, 
+  ArrowUpDown, 
+  Ban, 
+  FileText,
+  Printer,
+  Download,
+  Filter,
+  PenLine
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const orderSubNavItems = [
@@ -33,11 +46,11 @@ type OrderDataType = {
 };
 
 const mockOrderData: OrderDataType[] = [
-  { id: '1', service: 'Lab', order: 'CBC with Differential', startDate: '10 Sep 2024', startTime: '09:00', provider: 'Dr. Smith', status: 'Completed', location: 'Main Lab' },
-  { id: '2', service: 'Radiology', order: 'Chest X-Ray, PA and Lateral', startDate: '10 Sep 2024', startTime: '10:30', stopDate: '10 Sep 2024', stopTime: '11:00', provider: 'Dr. Jones', status: 'Pending', location: 'Radiology Dept.' },
-  { id: '3', service: 'Pharmacy', order: 'Amoxicillin 500mg Cap', startDate: '11 Sep 2024', startTime: '08:00', provider: 'Dr. Brown', status: 'Completed', location: 'Inpatient Pharmacy' },
-  { id: '4', service: 'Dietary', order: 'NPO after midnight', startDate: '11 Sep 2024', startTime: '00:01', provider: 'Dr. White', status: 'Pending', location: 'Patient Room' },
-  { id: '5', service: 'Consult', order: 'Cardiology Consult', startDate: '12 Sep 2024', startTime: '14:00', provider: 'Dr. Green', status: 'Cancelled', location: 'Cardiology Clinic' },
+    { id: '1', service: 'Lab', order: 'CBC with Differential', startDate: '10 Sep 2024', startTime: '09:00', provider: 'Dr. Smith', status: 'Completed', location: 'Main Lab' },
+    { id: '2', service: 'Radiology', order: 'Chest X-Ray, PA and Lateral', startDate: '10 Sep 2024', startTime: '10:30', stopDate: '10 Sep 2024', stopTime: '11:00', provider: 'Dr. Jones', status: 'Pending', location: 'Radiology Dept.' },
+    { id: '3', service: 'Pharmacy', order: 'Amoxicillin 500mg Cap', startDate: '11 Sep 2024', startTime: '08:00', provider: 'Dr. Brown', status: 'Completed', location: 'Inpatient Pharmacy' },
+    { id: '4', service: 'Dietary', order: 'NPO after midnight', startDate: '11 Sep 2024', startTime: '00:01', provider: 'Dr. White', status: 'Pending', location: 'Patient Room' },
+    { id: '5', service: 'Consult', order: 'Cardiology Consult', startDate: '12 Sep 2024', startTime: '14:00', provider: 'Dr. Green', status: 'Cancelled', location: 'Cardiology Clinic' },
 ];
 
 // Type for IP Medication List
@@ -248,9 +261,12 @@ const IpMedicationView = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">IPD Medication List</CardTitle>
           <div className="flex items-center space-x-1">
-            {/* Placeholder for icons from image: Pen, Marker, Pencil, Refresh */}
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><FileEdit className="h-4 w-4" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><RefreshCw className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><Settings className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><Printer className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><Download className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><Filter className="h-4 w-4" /></Button>
           </div>
         </div>
       </ShadcnCardHeader>
@@ -344,7 +360,7 @@ const IpMedicationView = () => {
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{med.status}</TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.orderedBy}</TableCell>
-                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3">{med.medicationDay}</TableCell>
