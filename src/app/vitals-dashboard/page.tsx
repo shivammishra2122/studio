@@ -30,7 +30,7 @@ type VitalChartDataPoint = { name: string; value?: number; systolic?: number; di
 
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
   const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
-    if (typeof window === 'undefined') return 0; 
+    if (typeof window === 'undefined') return 0;
     const val = Math.random() * (max - min) + min;
     return parseFloat(val.toFixed(toFixed));
   }
@@ -191,9 +191,9 @@ const VitalsView = () => {
         </ScrollArea>
 
         <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs h-8">Vitals Entry</Button>
-          <Button size="sm" className="text-xs h-8">Multiple Vitals Graph</Button>
-          <Button size="sm" className="text-xs h-8">ICU Flow Sheet</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Vitals Entry</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Multiple Vitals Graph</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">ICU Flow Sheet</Button>
         </div>
       </div>
 
@@ -311,14 +311,14 @@ const IntakeOutputView = () => {
             <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
             <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
             <div className="flex justify-between"><span>Total Balanced Measured:</span><span> ml</span></div>
-            <div className="text-green-600 text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
+            <div className="text-primary text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
         </div>
 
         <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Add Intake</Button>
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Add Output</Button>
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Update Intake</Button>
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">Update Output</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Add Intake</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Add Output</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Update Intake</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Update Output</Button>
         </div>
       </div>
 
@@ -329,10 +329,10 @@ const IntakeOutputView = () => {
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 20, bottom: 5, left: -25 }}>
+            <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 20, bottom: 5, left: -15 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 15, fontSize: 10, dy: 40 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 15, fontSize: 10, dy: 45 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -428,7 +428,7 @@ const ProblemsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Problem</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Problem</Button>
         </div>
     </Card>
   );
@@ -513,7 +513,7 @@ const FinalDiagnosisView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Diagnosis</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Diagnosis</Button>
         </div>
     </Card>
   );
@@ -605,7 +605,7 @@ const ChiefComplaintsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Chief Complaints</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Chief Complaints</Button>
         </div>
     </Card>
   );
@@ -697,7 +697,7 @@ const AllergiesView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New Allergy</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Allergy</Button>
         </div>
     </Card>
   );
@@ -789,7 +789,7 @@ const OpdIpdDetailsView = () => {
       </div>
 
        <div className="flex items-center justify-center p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90">New OPD/IPD Entry</Button>
+          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New OPD/IPD Entry</Button>
         </div>
     </Card>
   );
@@ -802,7 +802,7 @@ const VitalsDashboardPage: NextPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pt-2 pb-1 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+      <div className="flex items-end space-x-1 px-1 pt-2 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
@@ -847,4 +847,5 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-update the code
+
+update code
