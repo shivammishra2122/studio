@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
@@ -30,7 +30,7 @@ type VitalChartDataPoint = { name: string; value?: number; systolic?: number; di
 
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
   const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
-    if (typeof window === 'undefined') return 0;
+    if (typeof window === 'undefined') return 0; // Guard against SSR for Math.random
     const val = Math.random() * (max - min) + min;
     return parseFloat(val.toFixed(toFixed));
   }
@@ -109,7 +109,7 @@ const mockIntakeOutputChartData = [
 const VitalsView = () => {
   const [visitDate, setVisitDate] = useState<string | undefined>();
   const [fromDate, setFromDate] = useState<string>("");
-  const [toDate, setToDate] = useState<string>("");
+  const [toDateValue, setToDateValue] = useState<string>("");
   const [selectedVitalForGraph, setSelectedVitalForGraph] = useState<string>(vitalTypes[0]);
   const [chartData, setChartData] = useState<VitalChartDataPoint[]>([]);
 
@@ -158,7 +158,7 @@ const VitalsView = () => {
           <div className="flex items-center space-x-1">
             <Label htmlFor="toDate" className="shrink-0">To</Label>
              <div className="relative">
-              <Input id="toDate" type="text" value={toDate} onChange={(e) => setToDate(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
+              <Input id="toDate" type="text" value={toDateValue} onChange={(e) => setToDateValue(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
                <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                   <CalendarDays className="h-4 w-4" />
               </Button>
@@ -232,7 +232,7 @@ const VitalsView = () => {
 
 const IntakeOutputView = () => {
   const [fromDate, setFromDate] = useState<string>("05/16/2025 14:5");
-  const [toDate, setToDate] = useState<string>("05/17/2025 14:5");
+  const [toDateValue, setToDateValue] = useState<string>("05/17/2025 14:5");
 
   const inputHeaders = ["IV FLUID", "BLOOD PRODUCT", "PO", "TUBE FEEDING", "INFUSION", "OTHER"];
   const outputHeaders = ["URINE", "N/G", "EMESIS", "DRAINAGE", "FAECES"];
@@ -265,7 +265,7 @@ const IntakeOutputView = () => {
           </div>
           <Label htmlFor="intakeToDate" className="shrink-0">To Date</Label>
            <div className="relative">
-            <Input id="intakeToDate" type="text" value={toDate} onChange={(e) => setToDate(e.target.value)} className="h-8 w-36 text-xs pr-8" />
+            <Input id="intakeToDate" type="text" value={toDateValue} onChange={(e) => setToDateValue(e.target.value)} className="h-8 w-36 text-xs pr-8" />
              <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                 <CalendarDays className="h-4 w-4" />
             </Button>
@@ -332,7 +332,7 @@ const IntakeOutputView = () => {
             <LineChart data={mockIntakeOutputChartData} margin={{ top: 5, right: 20, bottom: 5, left: -15 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: 0, fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 15, fontSize: 10, dy: 45 }} />
+              <YAxis tick={{ fontSize: 10 }} label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }} />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
               <Line type="monotone" dataKey="series1" name="Series 1" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -809,7 +809,7 @@ const VitalsDashboardPage: NextPage = () => {
             onClick={() => setActiveVerticalTab(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeVerticalTab === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                ? 'bg-background text-primary border-x border-t border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
                 : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >
@@ -847,5 +847,3 @@ const VitalsDashboardPage: NextPage = () => {
 };
 
 export default VitalsDashboardPage;
-
-update code
