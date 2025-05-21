@@ -43,11 +43,11 @@ const mockOrderData: OrderDataType[] = [
 
 const OrdersPage: NextPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
-  const [visitDate, setVisitDate] = useState<string | undefined>();
+  const [visitDate, setVisitDate] = useState<string | undefined>("10 Sep 2024 - OPD");
   const [orderFromDate, setOrderFromDate] = useState<string>("10/09/2024");
   const [orderToDate, setOrderToDate] = useState<string>("10/09/2024");
-  const [serviceFilter, setServiceFilter] = useState<string | undefined>();
-  const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [serviceFilter, setServiceFilter] = useState<string | undefined>("All");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
   const [showEntries, setShowEntries] = useState<string>("10");
   const [searchText, setSearchText] = useState<string>("");
 
@@ -56,16 +56,18 @@ const OrdersPage: NextPage = () => {
 
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-center space-x-0.5 border-b border-border px-1 pb-1 mb-3 overflow-x-auto no-scrollbar bg-card">
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
           <Button
             key={item}
-            variant={activeOrderSubNav === item ? "default" : "ghost"}
-            size="sm"
-            className={`text-xs px-2 py-1 h-7 whitespace-nowrap ${activeOrderSubNav === item ? 'hover:bg-primary hover:text-primary-foreground' : 'hover:bg-accent hover:text-foreground'}`}
             onClick={() => setActiveOrderSubNav(item)}
+            className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
+              ${activeOrderSubNav === item
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
+              }`}
           >
             {item}
           </Button>
@@ -96,54 +98,60 @@ const OrdersPage: NextPage = () => {
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bars */}
               <div className="space-y-2 mb-2">
-                <div className="flex items-center space-x-2 text-xs">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
                   <Label htmlFor="orderVisitDate" className="shrink-0">Visit Date</Label>
                   <Select value={visitDate} onValueChange={setVisitDate}>
-                    <SelectTrigger id="orderVisitDate" className="h-7 w-36 text-xs">
+                    <SelectTrigger id="orderVisitDate" className="h-7 w-40 text-xs"> {/* Adjusted width */}
                       <SelectValue placeholder="Select Visit" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="visit1">10 Sep 2024 - OPD</SelectItem>
+                      <SelectItem value="10 Sep 2024 - OPD">10 Sep 2024 - OPD</SelectItem>
+                      {/* Add other visit options if needed */}
                     </SelectContent>
                   </Select>
+
                   <Label htmlFor="orderService" className="shrink-0">Service</Label>
                    <Select value={serviceFilter} onValueChange={setServiceFilter}>
                     <SelectTrigger id="orderService" className="h-7 w-32 text-xs">
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="lab">Laboratory</SelectItem>
-                      <SelectItem value="radiology">Radiology</SelectItem>
-                      <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                      <SelectItem value="All">All</SelectItem>
+                      <SelectItem value="Lab">Laboratory</SelectItem>
+                      <SelectItem value="Radiology">Radiology</SelectItem>
+                      <SelectItem value="Pharmacy">Pharmacy</SelectItem>
+                      <SelectItem value="Dietary">Dietary</SelectItem>
+                      <SelectItem value="Consult">Consult</SelectItem>
                     </SelectContent>
                   </Select>
+
                   <Label htmlFor="orderStatus" className="shrink-0">Status</Label>
                    <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger id="orderStatus" className="h-7 w-28 text-xs">
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="All">All</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
+
                   <Label htmlFor="orderFromDate" className="shrink-0">Order From</Label>
                   <div className="relative">
                     <Input id="orderFromDate" type="text" value={orderFromDate} onChange={e => setOrderFromDate(e.target.value)} className="h-7 w-28 text-xs pr-7" />
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   </div>
                 </div>
-                <div className="flex items-center space-x-2 text-xs">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
                   <Label htmlFor="orderToDate" className="shrink-0">Order To</Label>
                   <div className="relative">
                     <Input id="orderToDate" type="text" value={orderToDate} onChange={e => setOrderToDate(e.target.value)} className="h-7 w-28 text-xs pr-7" />
                     <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   </div>
                    <div className="flex items-center space-x-1 ml-auto"> {/* Pushes to right */}
-                    <Label htmlFor="orderShowEntries" className="text-xs">Show</Label>
+                    <Label htmlFor="orderShowEntries" className="text-xs shrink-0">Show</Label>
                     <Select value={showEntries} onValueChange={setShowEntries}>
                         <SelectTrigger id="orderShowEntries" className="h-7 w-16 text-xs">
                         <SelectValue />
@@ -154,7 +162,7 @@ const OrdersPage: NextPage = () => {
                         <SelectItem value="50">50</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Label htmlFor="orderShowEntries" className="text-xs">entries</Label>
+                    <Label htmlFor="orderShowEntries" className="text-xs shrink-0">entries</Label>
                     </div>
                   <Label htmlFor="orderSearch" className="shrink-0">Search:</Label>
                   <Input id="orderSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
@@ -162,50 +170,55 @@ const OrdersPage: NextPage = () => {
               </div>
 
               {/* Table */}
-              <ScrollArea className="flex-1">
-                <Table className="text-xs">
-                  <TableHeader className="bg-muted/50 sticky top-0 z-10">
-                    <TableRow>
-                      {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                        <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8">
-                          <div className="flex items-center justify-between">
-                            {header}
-                            <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                          </div>
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredOrders.length > 0 ? filteredOrders.map(order => (
-                      <TableRow key={order.id}>
-                        <TableCell className="py-1.5 px-3">{order.service}</TableCell>
-                        <TableCell className="py-1.5 px-3">{order.order}</TableCell>
-                        <TableCell className="py-1.5 px-3">
-                          <div>Start: {order.startDate} {order.startTime}</div>
-                          {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
-                        </TableCell>
-                        <TableCell className="py-1.5 px-3">{order.provider}</TableCell>
-                        <TableCell className="py-1.5 px-3">
-                          <Badge 
-                            variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}
-                            className={`text-xs px-1.5 py-0.5 ${order.status === 'Completed' ? 'bg-green-100 text-green-800 border-green-300' : order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-red-100 text-red-800 border-red-300'}`}
-                           >
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="py-1.5 px-3">{order.location}</TableCell>
-                      </TableRow>
-                    )) : (
+              <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <Table className="text-xs">
+                    <TableHeader className="bg-accent sticky top-0 z-10">
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                          No orders found.
-                        </TableCell>
+                        {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
+                          <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
+                            <div className="flex items-center justify-between">
+                              {header}
+                              <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                            </div>
+                          </TableHead>
+                        ))}
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredOrders.length > 0 ? filteredOrders.map((order, index) => (
+                        <TableRow key={order.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                          <TableCell className="py-1.5 px-3">{order.service}</TableCell>
+                          <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                          <TableCell className="py-1.5 px-3 whitespace-nowrap">
+                            <div>Start: {order.startDate} {order.startTime}</div>
+                            {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
+                          </TableCell>
+                          <TableCell className="py-1.5 px-3 whitespace-nowrap">{order.provider}</TableCell>
+                          <TableCell className="py-1.5 px-3 whitespace-nowrap">
+                            <Badge 
+                              variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}
+                              className={`text-xs px-1.5 py-0.5 
+                                ${order.status === 'Completed' ? 'bg-green-100 text-green-700 border border-green-300' : 
+                                  order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : 
+                                  'bg-red-100 text-red-700 border border-red-300'}`}
+                            >
+                              {order.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="py-1.5 px-3">{order.location}</TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                            No orders found.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </div>
 
               {/* Footer */}
               <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
