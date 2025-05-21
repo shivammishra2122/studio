@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle as ShadcnCardTitle } from '@/components/ui/card'; // Renamed CardTitle to avoid conflict
-import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog'; // Renamed DialogTitle to avoid conflict
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X } from 'lucide-react';
 
 const clinicalNotesSubNavItems = [
@@ -219,8 +219,8 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
 
-              {/* Table Container */}
-              <div className="flex-1 overflow-y-auto no-scrollbar min-h-0"> 
+              {/* Table Container: This div will handle both vertical and horizontal scrolling */}
+              <div className="flex-1 overflow-auto"> 
                 <Table className="text-xs min-w-[80rem]"> 
                   <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
@@ -260,9 +260,9 @@ const ClinicalNotesPage: NextPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -290,9 +290,9 @@ const ClinicalNotesPage: NextPage = () => {
          {activeSubNav !== "Notes View" && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
-              <ShadcnCardTitle className="text-xl text-muted-foreground">
+              <CardTitle className="text-xl text-muted-foreground">
                 {activeSubNav} View
-              </ShadcnCardTitle>
+              </CardTitle>
               <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
             </CardContent>
           </Card>
@@ -323,3 +323,5 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
+
+    
