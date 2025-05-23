@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -119,6 +120,7 @@ const ClinicalNotesPage = () => {
 
   // State for Note Detail 
   const [selectedNoteContent, setSelectedNoteContent] = useState<string>("");
+  const [isNoteDetailDialogOpen, setIsNoteDetailDialogOpen] = useState(false); // Re-added this line
 
   const filteredNotes = mockNoteEntries;
 
@@ -328,3 +330,5 @@ const ClinicalNotesPage = () => {
 };
 
 export default ClinicalNotesPage;
+
+
