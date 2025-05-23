@@ -1,8 +1,7 @@
-
 'use client';
 
 import type { NextPage } from 'next';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, FileSignature, X, ImageUp } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Keep ScrollArea for the dialog content
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -105,7 +104,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
 ];
 
 
-const ClinicalNotesPage: NextPage = () => { 
+const ClinicalNotesPage = () => { 
   const [activeSubNav, setActiveSubNav] = useState<string>(clinicalNotesSubNavItems[0]);
 
   // State for filters
@@ -159,62 +158,62 @@ const ClinicalNotesPage: NextPage = () => {
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar - Single Line */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
-                  <Label htmlFor="groupBy" className="shrink-0">Group By</Label>
+                  <Label htmlFor="groupBy" className="shrink-0 text-xs">Group By</Label>
                   <Select value={groupBy} onValueChange={setGroupBy}>
-                    <SelectTrigger id="groupBy" className="h-7 w-28 text-xs">
-                      <SelectValue placeholder="Visit Date" />
+                    <SelectTrigger id="groupBy" className="h-6 w-28 text-xs">
+                      <SelectValue placeholder="Visit Date" className="text-xs" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="visitDate">Visit Date</SelectItem>
-                      <SelectItem value="patient">Patient</SelectItem>
-                      <SelectItem value="author">Author</SelectItem>
+                      <SelectItem value="visitDate" className="text-xs">Visit Date</SelectItem>
+                      <SelectItem value="patient" className="text-xs">Patient</SelectItem>
+                      <SelectItem value="author" className="text-xs">Author</SelectItem>
                     </SelectContent>
                   </Select>
 
-                  <Label htmlFor="selectedDate" className="shrink-0">Select</Label>
+                  <Label htmlFor="selectedDate" className="shrink-0 text-xs">Select</Label>
                   <div className="relative">
-                      <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-7 w-32 text-xs pr-7" />
-                      <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-6 w-32 text-xs pr-7" />
+                      <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   </div>
 
-                  <Label htmlFor="statusFilter" className="shrink-0">Status</Label>
+                  <Label htmlFor="statusFilter" className="shrink-0 text-xs">Status</Label>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger id="statusFilter" className="h-7 w-24 text-xs">
-                      <SelectValue placeholder="ALL" />
+                    <SelectTrigger id="statusFilter" className="h-6 w-24 text-xs">
+                      <SelectValue placeholder="ALL" className="text-xs" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">ALL</SelectItem>
-                      <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                      <SelectItem value="PENDING">PENDING</SelectItem>
-                      <SelectItem value="DRAFT">DRAFT</SelectItem>
-                      <SelectItem value="UNSIGNED">UNSIGNED</SelectItem>
+                      <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+                      <SelectItem value="COMPLETED" className="text-xs">COMPLETED</SelectItem>
+                      <SelectItem value="PENDING" className="text-xs">PENDING</SelectItem>
+                      <SelectItem value="DRAFT" className="text-xs">DRAFT</SelectItem>
+                      <SelectItem value="UNSIGNED" className="text-xs">UNSIGNED</SelectItem>
                     </SelectContent>
                   </Select>
 
-                  <Label htmlFor="fromDate" className="shrink-0">From Date</Label>
+                  <Label htmlFor="fromDate" className="shrink-0 text-xs">From Date</Label>
                    <div className="relative">
-                      <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
-                      <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-6 w-24 text-xs pr-7" />
+                      <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   </div>
               
-                  <Label htmlFor="toDate" className="shrink-0">To</Label>
+                  <Label htmlFor="toDate" className="shrink-0 text-xs">To</Label>
                   <div className="relative">
-                      <Input id="toDate" type="text" value={toDateValue} onChange={e => setToDateValue(e.target.value)} className="h-7 w-24 text-xs pr-7" />
-                      <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Input id="toDate" type="text" value={toDateValue} onChange={e => setToDateValue(e.target.value)} className="h-6 w-24 text-xs pr-7" />
+                      <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   </div>
                   
-                  <Label htmlFor="notesSearch" className="shrink-0">Search:</Label>
-                  <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-28 text-xs" />
+                  <Label htmlFor="notesSearch" className="shrink-0 text-xs">Search:</Label>
+                  <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-6 w-28 text-xs" />
               </div>
 
               <div className="flex-1 overflow-auto min-h-0"> 
-                <Table className="text-xs w-full"> {/* Removed min-w-[80rem] */}
+                <Table className="text-xs w-full"> 
                   <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        { name: "Notes Title", className: "" }, // Removed min-w
-                        { name: "Date of Entry", className: "" }, // Removed whitespace-nowrap 
-                        { name: "Status", className: "" }, // Removed whitespace-nowrap
+                        { name: "Notes Title", className: "min-w-[8rem]" }, 
+                        { name: "Date of Entry", className: "" }, 
+                        { name: "Status", className: "" }, 
                         { name: "Sign" }, 
                         { name: "Edit" },
                         { name: "Action" }, 
@@ -223,9 +222,9 @@ const ClinicalNotesPage: NextPage = () => {
                         { name: "Cosigner", className: "" },
                         { name: "Image Upload" }
                       ].map(header => (
-                        <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-auto ${header.className || ''}`}> {/* Changed h-8 to h-auto, removed whitespace-nowrap */}
+                        <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-auto ${header.className || ''}`}> 
                           <div className="flex items-center justify-between">
-                            <span className="break-words">{header.name}</span> {/* Allow header text to wrap */}
+                            <span className="break-words text-xs">{header.name}</span> 
                             <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
                           </div>
                         </TableHead>
@@ -235,9 +234,9 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                        <TableCell className="py-1.5 px-3">{truncateText(note.notesTitle, 40)}</TableCell> {/* Removed min-w */}
-                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> {/* Removed whitespace-nowrap */}
-                        <TableCell className="py-1.5 px-3">{note.status}</TableCell> {/* Removed whitespace-nowrap */}
+                        <TableCell className="py-1.5 px-3 min-w-[8rem]">{truncateText(note.notesTitle, 40)}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
+                        <TableCell className="py-1.5 px-3">{note.status}</TableCell> 
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSignature className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -308,4 +307,3 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
-
