@@ -1,6 +1,5 @@
 'use client';
 
-import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -296,15 +295,11 @@ const CpoeOrderListView = () => {
 const IpMedicationView = () => {
   const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
   
-  // State for "Order Medicines" Dialog
   const [isAddIpMedicationDialogOpen, setIsAddIpMedicationDialogOpen] = useState(false);
   const [orderMedicationName, setOrderMedicationName] = useState('');
   const [orderQuickOrder, setOrderQuickOrder] = useState('');
   const [isMedicationPopoverOpen, setIsMedicationPopoverOpen] = useState(false);
   
-
-
-  // State for filters
   const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:4");
   const [scheduleType, setScheduleType] = useState<string | undefined>();
   const [status, setStatus] = useState<string | undefined>();
@@ -320,9 +315,7 @@ const IpMedicationView = () => {
   };
 
   const handleConfirmOrder = () => {
-    // For now, just log and close. Actual order creation would go here.
     console.log("Order Confirmed:", { medicationName: orderMedicationName, quickOrder: orderQuickOrder });
-    // Add to ipMedicationList for demonstration
     if (orderMedicationName.trim()) {
         const newMed: IpMedicationEntryDataType = {
             id: Date.now().toString(),
@@ -484,7 +477,7 @@ const IpMedicationView = () => {
       </CardContent>
 
       <Dialog open={isAddIpMedicationDialogOpen} onOpenChange={setIsAddIpMedicationDialogOpen}>
-        <DialogContent className="max-w-6xl p-0 overflow-hidden">
+        <DialogContent className="w-screen h-screen sm:w-[95vw] sm:h-[90vh] p-0 flex flex-col">
           <div className="bg-sky-100 p-3">
             <h2 className="text-lg font-semibold text-sky-800">Order Medicines</h2>
           </div>
@@ -495,9 +488,9 @@ const IpMedicationView = () => {
             <span>Sex : MALE</span>
             <span>Patient Type : In Patient</span>
           </div>
-          <div className="p-6 space-y-6">
+          
+          <div className="flex-1 overflow-y-auto p-6 space-y-6"> {/* Main scrollable form area */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-              
                 <div className="space-y-1">
                   <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
                   <Popover open={isMedicationPopoverOpen} onOpenChange={setIsMedicationPopoverOpen}>
@@ -557,15 +550,20 @@ const IpMedicationView = () => {
                   <Button type="button" className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">Edit Quick List</Button>
                 </div>
             </div>
-            {/* Placeholder for more form fields that might appear after medication selection */}
+            
             {orderMedicationName && (
                 <div className="mt-6 border-t pt-6">
                     <p className="text-sm text-muted-foreground">Further configuration for: <span className="font-semibold text-foreground">{orderMedicationName}</span></p>
-                    {/* Add more detailed form inputs here (e.g., Dosage, Route, Frequency) */}
-                    {/* These would be controlled by additional state variables */}
+                    {/* Placeholder for more detailed form inputs */}
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div><Label htmlFor="dosage">Dosage</Label><Input id="dosage" placeholder="e.g., 500mg" /></div>
+                        <div><Label htmlFor="route">Route</Label><Input id="route" placeholder="e.g., PO" /></div>
+                        <div><Label htmlFor="frequency">Frequency</Label><Input id="frequency" placeholder="e.g., BID" /></div>
+                    </div>
                 </div>
             )}
           </div>
+
           <div className="flex justify-center space-x-4 p-4 pt-2 border-t border-gray-200">
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleConfirmOrder}>Confirm Order</Button>
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleResetOrderForm}>Reset</Button>
@@ -579,15 +577,14 @@ const IpMedicationView = () => {
         </DialogContent>
       </Dialog>
     </Card>
-  );
+  )
 };
-
 
 const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
