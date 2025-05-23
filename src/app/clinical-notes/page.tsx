@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -11,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, FileSignature, X, ImageUp } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardTitle } from '@/components/ui/card'; // Added Card, CardContent, CardTitle
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -22,7 +22,7 @@ type NoteEntryDataType = {
   id: string;
   notesTitle: string; 
   dateOfEntry: string;
-  status: "COMPLETED" | "UNSIGNED" | "DRAFT" | "PENDING"; // Added UNSIGNED
+  status: "COMPLETED" | "UNSIGNED" | "DRAFT" | "PENDING";
   author: string;
   location: string;
   cosigner?: string;
@@ -36,7 +36,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'UNSIGNED',
     author: 'Sansys Doctor',
     location: 'ICU ONE',
-    cosigner: '', // Empty as per image
+    cosigner: '', 
   },
   {
     id: '2',
@@ -45,18 +45,17 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'UNSIGNED',
     author: 'Sansys Doctor',
     location: 'ICU ONE',
-    cosigner: '', // Empty as per image
+    cosigner: '', 
   },
   {
     id: '3',
-    notesTitle: 'Initial Assessment - Orthopedics',
+    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
     dateOfEntry: '15 MAY, 2025 20:05',
     status: 'COMPLETED',
-    author: 'Sansys Doctor',
-    location: 'ICU ONE',
-    cosigner: '', // Empty as per image
+    author: 'Sansys Doctor Primary Care Physician',
+    location: 'ICU ONE - General Ward, Bed 103B, Room A',
+    cosigner: 'Dr. Jane Doe Supervising Physician'
   },
-  // Added more mock entries to ensure scrolling
   {
     id: '4',
     notesTitle: 'Routine Checkup - General Medicine. Patient reports feeling well overall. Discussed annual vaccinations and preventative care. No acute complaints.',
@@ -110,8 +109,8 @@ const ClinicalNotesPage = () => {
 
   // State for filters
   const [groupBy, setGroupBy] = useState<string>("visitDate");
-  const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45"); // Default from image
-  const [statusFilter, setStatusFilter] = useState<string>("ALL"); // Default from image
+  const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45"); 
+  const [statusFilter, setStatusFilter] = useState<string>("ALL"); 
   const [fromDate, setFromDate] = useState<string>("");
   const [toDateValue, setToDateValue] = useState<string>(""); 
   const [searchText, setSearchText] = useState<string>("");
@@ -216,15 +215,15 @@ const ClinicalNotesPage = () => {
                     <TableRow>
                       {[
                         { name: "Notes Title", className: "min-w-[15rem]" }, 
-                        { name: "Date of Entry", className: "whitespace-nowrap" }, 
+                        { name: "Date of Entry", className: "" }, // Removed whitespace-nowrap
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
                         { name: "Edit" },
                         { name: "Delete" },
                         { name: "Action" }, 
-                        { name: "Author", className: "" }, 
-                        { name: "Location", className: "" }, 
-                        { name: "Cosigner", className: "" }, 
+                        { name: "Author", className: "whitespace-nowrap" }, 
+                        { name: "Location", className: "whitespace-nowrap" }, 
+                        { name: "Cosigner", className: "whitespace-nowrap" }, 
                         { name: "Image Upload" }
                       ].map(header => (
                         <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 ${header.className || 'whitespace-nowrap'}`}>
@@ -240,7 +239,7 @@ const ClinicalNotesPage = () => {
                     {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                         <TableCell className="py-1.5 px-3 min-w-[15rem]">{truncateText(note.notesTitle, 100)}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
+                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> {/* Removed whitespace-nowrap */}
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSignature className="h-3.5 w-3.5" /></Button>
@@ -254,9 +253,9 @@ const ClinicalNotesPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
