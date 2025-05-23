@@ -1,13 +1,12 @@
+
 'use client';
 
-import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-// ScrollArea removed
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Settings, 
@@ -22,7 +21,8 @@ import {
   Filter,
   PenLine
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+// Badge component is not used in CpoeOrderListView status after previous changes
+// import { Badge } from '@/components/ui/badge'; 
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -34,13 +34,13 @@ type OrderDataType = {
   id: string;
   service: string;
   order: string;
-  orderNote?: string;
+  orderNote?: string; // Added for CPOE Order List image
   startDate: string;
   startTime: string;
   stopDate?: string;
   stopTime?: string;
   provider: string;
-  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled";
+  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled"; // Added UNRELEASED, ACTIVE
   location: string;
 };
 
@@ -233,7 +233,7 @@ const CpoeOrderListView = () => {
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-xs text-foreground h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -290,8 +290,8 @@ const IpMedicationView = () => {
   const [status, setStatus] = useState<string | undefined>();
   const [orderFrom, setOrderFrom] = useState<string>("");
   const [orderTo, setOrderTo] = useState<string>("");
-  // const [showEntries, setShowEntries] = useState<string>("All"); // Removed as per image
-  // const [searchText, setSearchText] = useState<string>(""); // Removed as per image
+  const [showEntries, setShowEntries] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
 
   const filteredMedications = mockIpMedicationData;
 
@@ -313,10 +313,12 @@ const IpMedicationView = () => {
         </div>
       </ShadcnCardHeader>
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mb-2 text-xs"> {/* Single row for filters */}
+        <div className="space-y-2 mb-2 text-xs">
+          {/* First row of filters */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
-              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs">
+              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs"> {/* Adjusted width */}
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -325,7 +327,7 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipScheduleType" className="shrink-0">Schedule Type</Label>
             <Select value={scheduleType} onValueChange={setScheduleType}>
-              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs">
+              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs"> {/* Adjusted width */}
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -336,32 +338,54 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipStatus" className="shrink-0">Status</Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs">
+              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs"> {/* Adjusted width */}
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">ACTIVE</SelectItem>
                 <SelectItem value="hold">HOLD</SelectItem>
+                <SelectItem value="unreleased">UNRELEASED</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
             <div className="relative">
-              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* Adjusted width */}
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
             <Label htmlFor="ipOrderTo" className="shrink-0">Order To</Label>
             <div className="relative">
-              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* Adjusted width */}
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
+          </div>
+          {/* Second row of filters */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="ipShowEntries" className="h-7 w-16 text-xs"> {/* Adjusted width */}
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="ipShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="ipSearch" className="shrink-0">Search:</Label>
+            <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" /> {/* Adjusted width */}
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-xs text-foreground h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -373,19 +397,19 @@ const IpMedicationView = () => {
             <TableBody>
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
                 <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                  <TableCell className="py-1.5 px-3">{med.services}</TableCell> 
-                  <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell> 
-                  <TableCell className="py-1.5 px-3"> 
+                  <TableCell className="py-1.5 px-3">{med.services}</TableCell>
+                  <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell>
+                  <TableCell className="py-1.5 px-3">
                     {med.startDate && med.startTime && <div>Start: {med.startDate} {med.startTime}</div>}
                     {med.stopDate && med.stopTime && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3 text-xs">{med.status}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.orderedBy}</TableCell> 
+                  <TableCell className="py-1.5 px-3">{med.orderedBy}</TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3">{med.medicationDay}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.schedule}{med.scheduleNote && <span className="italic text-muted-foreground ml-1">({med.scheduleNote})</span>}</TableCell> 
+                  <TableCell className="py-1.5 px-3">{med.schedule}{med.scheduleNote && <span className="italic text-muted-foreground ml-1">({med.scheduleNote})</span>}</TableCell>
                 </TableRow>
               )) : (
                 <TableRow>
