@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -10,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, FileSignature, X, ImageUp } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area'; // Keep ScrollArea for the dialog content
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -207,13 +208,13 @@ const ClinicalNotesPage: NextPage = () => {
               </div>
 
               <div className="flex-1 overflow-auto min-h-0"> 
-                <Table className="text-xs min-w-[80rem]"> 
+                <Table className="text-xs w-full"> {/* Removed min-w-[80rem] */}
                   <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        { name: "Notes Title", className: "min-w-[8rem]" },
-                        { name: "Date of Entry", className: "whitespace-nowrap" }, 
-                        { name: "Status", className: "whitespace-nowrap" }, 
+                        { name: "Notes Title", className: "" }, // Removed min-w
+                        { name: "Date of Entry", className: "" }, // Removed whitespace-nowrap 
+                        { name: "Status", className: "" }, // Removed whitespace-nowrap
                         { name: "Sign" }, 
                         { name: "Edit" },
                         { name: "Action" }, 
@@ -222,10 +223,10 @@ const ClinicalNotesPage: NextPage = () => {
                         { name: "Cosigner", className: "" },
                         { name: "Image Upload" }
                       ].map(header => (
-                        <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 ${header.className || 'whitespace-nowrap'}`}>
+                        <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-auto ${header.className || ''}`}> {/* Changed h-8 to h-auto, removed whitespace-nowrap */}
                           <div className="flex items-center justify-between">
-                            {header.name}
-                            <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                            <span className="break-words">{header.name}</span> {/* Allow header text to wrap */}
+                            <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
                           </div>
                         </TableHead>
                       ))}
@@ -234,9 +235,9 @@ const ClinicalNotesPage: NextPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                        <TableCell className="py-1.5 px-3 min-w-[8rem]">{truncateText(note.notesTitle, 40)}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
+                        <TableCell className="py-1.5 px-3">{truncateText(note.notesTitle, 40)}</TableCell> {/* Removed min-w */}
+                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> {/* Removed whitespace-nowrap */}
+                        <TableCell className="py-1.5 px-3">{note.status}</TableCell> {/* Removed whitespace-nowrap */}
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSignature className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -307,3 +308,4 @@ const ClinicalNotesPage: NextPage = () => {
 };
 
 export default ClinicalNotesPage;
+
