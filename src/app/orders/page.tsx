@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-// ScrollArea removed
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Settings, 
@@ -179,8 +178,8 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden min-h-0">
-          <Table className="text-xs min-w-[70rem] flex-1 min-h-0">
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs min-w-[70rem]">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
@@ -197,7 +196,7 @@ const CpoeOrderListView = () => {
               {filteredOrders.length > 0 ? filteredOrders.map((order, index) => (
                 <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{order.service}</TableCell>
-                  <TableCell className="py-1.5 px-3">{order.order}</TableCell> {/* Allow order to wrap */}
+                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
                     <div>Start: {order.startDate} {order.startTime}</div>
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
@@ -254,7 +253,7 @@ const IpMedicationView = () => {
   const ipMedTableHeaders = ["Services", "Medication Name", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Actions", "Medication Day", "Schedule"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow overflow-suto">
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
       <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">IPD Medication List</CardTitle>
@@ -268,7 +267,7 @@ const IpMedicationView = () => {
           </div>
         </div>
       </ShadcnCardHeader>
-      <CardContent className="p-2.5 flex-1 flex flex-col overflow-auto">
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
         <div className="space-y-2 mb-2 text-xs">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
@@ -333,8 +332,8 @@ const IpMedicationView = () => {
             <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-suto min-h-0">
-          <Table className="text-xs min-w-[90rem] flex-1 min-h-0">
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs min-w-[90rem]">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
@@ -351,7 +350,7 @@ const IpMedicationView = () => {
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
                 <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.services}</TableCell>
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationName}</TableCell> {/* Usually medication names are kept on one line */}
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationName}</TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
                     <div>Start: {med.startDate} {med.startTime}</div>
                     {med.stopDate && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
@@ -392,9 +391,9 @@ const OrdersPage: NextPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
           <Button
             key={item}
@@ -431,3 +430,4 @@ const OrdersPage: NextPage = () => {
 };
 
 export default OrdersPage
+

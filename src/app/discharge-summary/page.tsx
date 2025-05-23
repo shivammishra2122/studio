@@ -185,4 +185,7 @@ const DischargeSummaryPage: NextPage = () => {
         </CardContent>
       </Card>
     </div>
-  
+  );
+};
+export default DischargeSummaryPage;
+    
