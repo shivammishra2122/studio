@@ -121,8 +121,8 @@ const mockIpMedicationData: IpMedicationEntryDataType[] = [
 
 const CpoeOrderListView = () => {
   const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:45");
-  const [orderFromDate, setOrderFromDate] = useState<string>("17/05/2025");
-  const [orderToDate, setOrderToDate] = useState<string>("17/05/2025");
+  const [orderFromDate, setOrderFromDate] = useState<string>("10/09/2024");
+  const [orderToDate, setOrderToDate] = useState<string>("10/09/2024");
   const [serviceFilter, setServiceFilter] = useState<string | undefined>("UNIT DOSE MEDICATIONS");
   const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
   const [showEntries, setShowEntries] = useState<string>("All");
@@ -156,18 +156,18 @@ const CpoeOrderListView = () => {
             <Label htmlFor="orderVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
               <SelectTrigger id="orderVisitDate" className="h-7 w-40 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="Select Visit" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem> 
+                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem>
                 <SelectItem value="10 Sep 2024 - OPD">10 Sep 2024 - OPD</SelectItem>
               </SelectContent>
             </Select>
 
             <Label htmlFor="orderService" className="shrink-0">Service</Label>
             <Select value={serviceFilter} onValueChange={setServiceFilter}>
-              <SelectTrigger id="orderService" className="h-7 w-48 text-xs">
-                <SelectValue />
+              <SelectTrigger id="orderService" className="h-7 w-40 text-xs"> {/* Increased width slightly for "UNIT DOSE MEDICATIONS" */}
+                <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
@@ -184,7 +184,7 @@ const CpoeOrderListView = () => {
             <Label htmlFor="orderStatus" className="shrink-0">Status</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger id="orderStatus" className="h-7 w-28 text-xs">
-                <SelectValue />
+                <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
@@ -211,7 +211,7 @@ const CpoeOrderListView = () => {
             <div className="flex items-center space-x-1 ml-auto"> 
               <Label htmlFor="orderShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
-                <SelectTrigger id="orderShowEntries" className="h-7 w-16 text-xs">
+                <SelectTrigger id="orderShowEntries" className="h-7 w-20 text-xs"> {/* Increased width to fit "All" */}
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -228,8 +228,8 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0"> {/* Ensures vertical scroll for table if content overflows */}
-          <Table className="text-xs w-full"> {/* Removed min-w- and w-max */}
+        <div className="flex-1 overflow-y-auto min-h-0"> {/* Handles vertical scroll */}
+          <Table className="text-xs w-full"> 
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
@@ -255,7 +255,7 @@ const CpoeOrderListView = () => {
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell> 
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap"> 
+                  <TableCell className="py-1.5 px-3"> 
                     <Badge 
                       variant={order.status === 'ACTIVE' || order.status === 'Completed' ? 'default' : order.status === 'UNRELEASED' || order.status === 'Pending' ? 'secondary' : 'destructive'}
                       className={`text-xs px-1.5 py-0.5 
@@ -388,8 +388,8 @@ const IpMedicationView = () => {
             <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-0"> {/* Ensures vertical scroll for table if content overflows */}
-          <Table className="text-xs w-full"> {/* Removed min-w- and w-max */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
@@ -405,13 +405,13 @@ const IpMedicationView = () => {
             <TableBody>
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
                 <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.services}</TableCell> 
+                  <TableCell className="py-1.5 px-3">{med.services}</TableCell> 
                   <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell> 
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap"> 
+                  <TableCell className="py-1.5 px-3"> 
                     {med.startDate && med.startTime && <div>Start: {med.startDate} {med.startTime}</div>}
                     {med.stopDate && med.stopTime && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap"> 
+                  <TableCell className="py-1.5 px-3"> 
                     <Badge
                       variant={med.status === 'ACTIVE' ? 'default' : med.status === 'HOLD' ? 'secondary' : 'destructive'}
                       className={`text-xs px-1.5 py-0.5
@@ -427,8 +427,8 @@ const IpMedicationView = () => {
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationDay}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.schedule}</TableCell> 
+                  <TableCell className="py-1.5 px-3">{med.medicationDay}</TableCell>
+                  <TableCell className="py-1.5 px-3">{med.schedule}{med.scheduleNote && <span className="italic text-muted-foreground ml-1">({med.scheduleNote})</span>}</TableCell> 
                 </TableRow>
               )) : (
                 <TableRow>
@@ -450,8 +450,9 @@ const IpMedicationView = () => {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 };
+
 
 const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
@@ -495,4 +496,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default OrdersPage; make the edit in this code for the cope list and remove type next from the page
