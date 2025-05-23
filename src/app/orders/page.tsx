@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react'; // Added React import and hooks
@@ -31,7 +30,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'; 
 import { cn } from '@/lib/utils'; 
 import { ScrollArea } from '@/components/ui/scroll-area'; 
-import { Checkbox } from '@/components/ui/checkbox'; 
+// Checkbox is removed as it's not used in the new dialog
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -177,7 +176,6 @@ const CpoeOrderListView = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="10 Sep 2024 - OPD">10 Sep 2024 - OPD</SelectItem>
-                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem>
               </SelectContent>
             </Select>
 
@@ -249,7 +247,7 @@ const CpoeOrderListView = () => {
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-1 px-3 text-xs h-auto font-normal">
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -305,18 +303,6 @@ const IpMedicationView = () => {
   const [orderMedicationName, setOrderMedicationName] = useState('');
   const [orderQuickOrder, setOrderQuickOrder] = useState('');
   const [isMedicationPopoverOpen, setIsMedicationPopoverOpen] = useState(false);
-  const [showFurtherConfiguration, setShowFurtherConfiguration] = useState(false);
-
-  // State for further configuration fields
-  const [dosage, setDosage] = useState('100MG/1VIAL');
-  const [route, setRoute] = useState('INTRAVENOUS');
-  const [schedule, setSchedule] = useState('BID(10&22HRS)');
-  const [prnChecked, setPrnChecked] = useState(false);
-  const [durationValue, setDurationValue] = useState('0');
-  const [durationUnit, setDurationUnit] = useState('days');
-  const [priority, setPriority] = useState('ROUTINE');
-  const [additionalDoseNowChecked, setAdditionalDoseNowChecked] = useState(false);
-  const [comment, setComment] = useState('');
   
   const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:4");
   const [scheduleType, setScheduleType] = useState<string | undefined>();
@@ -329,38 +315,26 @@ const IpMedicationView = () => {
   const openOrderMedicinesDialog = () => {
     setOrderMedicationName(''); 
     setOrderQuickOrder('');
-    setShowFurtherConfiguration(false); 
-    setDosage('100MG/1VIAL');
-    setRoute('INTRAVENOUS');
-    setSchedule('BID(10&22HRS)');
-    setPrnChecked(false);
-    setDurationValue('0');
-    setDurationUnit('days');
-    setPriority('ROUTINE');
-    setAdditionalDoseNowChecked(false);
-    setComment('');
     setIsAddIpMedicationDialogOpen(true);
   };
 
   const handleConfirmOrder = () => {
-    console.log("Order Confirmed:", { 
-      medicationName: orderMedicationName, 
-      quickOrder: orderQuickOrder,
-      dosage, route, schedule, prnChecked, durationValue, durationUnit, priority, additionalDoseNowChecked, comment
-    });
+    // This is a placeholder. In a real app, you'd submit the order.
+    console.log("Order Confirmed:", { medicationName: orderMedicationName, quickOrder: orderQuickOrder });
     if (orderMedicationName.trim()) {
         const newMed: IpMedicationEntryDataType = {
             id: Date.now().toString(),
-            services: 'Inpt. Meds', 
+            services: 'Inpt. Meds', // Default or could be part of the form
             medicationName: orderMedicationName,
-            status: 'UNRELEASED', 
-            startDate: new Date().toLocaleDateString('en-CA'), 
+            status: 'UNRELEASED', // Default status for new entries
+            // Other fields can be defaulted or added to the dialog form later
+            startDate: new Date().toLocaleDateString('en-CA'), // Example: YYYY-MM-DD
             startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
             stopDate: '',
             stopTime: '',
             orderedBy: 'System (Dialog)',
-            medicationDay: 'Day 1',  
-            schedule: schedule, 
+            medicationDay: 'Day 1',  // Placeholder
+            schedule: 'Pending',   // Placeholder
           };
           setIpMedicationList(prev => [newMed, ...prev]);
     }
@@ -370,16 +344,6 @@ const IpMedicationView = () => {
   const handleResetOrderForm = () => {
     setOrderMedicationName('');
     setOrderQuickOrder('');
-    setShowFurtherConfiguration(false);
-    setDosage('100MG/1VIAL');
-    setRoute('INTRAVENOUS');
-    setSchedule('BID(10&22HRS)');
-    setPrnChecked(false);
-    setDurationValue('0');
-    setDurationUnit('days');
-    setPriority('ROUTINE');
-    setAdditionalDoseNowChecked(false);
-    setComment('');
   };
 
   const ipMedTableHeaders = ["Services", "Medication Name", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Actions", "Medication Day", "Schedule"];
@@ -467,11 +431,11 @@ const IpMedicationView = () => {
         </div>
 
         <div className="flex-1 overflow-auto min-h-0">
-          <Table className="text-xs w-full"> 
+          <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-1 px-3 text-xs h-auto font-normal">
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -518,10 +482,10 @@ const IpMedicationView = () => {
       </CardContent>
 
       <Dialog open={isAddIpMedicationDialogOpen} onOpenChange={setIsAddIpMedicationDialogOpen}>
-        <DialogContent className="w-screen h-screen sm:w-[95vw] sm:h-[90vh] p-0 flex flex-col">
+        <DialogContent className="sm:max-w-2xl p-0"> {/* Adjusted max-width, removed padding */}
           {/* Dialog Header Bar */}
           <div className="bg-sky-100 p-3">
-            <h2 className="text-lg font-semibold text-sky-800">Order Medicines</h2>
+            <DialogUITitle className="text-lg font-semibold text-sky-800">Order Medicines</DialogUITitle>
           </div>
           {/* Patient Info Bar */}
           <div className="bg-sky-100 p-3 text-xs text-sky-700 flex flex-wrap items-center gap-x-6 gap-y-1">
@@ -532,9 +496,8 @@ const IpMedicationView = () => {
             <span>Patient Type : In Patient</span>
           </div>
           
-          {/* Main Form Scrollable Area */}
-          <ScrollArea className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar">
-            {/* Always Visible Fields: Medication Name & Quick Order */}
+          {/* Main Form Area */}
+          <div className="p-6 space-y-4"> {/* Added padding here */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                 <div className="space-y-1">
                   <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
@@ -562,10 +525,8 @@ const IpMedicationView = () => {
                                 key={medication}
                                 value={medication}
                                 onSelect={(currentValue) => {
-                                  const selectedVal = currentValue.toUpperCase() === orderMedicationName.toUpperCase() ? "" : currentValue;
-                                  setOrderMedicationName(selectedVal);
+                                  setOrderMedicationName(currentValue.toUpperCase() === orderMedicationName.toUpperCase() ? "" : currentValue);
                                   setIsMedicationPopoverOpen(false);
-                                  setShowFurtherConfiguration(!!selectedVal); 
                                 }}
                               >
                                 <Check
@@ -597,79 +558,7 @@ const IpMedicationView = () => {
                   <Button type="button" className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">Edit Quick List</Button>
                 </div>
             </div>
-            
-            {/* Conditional "Further Configuration" Section */}
-            {showFurtherConfiguration && (
-                <div className="mt-6 border-t pt-6">
-                    <p className="text-sm text-muted-foreground mb-4">Further configuration for: <span className="font-semibold text-foreground">{orderMedicationName}</span></p>
-                    
-                    {/* Table-like grid for further configuration */}
-                    <div className="space-y-1 text-xs">
-                        {/* Header Row */}
-                        <div className="grid grid-cols-[minmax(150px,1.5fr)_repeat(9,_minmax(80px,_1fr))_minmax(50px,0.5fr)_minmax(100px,1fr)] gap-x-2 items-center font-medium text-muted-foreground pb-1 border-b">
-                            <Label>Medicine Name</Label>
-                            <Label>Dosage</Label>
-                            <Label>Route</Label>
-                            <Label>Schedule</Label>
-                            <Label>PRN</Label>
-                            <Label>Duration</Label>
-                            <Label>Priority</Label>
-                            <Label>Add.Dose</Label>
-                            <Label>Comment</Label>
-                            <Label className="text-center">Remove</Label>
-                            <Label className="text-center">Save QO</Label>
-                        </div>
-                        {/* Data Entry Row */}
-                        <div className="grid grid-cols-[minmax(150px,1.5fr)_repeat(9,_minmax(80px,_1fr))_minmax(50px,0.5fr)_minmax(100px,1fr)] gap-x-2 items-center py-1.5">
-                            <div>
-                                <p className="font-semibold text-foreground">{orderMedicationName}</p>
-                                <p className="text-muted-foreground text-xs">(ALBUMIN BOUND PACLITAXEL-100.000-MG)</p>
-                            </div>
-                            <Input value={dosage} onChange={e => setDosage(e.target.value)} className="h-7 text-xs" />
-                            <Select value={route} onValueChange={setRoute}>
-                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="INTRAVENOUS" className="text-xs">INTRAVENOUS</SelectItem>
-                                    <SelectItem value="ORAL" className="text-xs">ORAL</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Input value={schedule} onChange={e => setSchedule(e.target.value)} className="h-7 text-xs" />
-                            <div className="flex justify-center"><Checkbox id="prn" checked={prnChecked} onCheckedChange={val => setPrnChecked(Boolean(val))} /></div>
-                            <div className="flex items-center gap-1">
-                                <Input type="number" value={durationValue} onChange={e => setDurationValue(e.target.value)} className="h-7 text-xs w-12 p-1" />
-                                <Select value={durationUnit} onValueChange={setDurationUnit}>
-                                    <SelectTrigger className="h-7 text-xs flex-1 min-w-[60px]"><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="days" className="text-xs">days</SelectItem>
-                                        <SelectItem value="weeks" className="text-xs">weeks</SelectItem>
-                                        <SelectItem value="months" className="text-xs">months</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <Select value={priority} onValueChange={setPriority}>
-                                <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ROUTINE" className="text-xs">ROUTINE</SelectItem>
-                                    <SelectItem value="STAT" className="text-xs">STAT</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <div className="flex justify-center"><Checkbox id="additionalDose" checked={additionalDoseNowChecked} onCheckedChange={val => setAdditionalDoseNowChecked(Boolean(val))} /></div>
-                            <Input value={comment} onChange={e => setComment(e.target.value)} className="h-7 text-xs" />
-                            <div className="flex justify-center">
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-100">
-                                    <XIcon className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <div className="flex justify-center">
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-primary/10">
-                                    <Save className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-          </ScrollArea>
+          </div>
 
           {/* Dialog Action Buttons Area */}
           <div className="flex justify-center space-x-4 p-4 pt-2 border-t border-gray-200">
@@ -688,6 +577,7 @@ const IpMedicationView = () => {
     </Card>
   );
 };
+
 
 const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
@@ -731,4 +621,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage;
+export default OrdersPage; 
