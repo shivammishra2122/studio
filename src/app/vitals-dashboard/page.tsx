@@ -2,7 +2,7 @@
 'use client';
 
 import type { NextPage } from 'next';
-import React, { useState, useEffect } from 'react'; // Added React for React.memo if used elsewhere
+import React, { useState, useEffect } from 'react'; 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -12,9 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, RefreshCw, ArrowUpDown, Switch as SwitchIcon, Printer } from 'lucide-react'; // SwitchIcon alias for Switch
-import { Switch } from "@/components/ui/switch"; // Shadcn Switch
-import { Badge } from '@/components/ui/badge';
+import { Edit3, CalendarDays, RefreshCw, ArrowUpDown, ChevronDown, ChevronUp, Settings, FileEdit, Printer, Download, Filter, Ban, FileText, PenLine } from 'lucide-react'; 
+import { Switch } from "@/components/ui/switch"; 
 
 
 const verticalNavItems = [
@@ -30,38 +29,45 @@ const vitalTypes = [
 
 type VitalChartDataPoint = { name: string; value?: number; systolic?: number; diastolic?: number };
 
-const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
-    if (typeof window === 'undefined') return min; // Return a default value for SSR
+const generateRandomValue = (min: number, max: number, toFixed: number = 0): number => {
+    if (typeof window === 'undefined') return parseFloat(min.toFixed(toFixed)); 
     const val = Math.random() * (max - min) + min;
     return parseFloat(val.toFixed(toFixed));
 };
   
 const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
-    if (typeof window === 'undefined') return Array(10).fill({name: '', value: 0});
+    if (typeof window === 'undefined') {
+      // Return a default structure if window is not defined (e.g., during SSR pre-pass)
+      const defaultData = Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString() }));
+      if (vitalName === "B/P (mmHg)") {
+        return defaultData.map(d => ({ ...d, systolic: 0, diastolic: 0 }));
+      }
+      return defaultData.map(d => ({ ...d, value: 0 }));
+    }
   
     switch (vitalName) {
       case "B/P (mmHg)":
         return Array.from({ length: 10 }, (_, i) => ({
           name: (i + 1).toString(),
-          systolic: generateRandomValue(100, 140),
-          diastolic: generateRandomValue(60, 90)
+          systolic: generateRandomValue(110, 140),
+          diastolic: generateRandomValue(70, 90)
         }));
       case "Temp (F)":
-        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(97.0, 100.0, 1) }));
+        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(97.0, 102.0, 1) }));
       case "Resp (/min)":
-        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(12, 20) }));
+        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(12, 22) }));
       case "Pulse (/min)":
         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 100) }));
       case "Height (In)":
-         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 75) }));
+         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(60, 75,1) }));
       case "Weight (kg)":
         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(50, 100, 1) }));
       case "CVP (cmH2O)":
-        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(2, 12, 1) }));
+        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(2, 8, 1) }));
       case "C/G (In)":
-         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(28, 40) }));
+         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(20, 40,1) }));
       case "Pulse Oximetry (%)":
-        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(95, 100) }));
+        return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(94, 99) }));
       case "Pain":
         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: generateRandomValue(0, 10) }));
       case "Early Warning Sign":
@@ -73,15 +79,15 @@ const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
   
 const getYAxisConfig = (vitalName: string): { label: string; domain: [number | string, number | string] } => {
     switch (vitalName) {
-      case "B/P (mmHg)": return { label: "mmHg", domain: [40, 180] };
-      case "Temp (F)": return { label: "°F", domain: [90, 110] };
+      case "B/P (mmHg)": return { label: "mmHg", domain: [40, 200] };
+      case "Temp (F)": return { label: "°F", domain: [95, 105] };
       case "Resp (/min)": return { label: "/min", domain: [0, 40] };
-      case "Pulse (/min)": return { label: "bpm", domain: [40, 140] };
-      case "Height (In)": return { label: "Inches", domain: [0, 80] };
-      case "Weight (kg)": return { label: "kg", domain: [0, 150] };
-      case "CVP (cmH2O)": return { label: "cmH2O", domain: [0, 20] };
-      case "C/G (In)": return { label: "Inches", domain: [0, 50] };
-      case "Pulse Oximetry (%)": return { label: "%", domain: [70, 100] };
+      case "Pulse (/min)": return { label: "bpm", domain: [40, 160] };
+      case "Height (In)": return { label: "Inches", domain: [48, 84] };
+      case "Weight (kg)": return { label: "kg", domain: [30, 150] };
+      case "CVP (cmH2O)": return { label: "cmH2O", domain: [0, 15] };
+      case "C/G (In)": return { label: "Inches", domain: [15, 45] };
+      case "Pulse Oximetry (%)": return { label: "%", domain: [80, 100] };
       case "Pain": return { label: "Scale 0-10", domain: [0, 10] };
       case "Early Warning Sign": return { label: "Score", domain: [0, 10] };
       default: return { label: "Value", domain: ['auto', 'auto'] };
@@ -89,7 +95,7 @@ const getYAxisConfig = (vitalName: string): { label: string; domain: [number | s
 };
 
 const VitalsView = () => {
-  const [visitDateState, setVisitDateState] = useState<string | undefined>(); 
+  const [visitDateState, setVisitDateState] = useState<string | undefined>("today"); 
   const [fromDateValue, setFromDateValue] = useState<string>("");
   const [toDateValueState, setToDateValueState] = useState<string>(""); 
   const [selectedVitalForGraph, setSelectedVitalForGraph] = useState<string>(vitalTypes[0]);
@@ -137,7 +143,7 @@ const VitalsView = () => {
   const yAxisConfig = getYAxisConfig(selectedVitalForGraph);
 
   return (
-    <div className="flex-1 flex gap-3 overflow-hidden">
+    <div className="flex-1 flex gap-3 overflow-auto">
         {/* Vitals Data Area or Entry Form */}
         <div className="flex-1 flex flex-col border rounded-md bg-card shadow"> 
           <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
@@ -159,7 +165,7 @@ const VitalsView = () => {
             <>
               <ScrollArea className="flex-1 min-h-0">
                 <Table className="text-xs">
-                  <TableHeader className="bg-accent sticky top-0 z-10">
+                  <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Vitals</TableHead>
                       <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Not Recordable</TableHead>
@@ -167,7 +173,7 @@ const VitalsView = () => {
                       <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Unit</TableHead>
                       <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Qualifiers</TableHead>
                     </TableRow>
-                  </TableHeader>
+                  </ShadcnTableHeader>
                   <TableBody>
                     {/* B/P Row */}
                     <TableRow className="bg-muted/30">
@@ -405,7 +411,7 @@ const VitalsView = () => {
           )}
         </div>
 
-        {/* Vitals Graph Area - Always visible */}
+        {/* Vitals Graph Area */}
         <div className="flex-1 flex flex-col border rounded-md bg-card shadow">
           <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
             <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
@@ -453,7 +459,7 @@ const IntakeOutputView = () => {
   const outputHeaders = ["URINE", "N/G", "EMESIS", "DRAINAGE", "FAECES"];
 
   return (
-    <div className="flex-1 flex gap-3 overflow-hidden">
+    <div className="flex-1 flex gap-3 overflow-auto">
       {/* Patient Intake/Output Summary Area */}
       <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
@@ -504,7 +510,7 @@ const IntakeOutputView = () => {
             </thead>
             <tbody className="bg-card">
                 {[1,2,3,4,5,6,7,8,9,10].map((rowNum, index) => ( 
-                <TableRow key={`data-row-${rowNum}`} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                <TableRow key={`data-row-${rowNum}`} className={`${index % 2 === 0 ? 'bg-muted/30' : ''} hover:bg-muted/50`}>
                     {inputHeaders.map(header => <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
                     {outputHeaders.map(header => <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
                 </TableRow>
@@ -1026,7 +1032,7 @@ const VitalsDashboardPage: NextPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+      <div className="flex items-end space-x-1 px-1 pt-2 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
@@ -1034,7 +1040,7 @@ const VitalsDashboardPage: NextPage = () => {
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeVerticalTab === item
                 ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
-                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
+                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent hover:text-foreground' // Added hover:text-foreground
               }`}
           >
             {item}
@@ -1052,7 +1058,7 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Allergies" && <AllergiesView />}
         {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
         
-        {/* Fallback for unhandled tabs */}
+        {/* Fallback for unhandled tabs - Ensure "Orders" and "Clinical Notes" are removed from this condition if they have dedicated pages */}
         {![
             "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
             "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
