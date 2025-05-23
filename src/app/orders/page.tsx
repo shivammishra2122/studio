@@ -1,6 +1,6 @@
+
 'use client';
 
-import React from 'react'; // Added React import
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,8 @@ import {
   Filter,
   PenLine
 } from 'lucide-react';
+// Badge component is no longer used for status
+// import { Badge } from '@/components/ui/badge';
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -38,7 +40,7 @@ type OrderDataType = {
   stopDate?: string;
   stopTime?: string;
   provider: string;
-  status: "Completed" | "Pending" | "Cancelled" | "ACTIVE" | "UNRELEASED"; 
+  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled";
   location: string;
 };
 
@@ -209,7 +211,7 @@ const CpoeOrderListView = () => {
             <div className="flex items-center space-x-1 ml-auto"> 
               <Label htmlFor="orderShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
-                <SelectTrigger id="orderShowEntries" className="h-7 w-20 text-xs">
+                <SelectTrigger id="orderShowEntries" className="h-7 w-16 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -226,12 +228,12 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0"> {/* This div handles vertical scroll */}
           <Table className="text-xs w-full"> 
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-8 whitespace-nowrap">
+                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -253,7 +255,9 @@ const CpoeOrderListView = () => {
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell> 
-                  <TableCell className="py-1.5 px-3">{order.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs"> {/* Text size xs and no badge */}
+                    {order.status}
+                  </TableCell>
                   <TableCell className="py-1.5 px-3">{order.location}</TableCell> 
                 </TableRow>
               )) : (
@@ -379,7 +383,7 @@ const IpMedicationView = () => {
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-8 whitespace-nowrap">
+                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -397,7 +401,7 @@ const IpMedicationView = () => {
                     {med.startDate && med.startTime && <div>Start: {med.startDate} {med.startTime}</div>}
                     {med.stopDate && med.stopTime && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
-                  <TableCell className="py-1.5 px-3">{med.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{med.status}</TableCell>
                   <TableCell className="py-1.5 px-3">{med.orderedBy}</TableCell> 
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
@@ -425,7 +429,7 @@ const IpMedicationView = () => {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 };
 
 
@@ -435,7 +439,7 @@ const OrdersPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+      <div className="flex items-end space-x-1 px-1 pb-1 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
           <Button
             key={item}
