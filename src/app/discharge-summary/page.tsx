@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -8,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-// ScrollArea removed
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Edit3, RefreshCw, ArrowUpDown, MessageSquare, FileSignature, Trash2, CheckCircle2 } from 'lucide-react';
 
@@ -17,39 +15,39 @@ type SummaryEntryDataType = {
   summaryTitle: string;
   dateOfEntry: string;
   status: "UNSIGNED" | "COMPLETED";
-  signedBy?: string; 
+  signedBy?: string;
   author: string;
   location: string;
   cosigner?: string;
 };
 
 const mockSummaryEntries: SummaryEntryDataType[] = [
-  { 
-    id: '1', 
-    summaryTitle: 'Discharge Summary Orthopedics - Patient showed significant improvement post-surgery and physical therapy. Range of motion increased and pain levels reduced. Follow-up scheduled in 4 weeks. Prescribed home exercises and ongoing medication.', 
-    dateOfEntry: '17 MAY, 2025 12:00', 
-    status: 'UNSIGNED', 
-    author: 'Internalmed Doc Primary Care', 
+  {
+    id: '1',
+    summaryTitle: 'Ortho: Improved post-op, less pain, f/u 4w', // 40 characters
+    dateOfEntry: '17 MAY, 2025 12:00',
+    status: 'UNSIGNED',
+    author: 'Internalmed Doc Primary Care',
     location: 'ICU ONE - General Ward, Bed A101',
-    cosigner: 'Sansys Doctor Supervising MD' 
+    cosigner: 'Sansys Doctor Supervising MD',
   },
-  { 
-    id: '2', 
-    summaryTitle: 'DISCHARGE SUMMARY NEUROSURGERY - Patient stable post-op for craniotomy. No neurological deficits noted. Wound healing well. Advised on activity restrictions and follow-up for suture removal and MRI.', 
-    dateOfEntry: '12 JUL, 2023 16:09', 
-    status: 'COMPLETED', 
-    author: 'Sansys Doctor Neuro Team', 
+  {
+    id: '2',
+    summaryTitle: 'Neuro: Stable post-op, no deficits, f/u MRI', // 40 characters
+    dateOfEntry: '12 JUL, 2023 16:09',
+    status: 'COMPLETED',
+    author: 'Sansys Doctor Neuro Team',
     location: 'ICU ONE - Neuro ICU, Bed N203',
-    cosigner: 'Sansys Doctor Head of Neurosurgery'
+    cosigner: 'Sansys Doctor Head of Neurosurgery',
   },
-  { 
-    id: '3', 
-    summaryTitle: 'Cardiology Discharge Summary - Acute MI managed with PCI. Patient asymptomatic at discharge. Echocardiogram showed improved EF. Medications: Aspirin, Clopidogrel, Atorvastatin, Metoprolol. Cardiac rehab referral made.', 
-    dateOfEntry: '05 AUG, 2024 11:30', 
-    status: 'COMPLETED', 
-    author: 'Dr. Cardio Heart Specialist', 
+  {
+    id: '3',
+    summaryTitle: 'Cardio: MI, PCI, stable, meds, rehab', // 35 characters
+    dateOfEntry: '05 AUG, 2024 11:30',
+    status: 'COMPLETED',
+    author: 'Dr. Cardio Heart Specialist',
     location: 'CCU - Coronary Care Unit, Bed C5',
-    cosigner: 'Dr. SeniorCardio Chief Cardiologist'
+    cosigner: 'Dr. SeniorCardio Chief Cardiologist',
   },
 ];
 
@@ -76,7 +74,7 @@ const DischargeSummaryPage: NextPage = () => {
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
           {/* Filter Bar */}
           <div className="flex flex-wrap items-center space-x-2 text-xs mb-2 gap-y-2">
@@ -93,7 +91,7 @@ const DischargeSummaryPage: NextPage = () => {
             </Select>
             <Label className="shrink-0">entries</Label>
 
-            <div className="flex-grow"></div> 
+            <div className="flex-grow"></div>
 
             <Label htmlFor="visitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
@@ -106,29 +104,29 @@ const DischargeSummaryPage: NextPage = () => {
                 <SelectItem value="05 AUG, 2024 11:30">05 AUG, 2024 11:30</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Label htmlFor="summarySearch" className="shrink-0">Search:</Label>
             <Input id="summarySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-32 text-xs" />
           </div>
 
           {/* Table Section */}
-          <div className="flex-1 overflow-hidden min-h-0">
-            <Table className="text-xs min-w-[75rem] flex-1 min-h-0">
-              <TableHeader className="bg-muted/50 sticky top-0 z-10">
+          <div className="flex-1 overflow-y-auto min-h-0 relative">
+            <Table className="text-xs w-full">
+              <TableHeader className="bg-background sticky top-0 z-10 border-b">
                 <TableRow>
                   {[
-                    { name: "Discharge Summaries Title", className: "min-w-[20rem]" },
-                    { name: "Date of Entry" }, 
-                    { name: "Status" }, 
-                    { name: "Sign" }, 
-                    { name: "Edit" }, 
-                    { name: "Delete" }, 
-                    { name: "Action" }, 
-                    { name: "Author" }, 
-                    { name: "Location" }, 
-                    { name: "Cosigner" }
+                    { name: "Discharge Summaries Title", className: "w-[30%]" },
+                    { name: "Date of Entry", className: "w-[15%]" },
+                    { name: "Status", className: "w-[10%]" },
+                    { name: "Sign", className: "w-[7%]" },
+                    { name: "Edit", className: "w-[7%]" },
+                    { name: "Delete", className: "w-[7%]" },
+                    { name: "Action", className: "w-[7%]" },
+                    { name: "Author", className: "w-[10%]" },
+                    { name: "Location", className: "w-[15%]" },
+                    { name: "Cosigner", className: "w-[12%]" },
                   ].map(header => (
-                    <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap ${header.className || ''}`}>
+                    <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 ${header.className}`}>
                       <div className="flex items-center justify-between">
                         {header.name}
                         <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -140,11 +138,11 @@ const DischargeSummaryPage: NextPage = () => {
               <TableBody>
                 {filteredSummaries.length > 0 ? filteredSummaries.map((summary, index) => (
                   <TableRow key={summary.id} className={`hover:bg-muted/30 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                    <TableCell className={`py-1.5 px-3 ${summary.summaryTitle.length > 50 ? '' : 'whitespace-nowrap'}`}>{summary.summaryTitle}</TableCell>
-                    <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.dateOfEntry}</TableCell>
-                    <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.status}</TableCell>
+                    <TableCell className="py-1.5 px-3 whitespace-normal">{summary.summaryTitle}</TableCell>
+                    <TableCell className="py-1.5 px-3 whitespace-normal">{summary.dateOfEntry}</TableCell>
+                    <TableCell className="py-1.5 px-3 whitespace-normal">{summary.status}</TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      {summary.status === "COMPLETED" ? 
+                      {summary.status === "COMPLETED" ?
                         <CheckCircle2 className="h-4 w-4 text-green-600 mx-auto" /> :
                         <Button variant="ghost" size="icon" className="h-6 w-6"><FileSignature className="h-3.5 w-3.5" /></Button>
                       }
@@ -158,9 +156,9 @@ const DischargeSummaryPage: NextPage = () => {
                     <TableCell className="py-1.5 px-3 text-center">
                       <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                     </TableCell>
-                    <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.author}</TableCell>
-                    <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.location}</TableCell>
-                    <TableCell className="py-1.5 px-3 whitespace-nowrap">{summary.cosigner || '-'}</TableCell>
+                    <TableCell className="py-1.5 px-3 whitespace-normal">{summary.author}</TableCell>
+                    <TableCell className="py-1.5 px-3 whitespace-normal">{summary.location}</TableCell>
+                    <TableCell className="py-1.5 px-3 whitespace-normal">{summary.cosigner || '-'}</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>
@@ -187,5 +185,5 @@ const DischargeSummaryPage: NextPage = () => {
     </div>
   );
 };
+
 export default DischargeSummaryPage;
-    
