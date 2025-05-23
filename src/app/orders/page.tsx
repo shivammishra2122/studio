@@ -39,7 +39,7 @@ type OrderDataType = {
   stopDate?: string;
   stopTime?: string;
   provider: string;
-  status: "Completed" | "Pending" | "Cancelled" | "ACTIVE" | "UNRELEASED";
+  status: "Completed" | "Pending" | "Cancelled" | "ACTIVE" | "UNRELEASED"; // Added ACTIVE & UNRELEASED
   location: string;
 };
 
@@ -97,23 +97,25 @@ type IpMedicationEntryDataType = {
   id: string;
   services: string;
   medicationName: string;
-  startDate: string;
-  startTime: string;
-  stopDate: string;
-  stopTime: string;
-  status: "ACTIVE" | "HOLD";
+  startDate?: string;
+  startTime?: string;
+  stopDate?: string;
+  stopTime?: string;
+  status: "ACTIVE" | "HOLD" | "UNRELEASED";
   orderedBy: string;
   medicationDay: string;
   schedule: string;
+  scheduleNote?: string;
 };
 
 const mockIpMedicationData: IpMedicationEntryDataType[] = [
-  { id: '1', services: 'Inpt. Meds', medicationName: 'AEROCORT ROTACAP', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '19 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 5', schedule: 'BID(08&20HRS)' },
-  { id: '2', services: 'Inpt. Meds', medicationName: 'CARMICIDE PAED SYRUP 100ML BTL', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '22 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 5', schedule: 'BID(08&20HRS)' },
-  { id: '3', services: 'Inpt. Meds', medicationName: 'DIGOXIN PAED UD SYRUP 60ML BTL', startDate: '17 MAY, 2025', startTime: '13:00', stopDate: '18 MAY, 2025', stopTime: '13:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 5', schedule: 'STAT(ONE TIME ONLY)' },
-  { id: '4', services: 'Inpt. Meds', medicationName: 'AZITHROMYCIN UD 250MG TAB', startDate: '17 MAY, 2025', startTime: '12:39', stopDate: '', stopTime: '', status: 'HOLD', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
-  { id: '5', services: 'Inpt. Meds', medicationName: 'ACILOC 150MG TABLET (1X30)*', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
-  { id: '6', services: 'Inpt. Meds', medicationName: 'PARACETAMOL ER UD 650MG TAB', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
+  { id: '1', services: 'Inpt. Meds', medicationName: 'AMOXICILLIN 250MG UD CAP', status: 'UNRELEASED', orderedBy: 'Sansys Doctor', medicationDay: 'Day 3', schedule: 'BID(08&20HRS)', scheduleNote: 'PRN' },
+  { id: '2', services: 'Inpt. Meds', medicationName: 'AEROCORT ROTACAP', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '19 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
+  { id: '3', services: 'Inpt. Meds', medicationName: 'CARMICIDE PAED SYRUP 100ML BTL', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '22 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
+  { id: '4', services: 'Inpt. Meds', medicationName: 'DIGOXIN PAED UD SYRUP 60ML BTL', startDate: '17 MAY, 2025', startTime: '13:00', stopDate: '18 MAY, 2025', stopTime: '13:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'STAT(ONE TIME ONLY)' },
+  { id: '5', services: 'Inpt. Meds', medicationName: 'AZITHROMYCIN UD 250MG TAB', startDate: '17 MAY, 2025', startTime: '12:39', status: 'HOLD', orderedBy: 'Internalmed Doc', medicationDay: 'Day 9', schedule: 'BID(08&20HRS)' },
+  { id: '6', services: 'Inpt. Meds', medicationName: 'ACILOC 150MG TABLET (1X30)*', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 9', schedule: 'BID(08&20HRS)' },
+  { id: '7', services: 'Inpt. Meds', medicationName: 'PARACETAMOL ER UD 650MG TAB', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 9', schedule: 'BID(08&20HRS)' },
 ];
 
 const CpoeOrderListView = () => {
@@ -163,7 +165,7 @@ const CpoeOrderListView = () => {
 
             <Label htmlFor="orderService" className="shrink-0">Service</Label>
             <Select value={serviceFilter} onValueChange={setServiceFilter}>
-              <SelectTrigger id="orderService" className="h-7 w-48 text-xs"> {/* Increased width for longer service name */}
+              <SelectTrigger id="orderService" className="h-7 w-48 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -224,7 +226,7 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
@@ -401,18 +403,32 @@ const IpMedicationView = () => {
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
                 <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.services}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell> 
+                  <TableCell className="py-1.5 px-3 min-w-[15rem]">{med.medicationName}</TableCell> 
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
-                    <div>Start: {med.startDate} {med.startTime}</div>
-                    {med.stopDate && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
+                    {med.startDate && med.startTime && <div>Start: {med.startDate} {med.startTime}</div>}
+                    {med.stopDate && med.stopTime && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">
+                    <Badge
+                      variant={med.status === 'ACTIVE' ? 'default' : med.status === 'HOLD' ? 'secondary' : 'destructive'}
+                      className={`text-xs px-1.5 py-0.5
+                        ${med.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border border-green-300' :
+                          med.status === 'HOLD' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
+                          'bg-orange-100 text-orange-700 border border-orange-300' // UNRELEASED
+                        }`}
+                    >
+                      {med.status}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.orderedBy}</TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationDay}</TableCell>
-                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.schedule}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">
+                    <div>{med.schedule}</div>
+                    {med.scheduleNote && <div className="text-xs">{med.scheduleNote}</div>}
+                  </TableCell>
                 </TableRow>
               )) : (
                 <TableRow>
@@ -437,7 +453,8 @@ const IpMedicationView = () => {
   );
 };
 
-const OrdersPage = () => { // Removed NextPage type
+
+const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
@@ -460,7 +477,7 @@ const OrdersPage = () => { // Removed NextPage type
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col gap-3">
+      <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeOrderSubNav === "CPOE Order List" && <CpoeOrderListView />}
         {activeOrderSubNav === "IP Medication" && <IpMedicationView />}
         
