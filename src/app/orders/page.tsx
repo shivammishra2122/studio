@@ -1,12 +1,13 @@
-
 'use client';
 
+import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
+// ScrollArea removed
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Settings, 
@@ -21,8 +22,7 @@ import {
   Filter,
   PenLine
 } from 'lucide-react';
-// Badge component is no longer used for status
-// import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -228,12 +228,12 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0"> {/* This div handles vertical scroll */}
+        <div className="flex-1 overflow-y-auto min-h-0">
           <Table className="text-xs w-full"> 
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-xs text-foreground h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -255,7 +255,7 @@ const CpoeOrderListView = () => {
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell> 
-                  <TableCell className="py-1.5 px-3 text-xs"> {/* Text size xs and no badge */}
+                  <TableCell className="py-1.5 px-3 text-xs">
                     {order.status}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.location}</TableCell> 
@@ -290,8 +290,8 @@ const IpMedicationView = () => {
   const [status, setStatus] = useState<string | undefined>();
   const [orderFrom, setOrderFrom] = useState<string>("");
   const [orderTo, setOrderTo] = useState<string>("");
-  const [showEntries, setShowEntries] = useState<string>("All");
-  const [searchText, setSearchText] = useState<string>("");
+  // const [showEntries, setShowEntries] = useState<string>("All"); // Removed as per image
+  // const [searchText, setSearchText] = useState<string>(""); // Removed as per image
 
   const filteredMedications = mockIpMedicationData;
 
@@ -313,11 +313,10 @@ const IpMedicationView = () => {
         </div>
       </ShadcnCardHeader>
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
-        <div className="space-y-2 mb-2 text-xs">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mb-2 text-xs"> {/* Single row for filters */}
             <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
-              <SelectTrigger id="ipVisitDate" className="h-7 w-40 text-xs">
+              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -326,7 +325,7 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipScheduleType" className="shrink-0">Schedule Type</Label>
             <Select value={scheduleType} onValueChange={setScheduleType}>
-              <SelectTrigger id="ipScheduleType" className="h-7 w-32 text-xs">
+              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -337,53 +336,32 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipStatus" className="shrink-0">Status</Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="ipStatus" className="h-7 w-28 text-xs">
+              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">ACTIVE</SelectItem>
                 <SelectItem value="hold">HOLD</SelectItem>
-                <SelectItem value="unreleased">UNRELEASED</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
             <div className="relative">
-              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-28 text-xs pr-7" />
+              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
             <Label htmlFor="ipOrderTo" className="shrink-0">Order To</Label>
             <div className="relative">
-              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-28 text-xs pr-7" />
+              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex items-center space-x-1">
-              <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
-              <Select value={showEntries} onValueChange={setShowEntries}>
-                <SelectTrigger id="ipShowEntries" className="h-7 w-20 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All">All</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                </SelectContent>
-              </Select>
-              <Label htmlFor="ipShowEntries" className="text-xs shrink-0">entries</Label>
-            </div>
-            <div className="flex-grow"></div>
-            <Label htmlFor="ipSearch" className="shrink-0">Search:</Label>
-            <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
-          </div>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-xs text-foreground h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -437,9 +415,9 @@ const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pb-1 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
           <Button
             key={item}
