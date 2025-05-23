@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, FileSignature, X, ImageUp } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardTitle } from '@/components/ui/card'; // Added Card, CardContent, CardTitle
+import { Card, CardContent, CardTitle } from '@/components/ui/card'; 
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -215,7 +215,7 @@ const ClinicalNotesPage = () => {
                     <TableRow>
                       {[
                         { name: "Notes Title", className: "min-w-[15rem]" }, 
-                        { name: "Date of Entry", className: "" }, // Removed whitespace-nowrap
+                        { name: "Date of Entry", className: "" }, 
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
                         { name: "Edit" },
@@ -239,7 +239,7 @@ const ClinicalNotesPage = () => {
                     {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                         <TableCell className="py-1.5 px-3 min-w-[15rem]">{truncateText(note.notesTitle, 100)}</TableCell>
-                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> {/* Removed whitespace-nowrap */}
+                        <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSignature className="h-3.5 w-3.5" /></Button>
@@ -253,9 +253,9 @@ const ClinicalNotesPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.author}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.location}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.cosigner || '-'}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.author}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.location}</TableCell>
+                        <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -314,5 +314,3 @@ const ClinicalNotesPage = () => {
 };
 
 export default ClinicalNotesPage;
-
-    
