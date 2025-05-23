@@ -254,7 +254,7 @@ const IpMedicationView = () => {
   const ipMedTableHeaders = ["Services", "Medication Name", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Actions", "Medication Day", "Schedule"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+    <Card className="flex-1 flex flex-col shadow overflow-suto">
       <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">IPD Medication List</CardTitle>
@@ -268,7 +268,7 @@ const IpMedicationView = () => {
           </div>
         </div>
       </ShadcnCardHeader>
-      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-auto">
         <div className="space-y-2 mb-2 text-xs">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
@@ -333,7 +333,7 @@ const IpMedicationView = () => {
             <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-hidden min-h-0">
+        <div className="flex-1 overflow-suto min-h-0">
           <Table className="text-xs min-w-[90rem] flex-1 min-h-0">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>

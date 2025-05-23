@@ -1,85 +1,43 @@
+
 'use client';
 
 import type { NextPage } from 'next';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Added React for React.memo if used elsewhere
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-// ScrollArea removed
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, ChevronDown, ChevronUp, RefreshCw, ArrowUpDown, Settings, FileEdit, Switch as SwitchIcon } from 'lucide-react'; // Renamed Switch to SwitchIcon
+import { Edit3, CalendarDays, RefreshCw, ArrowUpDown, Switch as SwitchIcon, Printer } from 'lucide-react'; // SwitchIcon alias for Switch
 import { Switch } from "@/components/ui/switch"; // Shadcn Switch
 import { Badge } from '@/components/ui/badge';
 
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
-  "Chief-Complaints", "Allergies", "OPD/IPD Details"
+  "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
 ];
 
+const vitalTypes = [
+  "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)",
+  "Height (In)", "Weight (kg)", "CVP (cmH2O)", "C/G (In)",
+  "Pulse Oximetry (%)", "Pain", "Early Warning Sign", "Location", "Entered By"
+];
 
 type VitalChartDataPoint = { name: string; value?: number; systolic?: number; diastolic?: number };
 
-const VitalsView = () => {
-  const [visitDate, setVisitDate] = useState<string | undefined>();
-  const [fromDate, setFromDate] = useState<string>("");
-  const [toDateValue, setToDateValue] = useState<string>("");
-  const [selectedVitalForGraph, setSelectedVitalForGraph] = useState<string>("B/P (mmHg)");
-  const [chartData, setChartData] = useState<VitalChartDataPoint[]>([]);
-  const [isEnteredInError, setIsEnteredInError] = useState<boolean>(false);
-
-  const [isVitalsEntryMode, setIsVitalsEntryMode] = useState(false);
-  const [vitalsEntryData, setVitalsEntryData] = useState({
-    bloodPressureSystolic: '',
-    bloodPressureDiastolic: '',
-    bloodPressureNotRecordable: false,
-    bloodPressureQualifier: undefined as string | undefined,
-    heightValue: '',
-    heightUnit: 'cm',
-    heightQualifier: undefined as string | undefined,
-    painValue: undefined as string | undefined,
-    pulseValue: '',
-    pulseQualifier: undefined as string | undefined,
-    respirationValue: '',
-    respirationQualifier: undefined as string | undefined,
-    temperatureValue: '',
-    temperatureUnit: 'F',
-    temperatureSite: undefined as string | undefined, 
-    temperatureQualifier: undefined as string | undefined,
-    weightValue: '',
-    weightUnit: 'kg',
-    weightQualifier: undefined as string | undefined,
-    cvpValue: '',
-    cvpUnit: 'mmHg', 
-    cvpQualifier: undefined as string | undefined, 
-    cgValue: '',
-    cgUnit: 'cm', 
-    cgQualifier: undefined as string | undefined,
-    pulseOximetryValue: '',
-    pulseOximetryQualifier: undefined as string | undefined,
-  });
-
-  const handleVitalsEntryChange = (field: keyof typeof vitalsEntryData, value: string | boolean | undefined) => {
-    setVitalsEntryData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const vitalTypes = [
-    "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)",
-    "Height (In)", "Weight (kg)", "CVP (cmH2O)", "C/G (In)",
-    "Pulse Oximetry (%)", "Pain", "Early Warning Sign", "Location", "Entered By"
-  ];
+const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
+    if (typeof window === 'undefined') return min; // Return a default value for SSR
+    const val = Math.random() * (max - min) + min;
+    return parseFloat(val.toFixed(toFixed));
+};
   
-  const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
+const getMockDataForVital = (vitalName: string): VitalChartDataPoint[] => {
     if (typeof window === 'undefined') return Array(10).fill({name: '', value: 0});
-
-    const generateRandomValue = (min: number, max: number, toFixed: number = 0) => {
-      const val = Math.random() * (max - min) + min;
-      return parseFloat(val.toFixed(toFixed));
-    }
   
     switch (vitalName) {
       case "B/P (mmHg)":
@@ -111,9 +69,9 @@ const VitalsView = () => {
       default:
         return Array.from({ length: 10 }, (_, i) => ({ name: (i + 1).toString(), value: 0 }));
     }
-  };
+};
   
-  const getYAxisConfig = (vitalName: string): { label: string; domain: [number | string, number | string] } => {
+const getYAxisConfig = (vitalName: string): { label: string; domain: [number | string, number | string] } => {
     switch (vitalName) {
       case "B/P (mmHg)": return { label: "mmHg", domain: [40, 180] };
       case "Temp (F)": return { label: "°F", domain: [90, 110] };
@@ -128,8 +86,49 @@ const VitalsView = () => {
       case "Early Warning Sign": return { label: "Score", domain: [0, 10] };
       default: return { label: "Value", domain: ['auto', 'auto'] };
     }
-  };
+};
 
+const VitalsView = () => {
+  const [visitDateState, setVisitDateState] = useState<string | undefined>(); 
+  const [fromDateValue, setFromDateValue] = useState<string>("");
+  const [toDateValueState, setToDateValueState] = useState<string>(""); 
+  const [selectedVitalForGraph, setSelectedVitalForGraph] = useState<string>(vitalTypes[0]);
+  const [chartData, setChartData] = useState<VitalChartDataPoint[]>([]);
+  const [isEnteredInError, setIsEnteredInError] = useState<boolean>(false);
+
+  const [isVitalsEntryMode, setIsVitalsEntryMode] = useState(false);
+  const [vitalsEntryData, setVitalsEntryData] = useState({
+    bloodPressureSystolic: '',
+    bloodPressureDiastolic: '',
+    bloodPressureNotRecordable: false,
+    bloodPressureQualifier: undefined as string | undefined,
+    heightValue: '',
+    heightUnit: 'cm',
+    heightQualifier: undefined as string | undefined,
+    painValue: undefined as string | undefined,
+    pulseValue: '',
+    pulseQualifier: undefined as string | undefined,
+    respirationValue: '',
+    respirationQualifier: undefined as string | undefined,
+    temperatureValue: '',
+    temperatureUnit: 'F',
+    temperatureSite: undefined as string | undefined, 
+    temperatureQualifier: undefined as string | undefined,
+    weightValue: '',
+    weightUnit: 'kg',
+    weightQualifier: undefined as string | undefined,
+    cvpValue: '',
+    cvpUnit: 'mmHg',
+    cgValue: '',
+    cgUnit: 'cm', 
+    cgQualifier: undefined as string | undefined,
+    pulseOximetryValue: '',
+    pulseOximetryQualifier: undefined as string | undefined,
+  });
+
+  const handleVitalsEntryChange = (field: keyof typeof vitalsEntryData, value: string | boolean | undefined) => {
+    setVitalsEntryData(prev => ({ ...prev, [field]: value }));
+  };
 
   useEffect(() => {
     setChartData(getMockDataForVital(selectedVitalForGraph));
@@ -139,40 +138,224 @@ const VitalsView = () => {
 
   return (
     <div className="flex-1 flex gap-3 overflow-hidden">
-        <div className={`flex flex-col border rounded-md bg-card shadow ${isVitalsEntryMode ? 'flex-1' : 'flex-1'}`}> 
+        {/* Vitals Data Area or Entry Form */}
+        <div className="flex-1 flex flex-col border rounded-md bg-card shadow"> 
           <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
             <h2 className="text-base font-semibold">{isVitalsEntryMode ? "Vitals Entry" : "Vitals"}</h2>
-            {!isVitalsEntryMode && (
-              <div className="flex items-center space-x-2 text-xs">
-                <Checkbox id="enteredInError" checked={isEnteredInError} onCheckedChange={(checkedState) => setIsEnteredInError(Boolean(checkedState))} />
-                <Label htmlFor="enteredInError" className="font-normal">Entered in Error</Label>
-              </div>
-            )}
             <div className="flex items-center space-x-2">
+              {!isVitalsEntryMode && (
+                <>
+                  <Checkbox id="enteredInError" checked={isEnteredInError} onCheckedChange={(checkedState) => setIsEnteredInError(Boolean(checkedState))} className="h-3.5 w-3.5"/>
+                  <Label htmlFor="enteredInError" className="font-normal text-xs">Entered in Error</Label>
+                </>
+              )}
               <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50" onClick={() => setIsVitalsEntryMode(!isVitalsEntryMode)}>
                 <Edit3 className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          {!isVitalsEntryMode ? (
+          {isVitalsEntryMode ? (
             <>
+              <ScrollArea className="flex-1 min-h-0">
+                <Table className="text-xs">
+                  <TableHeader className="bg-accent sticky top-0 z-10">
+                    <TableRow>
+                      <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Vitals</TableHead>
+                      <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Not Recordable</TableHead>
+                      <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Value</TableHead>
+                      <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Unit</TableHead>
+                      <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Qualifiers</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {/* B/P Row */}
+                    <TableRow className="bg-muted/30">
+                      <TableCell className="py-1.5 px-3">B/P</TableCell>
+                      <TableCell className="py-1.5 px-3"><Checkbox id="bpNotRecordable" checked={vitalsEntryData.bloodPressureNotRecordable} onCheckedChange={(checked) => handleVitalsEntryChange('bloodPressureNotRecordable', Boolean(checked))} className="h-3.5 w-3.5"/></TableCell>
+                      <TableCell className="py-1.5 px-3">
+                        <div className="flex items-center gap-1">
+                          <Input type="text" placeholder="Systolic" className="h-7 text-xs w-20" value={vitalsEntryData.bloodPressureSystolic} onChange={e => handleVitalsEntryChange('bloodPressureSystolic', e.target.value)} />
+                          <span>/</span>
+                          <Input type="text" placeholder="Diastolic" className="h-7 text-xs w-20" value={vitalsEntryData.bloodPressureDiastolic} onChange={e => handleVitalsEntryChange('bloodPressureDiastolic', e.target.value)} />
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-1.5 px-3">mmHg</TableCell>
+                      <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.bloodPressureQualifier} onValueChange={val => handleVitalsEntryChange('bloodPressureQualifier', val)}>
+                          <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent><SelectItem value="sitting" className="text-xs">Sitting</SelectItem><SelectItem value="standing" className="text-xs">Standing</SelectItem></SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                     {/* Temperature Row */}
+                     <TableRow>
+                      <TableCell className="py-1.5 px-3">Temp</TableCell>
+                      <TableCell className="py-1.5 px-3"></TableCell> 
+                      <TableCell className="py-1.5 px-3">
+                        <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.temperatureValue} onChange={e => handleVitalsEntryChange('temperatureValue', e.target.value)} />
+                      </TableCell>
+                      <TableCell className="py-1.5 px-3">
+                         <Select value={vitalsEntryData.temperatureUnit} onValueChange={val => handleVitalsEntryChange('temperatureUnit', val)}>
+                            <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent><SelectItem value="F" className="text-xs">F</SelectItem><SelectItem value="C" className="text-xs">C</SelectItem></SelectContent>
+                        </Select>
+                      </TableCell>
+                       <TableCell className="py-1.5 px-3">
+                         <Select value={vitalsEntryData.temperatureQualifier} onValueChange={val => handleVitalsEntryChange('temperatureQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Site" /></SelectTrigger>
+                            <SelectContent><SelectItem value="oral" className="text-xs">Oral</SelectItem><SelectItem value="axillary" className="text-xs">Axillary</SelectItem></SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                    {/* Pain Row */}
+                    <TableRow className="bg-muted/30">
+                        <TableCell className="py-1.5 px-3">Pain</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.painValue} onValueChange={val => handleVitalsEntryChange('painValue', val)}>
+                            <SelectTrigger className="h-7 text-xs w-24"><SelectValue placeholder="Scale 0-10" /></SelectTrigger>
+                            <SelectContent>
+                            {Array.from({ length: 11 }, (_, i) => <SelectItem key={i} value={i.toString()} className="text-xs">{i}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        </TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                    </TableRow>
+                    {/* Pulse Row */}
+                    <TableRow>
+                        <TableCell className="py-1.5 px-3">Pulse</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.pulseValue} onChange={e => handleVitalsEntryChange('pulseValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">/min</TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.pulseQualifier} onValueChange={val => handleVitalsEntryChange('pulseQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent><SelectItem value="regular" className="text-xs">Regular</SelectItem><SelectItem value="irregular" className="text-xs">Irregular</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                    </TableRow>
+                     {/* Height Row */}
+                    <TableRow className="bg-muted/30">
+                        <TableCell className="py-1.5 px-3">Height</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.heightValue} onChange={e => handleVitalsEntryChange('heightValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.heightUnit} onValueChange={val => handleVitalsEntryChange('heightUnit', val)}>
+                            <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent><SelectItem value="cm" className="text-xs">cm</SelectItem><SelectItem value="in" className="text-xs">in</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.heightQualifier} onValueChange={val => handleVitalsEntryChange('heightQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent><SelectItem value="standing" className="text-xs">Standing</SelectItem><SelectItem value="lying" className="text-xs">Lying</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                    </TableRow>
+                    {/* Weight Row */}
+                    <TableRow>
+                        <TableCell className="py-1.5 px-3">Weight</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.weightValue} onChange={e => handleVitalsEntryChange('weightValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.weightUnit} onValueChange={val => handleVitalsEntryChange('weightUnit', val)}>
+                            <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent><SelectItem value="kg" className="text-xs">kg</SelectItem><SelectItem value="lbs" className="text-xs">lbs</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.weightQualifier} onValueChange={val => handleVitalsEntryChange('weightQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent><SelectItem value="with_clothes" className="text-xs">With Clothes</SelectItem><SelectItem value="without_clothes" className="text-xs">Without Clothes</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                    </TableRow>
+                    {/* Respiration Row */}
+                    <TableRow className="bg-muted/30">
+                        <TableCell className="py-1.5 px-3">Resp</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.respirationValue} onChange={e => handleVitalsEntryChange('respirationValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">/min</TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.respirationQualifier} onValueChange={val => handleVitalsEntryChange('respirationQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent><SelectItem value="normal" className="text-xs">Normal</SelectItem><SelectItem value="labored" className="text-xs">Labored</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                    </TableRow>
+                    {/* CVP Row */}
+                    <TableRow>
+                        <TableCell className="py-1.5 px-3">CVP</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.cvpValue} onChange={e => handleVitalsEntryChange('cvpValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.cvpUnit} onValueChange={val => handleVitalsEntryChange('cvpUnit', val)}>
+                            <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent><SelectItem value="mmHg" className="text-xs">mmHg</SelectItem><SelectItem value="cmH2O" className="text-xs">cmH2O</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell> 
+                    </TableRow>
+                    {/* C/G Row */}
+                    <TableRow className="bg-muted/30">
+                        <TableCell className="py-1.5 px-3">C/G</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.cgValue} onChange={e => handleVitalsEntryChange('cgValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.cgUnit} onValueChange={val => handleVitalsEntryChange('cgUnit', val)}>
+                            <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
+                            <SelectContent><SelectItem value="cm" className="text-xs">cm</SelectItem><SelectItem value="in" className="text-xs">in</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.cgQualifier} onValueChange={val => handleVitalsEntryChange('cgQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent><SelectItem value="option_x" className="text-xs">Option X</SelectItem><SelectItem value="option_y" className="text-xs">Option Y</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                    </TableRow>
+                    {/* Pulse Oximetry Row */}
+                    <TableRow>
+                        <TableCell className="py-1.5 px-3">Pulse Oximetry</TableCell>
+                        <TableCell className="py-1.5 px-3"></TableCell>
+                        <TableCell className="py-1.5 px-3"><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.pulseOximetryValue} onChange={e => handleVitalsEntryChange('pulseOximetryValue', e.target.value)} /></TableCell>
+                        <TableCell className="py-1.5 px-3">%</TableCell>
+                        <TableCell className="py-1.5 px-3">
+                        <Select value={vitalsEntryData.pulseOximetryQualifier} onValueChange={val => handleVitalsEntryChange('pulseOximetryQualifier', val)}>
+                            <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent><SelectItem value="room_air" className="text-xs">Room Air</SelectItem><SelectItem value="on_oxygen" className="text-xs">On Oxygen</SelectItem></SelectContent>
+                        </Select>
+                        </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+              <div className="flex justify-end space-x-2 mt-auto p-2 border-t">
+                <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setIsVitalsEntryMode(false)}>Cancel</Button>
+                <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => { setIsVitalsEntryMode(false); /* TODO: Save logic */ }}>Save</Button>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Filter Bar */}
               <div className="flex flex-wrap items-center space-x-2 p-2 border-b text-xs gap-y-2">
                 <Label htmlFor="visitDateVitals" className="shrink-0">Visit Date</Label>
-                <Select value={visitDate} onValueChange={setVisitDate}>
+                <Select value={visitDateState} onValueChange={setVisitDateState}>
                   <SelectTrigger id="visitDateVitals" className="h-8 w-28 text-xs">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="yesterday">Yesterday</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
+                    <SelectItem value="today" className="text-xs">Today</SelectItem>
+                    <SelectItem value="yesterday" className="text-xs">Yesterday</SelectItem>
+                    <SelectItem value="custom" className="text-xs">Custom</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="flex items-center space-x-1">
                   <Label htmlFor="fromDateVitals" className="shrink-0">From</Label>
                   <div className="relative">
-                    <Input id="fromDateVitals" type="text" value={fromDate} onChange={(e) => setFromDate(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
+                    <Input id="fromDateVitals" type="text" value={fromDateValue} onChange={(e) => setFromDateValue(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
                     <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                       <CalendarDays className="h-4 w-4" />
                     </Button>
@@ -181,7 +364,7 @@ const VitalsView = () => {
                 <div className="flex items-center space-x-1">
                   <Label htmlFor="toDateVitals" className="shrink-0">To</Label>
                   <div className="relative">
-                    <Input id="toDateVitals" type="text" value={toDateValue} onChange={(e) => setToDateValue(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
+                    <Input id="toDateVitals" type="text" value={toDateValueState} onChange={(e) => setToDateValueState(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
                     <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                       <CalendarDays className="h-4 w-4" />
                     </Button>
@@ -189,18 +372,19 @@ const VitalsView = () => {
                 </div>
               </div>
 
+              {/* Vitals Table Header (Date/Time) */}
               <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
                 <div className="w-20 text-center">Date</div>
                 <div className="w-20 text-center">Time</div>
               </div>
-
-              <div className="flex-1 overflow-hidden min-h-0">
-                <Table className="text-xs flex-1 min-h-0">
+              
+              <ScrollArea className="flex-1 min-h-0">
+                <Table className="text-xs">
                   <TableBody>
-                    {vitalTypes.map((vital, index) => (
+                    {vitalTypes.map((vital, index) => ( 
                       <TableRow
                         key={vital}
-                        className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-secondary text-primary' : ''} ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
+                        className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-secondary text-primary hover:bg-secondary hover:text-primary' : ''} ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                         onClick={() => setSelectedVitalForGraph(vital)}
                       >
                         <TableCell className="font-medium py-1.5 px-3 border-r w-48 whitespace-nowrap">{vital}</TableCell>
@@ -210,233 +394,53 @@ const VitalsView = () => {
                     ))}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollArea>
 
               <div className="flex items-center justify-center space-x-2 p-2 border-t">
-                <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Vitals Entry</Button>
-                <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Multiple Vitals Graph</Button>
-                <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">ICU Flow Sheet</Button>
+                <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8" onClick={() => setIsVitalsEntryMode(true)}>Vitals Entry</Button>
+                <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Multiple Vitals Graph</Button>
+                <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">ICU Flow Sheet</Button>
               </div>
             </>
-          ) : (
-            // Vitals Entry Form
-            <div className="flex-1 overflow-hidden min-h-0">
-              <Table className="text-xs flex-1 min-h-0">
-                <ShadcnTableHeader className="bg-accent">
-                  <TableRow>
-                    <TableHead className="text-foreground font-semibold">Vitals</TableHead>
-                    <TableHead className="text-foreground font-semibold">Not Recordable</TableHead>
-                    <TableHead className="text-foreground font-semibold">Value</TableHead>
-                    <TableHead className="text-foreground font-semibold">Unit</TableHead>
-                    <TableHead className="text-foreground font-semibold">Qualifiers</TableHead>
-                  </TableRow>
-                </ShadcnTableHeader>
-                <TableBody>
-                  {/* B/P Row */}
-                  <TableRow className={vitalTypes.indexOf("B/P (mmHg)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>B/P</TableCell>
-                    <TableCell><Checkbox id="bpNotRecordable" checked={vitalsEntryData.bloodPressureNotRecordable} onCheckedChange={(checked) => handleVitalsEntryChange('bloodPressureNotRecordable', Boolean(checked))} /></TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Input type="text" placeholder="Systolic" className="h-7 text-xs w-20" value={vitalsEntryData.bloodPressureSystolic} onChange={e => handleVitalsEntryChange('bloodPressureSystolic', e.target.value)} />
-                        <span>/</span>
-                        <Input type="text" placeholder="Diastolic" className="h-7 text-xs w-20" value={vitalsEntryData.bloodPressureDiastolic} onChange={e => handleVitalsEntryChange('bloodPressureDiastolic', e.target.value)} />
-                      </div>
-                    </TableCell>
-                    <TableCell>mmHg</TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.bloodPressureQualifier} onValueChange={val => handleVitalsEntryChange('bloodPressureQualifier', val)}>
-                        <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                        <SelectContent><SelectItem value="sitting">Sitting</SelectItem><SelectItem value="standing">Standing</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                   {/* Temperature Row */}
-                   <TableRow className={vitalTypes.indexOf("Temp (F)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>Temp</TableCell>
-                    <TableCell></TableCell> 
-                    <TableCell>
-                      <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.temperatureValue} onChange={e => handleVitalsEntryChange('temperatureValue', e.target.value)} />
-                    </TableCell>
-                    <TableCell>
-                       <Select value={vitalsEntryData.temperatureUnit} onValueChange={val => handleVitalsEntryChange('temperatureUnit', val)}>
-                          <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                          <SelectContent><SelectItem value="F">F</SelectItem><SelectItem value="C">C</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                     <TableCell>
-                       <Select value={vitalsEntryData.temperatureSite} onValueChange={val => handleVitalsEntryChange('temperatureSite', val)}>
-                          <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Site" /></SelectTrigger>
-                          <SelectContent><SelectItem value="oral">Oral</SelectItem><SelectItem value="axillary">Axillary</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("Pain") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>Pain</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.painValue} onValueChange={val => handleVitalsEntryChange('painValue', val)}>
-                        <SelectTrigger className="h-7 text-xs w-24"><SelectValue placeholder="Scale 0-10" /></SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 11 }, (_, i) => <SelectItem key={i} value={i.toString()}>{i}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell></TableCell>
-                     <TableCell>
-                      <Select value={vitalsEntryData.temperatureQualifier} onValueChange={val => handleVitalsEntryChange('temperatureQualifier' , val)}>
-                        <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Location" /></SelectTrigger>
-                        <SelectContent><SelectItem value="head">Head</SelectItem><SelectItem value="chest">Chest</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("Pulse (/min)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>Pulse</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.pulseValue} onChange={e => handleVitalsEntryChange('pulseValue', e.target.value)} /></TableCell>
-                    <TableCell>/min</TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.pulseQualifier} onValueChange={val => handleVitalsEntryChange('pulseQualifier', val)}>
-                        <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                        <SelectContent><SelectItem value="regular">Regular</SelectItem><SelectItem value="irregular">Irregular</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("Height (In)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>Height</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.heightValue} onChange={e => handleVitalsEntryChange('heightValue', e.target.value)} /></TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.heightUnit} onValueChange={val => handleVitalsEntryChange('heightUnit', val)}>
-                        <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                        <SelectContent><SelectItem value="cm">cm</SelectItem><SelectItem value="in">in</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                       <Select value={vitalsEntryData.heightQualifier} onValueChange={val => handleVitalsEntryChange('heightQualifier', val)}>
-                          <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                          <SelectContent><SelectItem value="standing">Standing</SelectItem><SelectItem value="lying">Lying</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("Weight (kg)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>Weight</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.weightValue} onChange={e => handleVitalsEntryChange('weightValue', e.target.value)} /></TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.weightUnit} onValueChange={val => handleVitalsEntryChange('weightUnit', val)}>
-                        <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                        <SelectContent><SelectItem value="kg">kg</SelectItem><SelectItem value="lbs">lbs</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.weightQualifier} onValueChange={val => handleVitalsEntryChange('weightQualifier', val)}>
-                        <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                        <SelectContent><SelectItem value="with_clothes">With Clothes</SelectItem><SelectItem value="without_clothes">Without Clothes</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("Resp (/min)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell>Resp</TableCell>
-                    <TableCell></TableCell>
-                    <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.respirationValue} onChange={e => handleVitalsEntryChange('respirationValue', e.target.value)} /></TableCell>
-                    <TableCell>/min</TableCell>
-                    <TableCell>
-                      <Select value={vitalsEntryData.respirationQualifier} onValueChange={val => handleVitalsEntryChange('respirationQualifier', val)}>
-                          <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                          <SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="labored">Labored</SelectItem></SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("CVP (cmH2O)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                      <TableCell>CVP</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.cvpValue} onChange={e => handleVitalsEntryChange('cvpValue', e.target.value)} /></TableCell>
-                      <TableCell>
-                          <Select value={vitalsEntryData.cvpUnit} onValueChange={val => handleVitalsEntryChange('cvpUnit', val)}>
-                              <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                              <SelectContent><SelectItem value="mmHg">mmHg</SelectItem><SelectItem value="cmH2O">cmH2O</SelectItem></SelectContent>
-                          </Select>
-                      </TableCell>
-                      <TableCell></TableCell> 
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("C/G (In)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                      <TableCell>C/G</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.cgValue} onChange={e => handleVitalsEntryChange('cgValue', e.target.value)} /></TableCell>
-                       <TableCell>
-                          <Select value={vitalsEntryData.cgUnit} onValueChange={val => handleVitalsEntryChange('cgUnit', val)}>
-                              <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                              <SelectContent><SelectItem value="cm">cm</SelectItem><SelectItem value="in">in</SelectItem></SelectContent>
-                          </Select>
-                      </TableCell>
-                      <TableCell>
-                          <Select value={vitalsEntryData.cgQualifier} onValueChange={val => handleVitalsEntryChange('cgQualifier', val)}>
-                              <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                              <SelectContent><SelectItem value="option_x">Option X</SelectItem><SelectItem value="option_y">Option Y</SelectItem></SelectContent>
-                          </Select>
-                      </TableCell>
-                  </TableRow>
-                  <TableRow className={vitalTypes.indexOf("Pulse Oximetry (%)") % 2 === 0 ? 'bg-muted/30' : ''}>
-                      <TableCell>Pulse Oximetry</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell><Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.pulseOximetryValue} onChange={e => handleVitalsEntryChange('pulseOximetryValue', e.target.value)} /></TableCell>
-                      <TableCell>%</TableCell>
-                       <TableCell>
-                          <Select value={vitalsEntryData.pulseOximetryQualifier} onValueChange={val => handleVitalsEntryChange('pulseOximetryQualifier', val)}>
-                              <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                              <SelectContent><SelectItem value="room_air">Room Air</SelectItem><SelectItem value="on_oxygen">On Oxygen</SelectItem></SelectContent>
-                          </Select>
-                      </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-               <div className="flex justify-end space-x-2 mt-4 p-2 border-t">
-                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setIsVitalsEntryMode(false)}>Cancel</Button>
-                  <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => { setIsVitalsEntryMode(false); } }>Save</Button>
-              </div>
-            </div>
           )}
         </div>
 
-        {!isVitalsEntryMode && (
-           <div className="flex-1 flex flex-col border rounded-md bg-card shadow"> 
-            <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
-              <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
-            </div>
-            <div className="flex-1 p-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Time/Sequence", position: 'insideBottom', offset: -10, fontSize: 10 }} />
-                  <YAxis
-                    tick={{ fontSize: 10 }}
-                    domain={yAxisConfig.domain as [number | string, number | string]}
-                    label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }}
-                  />
-                  <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }} />
-                  <Legend wrapperStyle={{ fontSize: "10px" }} />
-                  {selectedVitalForGraph === "B/P (mmHg)" ? (
-                    <>
-                      <Line type="monotone" dataKey="systolic" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name="Systolic" />
-                      <Line type="monotone" dataKey="diastolic" stroke="hsl(var(--chart-3))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name="Diastolic" />
-                    </>
-                  ) : (
-                    <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name={selectedVitalForGraph} />
-                  )}
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+        {/* Vitals Graph Area - Always visible */}
+        <div className="flex-1 flex flex-col border rounded-md bg-card shadow">
+          <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
+            <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
           </div>
-        )}
+          <div className="flex-1 p-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Time/Sequence", position: 'insideBottom', offset: -10, fontSize: 10 }} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  domain={yAxisConfig.domain as [number | string, number | string]}
+                  label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }}
+                />
+                <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }} />
+                <Legend wrapperStyle={{ fontSize: "10px" }} />
+                {selectedVitalForGraph === "B/P (mmHg)" ? (
+                  <>
+                    <Line type="monotone" dataKey="systolic" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name="Systolic" />
+                    <Line type="monotone" dataKey="diastolic" stroke="hsl(var(--chart-3))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name="Diastolic" />
+                  </>
+                ) : (
+                  <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name={selectedVitalForGraph} />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
   );
 };
 
-
 const IntakeOutputView = () => {
-  const [fromDate, setFromDate] = useState<string>("05/16/2025 14:5");
-  const [toDateValue, setToDateValue] = useState<string>("05/17/2025 14:5"); 
+  const [fromDateValue, setFromDateValue] = useState<string>("05/16/2025 14:5");
+  const [toDateValueState, setToDateValueState] = useState<string>("05/17/2025 14:5");
 
   const mockIntakeOutputChartData = [
     { name: '08:00', series1: 400, series2: 240 }, { name: '10:00', series1: 300, series2: 139 },
@@ -445,49 +449,12 @@ const IntakeOutputView = () => {
     { name: '20:00', series1: 349, series2: 430 },
   ];
 
-  const IntakeOutputTable = () => {
-    const inputHeaders = ["IV FLUID", "BLOOD PRODUCT", "PO", "TUBE FEEDING", "INFUSION", "OTHER"];
-    const outputHeaders = ["URINE", "N/G", "EMESIS", "DRAINAGE", "FAECES"];
-  
-    return (
-      <div className="flex-1 overflow-x-auto">
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="bg-accent text-foreground">
-              <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
-              <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
-            </tr>
-            <tr className="bg-accent text-foreground">
-              {inputHeaders.map(header => (
-                <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap">
-                  {header.split(" ")[0]}<br/>{header.split(" ")[1] || ""}
-                </th>
-              ))}
-              {outputHeaders.map(header => (
-                <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap">{header}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="bg-card">
-            {[1,2].map((rowNum, index) => ( 
-              <TableRow key={`data-row-${rowNum}`} className={index % 2 === 0 ? 'even:bg-muted/30' : ''}>
-                {inputHeaders.map(header => <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
-                {outputHeaders.map(header => <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
-              </TableRow>
-            ))}
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={inputHeaders.length} className="p-1.5 border text-left font-semibold">Total:</TableCell>
-              <TableCell colSpan={outputHeaders.length} className="p-1.5 border text-left font-semibold"></TableCell>
-            </TableRow>
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
+  const inputHeaders = ["IV FLUID", "BLOOD PRODUCT", "PO", "TUBE FEEDING", "INFUSION", "OTHER"];
+  const outputHeaders = ["URINE", "N/G", "EMESIS", "DRAINAGE", "FAECES"];
 
   return (
     <div className="flex-1 flex gap-3 overflow-hidden">
+      {/* Patient Intake/Output Summary Area */}
       <div className="flex-[7] flex flex-col border rounded-md bg-card shadow overflow-hidden">
         <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
@@ -503,20 +470,53 @@ const IntakeOutputView = () => {
         <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
           <Label htmlFor="intakeFromDate" className="shrink-0">From Date</Label>
           <div className="relative">
-            <Input id="intakeFromDate" type="text" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="h-8 w-36 text-xs pr-8" />
+            <Input id="intakeFromDate" type="text" value={fromDateValue} onChange={(e) => setFromDateValue(e.target.value)} className="h-8 w-36 text-xs pr-8" />
             <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                 <CalendarDays className="h-4 w-4" />
             </Button>
           </div>
           <Label htmlFor="intakeToDate" className="shrink-0">To Date</Label>
            <div className="relative">
-            <Input id="intakeToDate" type="text" value={toDateValue} onChange={(e) => setToDateValue(e.target.value)} className="h-8 w-36 text-xs pr-8" />
+            <Input id="intakeToDate" type="text" value={toDateValueState} onChange={(e) => setToDateValueState(e.target.value)} className="h-8 w-36 text-xs pr-8" />
              <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                 <CalendarDays className="h-4 w-4" />
             </Button>
           </div>
         </div>
-        <IntakeOutputTable />
+        
+        <div className="flex-1 overflow-auto"> 
+            <table className="w-full text-xs border-collapse min-w-[60rem]"> 
+            <thead className="sticky top-0 z-10">
+                <tr className="bg-accent text-foreground">
+                <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
+                <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
+                </tr>
+                <tr className="bg-accent text-foreground">
+                {inputHeaders.map(header => (
+                    <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent">
+                    {header.split(" ")[0]}<br/>{header.split(" ")[1] || ""}
+                    </th>
+                ))}
+                {outputHeaders.map(header => (
+                    <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent">{header}</th>
+                ))}
+                </tr>
+            </thead>
+            <tbody className="bg-card">
+                {[1,2,3,4,5,6,7,8,9,10].map((rowNum, index) => ( 
+                <TableRow key={`data-row-${rowNum}`} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                    {inputHeaders.map(header => <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
+                    {outputHeaders.map(header => <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
+                </TableRow>
+                ))}
+                <TableRow className="bg-muted/30 sticky bottom-0 z-10">
+                <TableCell colSpan={inputHeaders.length} className="p-1.5 border text-left font-semibold">Total:</TableCell>
+                <TableCell colSpan={outputHeaders.length} className="p-1.5 border text-left font-semibold"></TableCell>
+                </TableRow>
+            </tbody>
+            </table>
+        </div>
+
         <div className="p-2 border-t text-xs space-y-1">
             <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
             <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
@@ -524,10 +524,10 @@ const IntakeOutputView = () => {
             <div className="text-primary text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
         </div>
         <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Add Intake</Button>
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Add Output</Button>
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Update Intake</Button>
-          <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">Update Output</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Intake</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Output</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Intake</Button>
+          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Output</Button>
         </div>
       </div>
 
@@ -542,7 +542,7 @@ const IntakeOutputView = () => {
               <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Date/Time", position: 'insideBottom', offset: -5, fontSize: 10 }} />
               <YAxis 
                 tick={{ fontSize: 10 }} 
-                label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 0 }} 
+                label={{ value: "Total Intake / Output (ml)", angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy:0, dx:-5 }} 
               />
               <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }}/>
               <Legend verticalAlign="top" height={36} wrapperStyle={{fontSize: "10px"}} />
@@ -557,54 +557,55 @@ const IntakeOutputView = () => {
 };
 
 const ProblemsView = () => {
-  const [showEntries, setShowEntries] = useState<string>("all");
-  const [problemVisitDate, setProblemVisitDate] = useState<string>("10 SEP, 2024 13:10");
-  const [statusToggle, setStatusToggle] = useState<boolean>(true);
-  const [searchText, setSearchText] = useState<string>("");
+  const [showEntriesValue, setShowEntriesValueState] = useState<string>("all");
+  const [problemVisitDateValue, setProblemVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
+  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
+  const [searchValue, setSearchValueState] = useState<string>("");
 
   const tableHeaders = ["Problems", "Immediacy", "Status", "Date of OnSet", "Edit", "Remove", "Restore", "Co-Morbidity"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow text-xs">
+    <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
        <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex flex-wrap items-center justify-between gap-y-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
-            <Select value={showEntries} onValueChange={setShowEntries}>
+            <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesProblem" className="h-7 w-20 text-xs">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="all" className="text-xs">All</SelectItem>
+                <SelectItem value="10" className="text-xs">10</SelectItem>
+                <SelectItem value="25" className="text-xs">25</SelectItem>
+                <SelectItem value="50" className="text-xs">50</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="showEntriesProblem" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="visitDateProblem" className="text-xs">Visit Date</Label>
-            <Select value={problemVisitDate} onValueChange={setProblemVisitDate}>
+            <Select value={problemVisitDateValue} onValueChange={setProblemVisitDateValueState}>
               <SelectTrigger id="visitDateProblem" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="statusToggleProblem" className="text-xs">Status</Label>
-            <Switch id="statusToggleProblem" checked={statusToggle} onCheckedChange={setStatusToggle} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
-            <Label htmlFor="statusToggleProblem" className="text-xs ml-1">ALL</Label>
+            <Switch id="statusToggleProblem" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
+            <Label htmlFor="statusToggleProblem" className="text-xs ml-1">{statusSwitchChecked ? 'ACTIVE' : 'INACTIVE'}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchProblem" className="text-xs">Search:</Label>
-            <Input id="searchProblem" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-32 text-xs" />
+            <Input id="searchProblem" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-32 text-xs" />
           </div>
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-0 overflow-hidden min-h-0">
-          <Table className="text-xs flex-1 min-h-0">
+        <div className="flex-1 overflow-auto"> 
+          <Table className="text-xs min-h-0">
             <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
               <TableRow>
                 {tableHeaders.map(header => (
@@ -625,6 +626,7 @@ const ProblemsView = () => {
               </TableRow>
             </TableBody>
           </Table>
+        </div>
       </CardContent>
       <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
         <div>Showing 0 to 0 of 0 entries</div>
@@ -642,14 +644,14 @@ const ProblemsView = () => {
 };
 
 const FinalDiagnosisView = () => {
-  const [showEntries, setShowEntries] = useState<string>("10");
-  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
-  const [searchText, setSearchText] = useState<string>("");
+  const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
+  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
+  const [searchValue, setSearchValueState] = useState<string>("");
 
   const tableHeaders = ["Primary/Secondary", "Diagnosis Description", "Comment", "Entered Date", "Provider", "Primary", "Add", "Remove"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow text-xs">
+    <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <CardTitle className="text-base font-semibold">Diagnosis</CardTitle>
       </CardHeader>
@@ -657,58 +659,60 @@ const FinalDiagnosisView = () => {
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesDiagnosis" className="text-xs">Show</Label>
-            <Select value={showEntries} onValueChange={setShowEntries}>
+            <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesDiagnosis" className="h-7 w-20 text-xs">
                 <SelectValue placeholder="10" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="10" className="text-xs">10</SelectItem>
+                <SelectItem value="25" className="text-xs">25</SelectItem>
+                <SelectItem value="50" className="text-xs">50</SelectItem>
+                <SelectItem value="all" className="text-xs">All</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="showEntriesDiagnosis" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="visitDateDiagnosis" className="text-xs">Visit Date</Label>
-            <Select value={visitDate} onValueChange={setVisitDate}>
+            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
               <SelectTrigger id="visitDateDiagnosis" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchDiagnosis" className="text-xs">Search:</Label>
-            <Input id="searchDiagnosis" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input id="searchDiagnosis" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
 
         <div className="flex-1 overflow-hidden min-h-0">
-          <Table className="text-xs flex-1 min-h-0">
-            <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
-              <TableRow>
-                {tableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
-                    <div className="flex items-center justify-between">
-                      {header}
-                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </ShadcnTableHeader>
-            <TableBody>
-              <TableRow className="even:bg-muted/30">
-                <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                  No Data Found
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+           <div className="flex-1 overflow-auto"> 
+            <Table className="text-xs min-h-0">
+                <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
+                <TableRow>
+                    {tableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
+                        <div className="flex items-center justify-between">
+                        {header}
+                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        </div>
+                    </TableHead>
+                    ))}
+                </TableRow>
+                </ShadcnTableHeader>
+                <TableBody>
+                <TableRow className="even:bg-muted/30">
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Data Found
+                    </TableCell>
+                </TableRow>
+                </TableBody>
+            </Table>
+            </div>
         </div>
          <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
             <div>Showing 0 to 0 of 0 entries</div>
@@ -727,15 +731,15 @@ const FinalDiagnosisView = () => {
 };
 
 const ChiefComplaintsView = () => {
-  const [showEntries, setShowEntries] = useState<string>("10");
-  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
-  const [statusActive, setStatusActive] = useState<boolean>(true);
-  const [searchText, setSearchText] = useState<string>("");
+  const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
+  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
+  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
+  const [searchValue, setSearchValueState] = useState<string>("");
 
   const tableHeaders = ["S.No", "Complaints", "Complaints Type", "Date", "Status", "Remark"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow text-xs">
+    <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">Chief-Complaints</CardTitle>
@@ -748,61 +752,63 @@ const ChiefComplaintsView = () => {
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesComplaint" className="text-xs">Show</Label>
-            <Select value={showEntries} onValueChange={setShowEntries}>
+            <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesComplaint" className="h-7 w-20 text-xs">
                 <SelectValue placeholder="10" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="10" className="text-xs">10</SelectItem>
+                <SelectItem value="25" className="text-xs">25</SelectItem>
+                <SelectItem value="50" className="text-xs">50</SelectItem>
+                <SelectItem value="all" className="text-xs">All</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="showEntriesComplaint" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="visitDateComplaint" className="text-xs">Visit Date</Label>
-            <Select value={visitDate} onValueChange={setVisitDate}>
+            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
               <SelectTrigger id="visitDateComplaint" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="statusSwitchComplaint" className="text-xs">Status</Label>
-            <Switch id="statusSwitchComplaint" checked={statusActive} onCheckedChange={setStatusActive}  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
-            <Label htmlFor="statusSwitchComplaint" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
+            <Switch id="statusSwitchComplaint" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState}  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
+            <Label htmlFor="statusSwitchComplaint" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchComplaint" className="text-xs">Search:</Label>
-            <Input id="searchComplaint" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input id="searchComplaint" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
 
         <div className="flex-1 overflow-hidden min-h-0">
-          <Table className="text-xs flex-1 min-h-0">
-            <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
-              <TableRow>
-                {tableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
-                    <div className="flex items-center justify-between">
-                      {header}
-                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </ShadcnTableHeader>
-            <TableBody>
-              <TableRow className="even:bg-muted/30">
-                <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                  No Data Found
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+           <div className="flex-1 overflow-auto"> 
+            <Table className="text-xs min-h-0">
+                <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
+                <TableRow>
+                    {tableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
+                        <div className="flex items-center justify-between">
+                        {header}
+                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        </div>
+                    </TableHead>
+                    ))}
+                </TableRow>
+                </ShadcnTableHeader>
+                <TableBody>
+                <TableRow className="even:bg-muted/30">
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Data Found
+                    </TableCell>
+                </TableRow>
+                </TableBody>
+            </Table>
+            </div>
         </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
           <div>Showing 0 to 0 of 0 entries</div>
@@ -821,15 +827,15 @@ const ChiefComplaintsView = () => {
 };
 
 const AllergiesView = () => {
-  const [showEntries, setShowEntries] = useState<string>("10");
-  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10"); 
-  const [statusActive, setStatusActive] = useState<boolean>(true);
-  const [searchText, setSearchText] = useState<string>("");
+  const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
+  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
+  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
+  const [searchValue, setSearchValueState] = useState<string>("");
 
   const tableHeaders = ["S.No", "Allergen", "Reaction", "Severity", "Type", "Onset Date", "Status"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow text-xs">
+    <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">Allergies</CardTitle>
@@ -842,61 +848,63 @@ const AllergiesView = () => {
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesAllergy" className="text-xs">Show</Label>
-            <Select value={showEntries} onValueChange={setShowEntries}>
+            <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesAllergy" className="h-7 w-20 text-xs">
                 <SelectValue placeholder="10" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="10" className="text-xs">10</SelectItem>
+                <SelectItem value="25" className="text-xs">25</SelectItem>
+                <SelectItem value="50" className="text-xs">50</SelectItem>
+                <SelectItem value="all" className="text-xs">All</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="showEntriesAllergy" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="visitDateAllergy" className="text-xs">Date Range</Label>
-            <Select value={visitDate} onValueChange={setVisitDate}>
+            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
               <SelectTrigger id="visitDateAllergy" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="statusSwitchAllergy" className="text-xs">Status</Label>
-            <Switch id="statusSwitchAllergy" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
-            <Label htmlFor="statusSwitchAllergy" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
+            <Switch id="statusSwitchAllergy" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
+            <Label htmlFor="statusSwitchAllergy" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchAllergy" className="text-xs">Search:</Label>
-            <Input id="searchAllergy" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input id="searchAllergy" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
 
         <div className="flex-1 overflow-hidden min-h-0">
-          <Table className="text-xs flex-1 min-h-0">
-            <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
-              <TableRow>
-                {tableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
-                    <div className="flex items-center justify-between">
-                      {header}
-                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </ShadcnTableHeader>
-            <TableBody>
-              <TableRow className="even:bg-muted/30">
-                <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                  No Data Found
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+           <div className="flex-1 overflow-auto"> 
+            <Table className="text-xs min-h-0">
+                <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
+                <TableRow>
+                    {tableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
+                        <div className="flex items-center justify-between">
+                        {header}
+                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        </div>
+                    </TableHead>
+                    ))}
+                </TableRow>
+                </ShadcnTableHeader>
+                <TableBody>
+                <TableRow className="even:bg-muted/30">
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Data Found
+                    </TableCell>
+                </TableRow>
+                </TableBody>
+            </Table>
+            </div>
         </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
           <div>Showing 0 to 0 of 0 entries</div>
@@ -915,15 +923,15 @@ const AllergiesView = () => {
 };
 
 const OpdIpdDetailsView = () => {
-  const [showEntries, setShowEntries] = useState<string>("10");
-  const [visitDate, setVisitDate] = useState<string>("10 SEP, 2024 13:10");
-  const [statusActive, setStatusActive] = useState<boolean>(true);
-  const [searchText, setSearchText] = useState<string>("");
+  const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
+  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
+  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
+  const [searchValue, setSearchValueState] = useState<string>("");
 
   const tableHeaders = ["S.No", "Visit ID", "Visit Type", "Department", "Doctor", "Date", "Status"];
 
   return (
-    <Card className="flex-1 flex flex-col shadow text-xs">
+    <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">OPD/IPD Details</CardTitle>
@@ -936,61 +944,63 @@ const OpdIpdDetailsView = () => {
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesOpdIpd" className="text-xs">Show</Label>
-            <Select value={showEntries} onValueChange={setShowEntries}>
+            <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesOpdIpd" className="h-7 w-20 text-xs">
                 <SelectValue placeholder="10" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="10" className="text-xs">10</SelectItem>
+                <SelectItem value="25" className="text-xs">25</SelectItem>
+                <SelectItem value="50" className="text-xs">50</SelectItem>
+                <SelectItem value="all" className="text-xs">All</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="showEntriesOpdIpd" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="visitDateOpdIpd" className="text-xs">Visit Date</Label>
-            <Select value={visitDate} onValueChange={setVisitDate}>
+            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
               <SelectTrigger id="visitDateOpdIpd" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10">10 SEP, 2024 13:10</SelectItem>
+                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="statusSwitchOpdIpd" className="text-xs">Status</Label>
-            <Switch id="statusSwitchOpdIpd" checked={statusActive} onCheckedChange={setStatusActive} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
-            <Label htmlFor="statusSwitchOpdIpd" className="text-xs ml-1">{statusActive ? "ACTIVE" : "INACTIVE"}</Label>
+            <Switch id="statusSwitchOpdIpd" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9"/>
+            <Label htmlFor="statusSwitchOpdIpd" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchOpdIpd" className="text-xs">Search:</Label>
-            <Input id="searchOpdIpd" type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input id="searchOpdIpd" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
 
         <div className="flex-1 overflow-hidden min-h-0">
-          <Table className="text-xs flex-1 min-h-0">
-            <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
-              <TableRow>
-                {tableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
-                    <div className="flex items-center justify-between">
-                      {header}
-                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </ShadcnTableHeader>
-            <TableBody>
-              <TableRow className="even:bg-muted/30">
-                <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                  No Data Found
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+           <div className="flex-1 overflow-auto"> 
+            <Table className="text-xs min-h-0">
+                <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
+                <TableRow>
+                    {tableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
+                        <div className="flex items-center justify-between">
+                        {header}
+                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        </div>
+                    </TableHead>
+                    ))}
+                </TableRow>
+                </ShadcnTableHeader>
+                <TableBody>
+                <TableRow className="even:bg-muted/30">
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Data Found
+                    </TableCell>
+                </TableRow>
+                </TableBody>
+            </Table>
+            </div>
         </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
           <div>Showing 0 to 0 of 0 entries</div>
@@ -1010,12 +1020,13 @@ const OpdIpdDetailsView = () => {
 
 
 const VitalsDashboardPage: NextPage = () => {
-  const [activeVerticalTab, setActiveVerticalTab] = useState<string>("Vitals");
+  const [activeVerticalTab, setActiveVerticalTab] = useState<string>(verticalNavItems[0]);
+
 
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pt-2 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {verticalNavItems.map((item) => (
           <Button
             key={item}
@@ -1041,10 +1052,10 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "Allergies" && <AllergiesView />}
         {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
         
-        
+        {/* Fallback for unhandled tabs */}
         {![
             "Vitals", "Intake/Output", "Problems", "Final Diagnosis", 
-            "Chief-Complaints", "Allergies", "OPD/IPD Details",
+            "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
         ].includes(activeVerticalTab) && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
