@@ -1,6 +1,6 @@
 'use client';
 
-import type { NextPage } from 'next';
+import React from 'react'; // Added React import
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +39,7 @@ type OrderDataType = {
   stopDate?: string;
   stopTime?: string;
   provider: string;
-  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled";
+  status: "Completed" | "Pending" | "Cancelled" | "ACTIVE" | "UNRELEASED";
   location: string;
 };
 
@@ -117,12 +117,12 @@ const mockIpMedicationData: IpMedicationEntryDataType[] = [
 ];
 
 const CpoeOrderListView = () => {
-  const [visitDate, setVisitDate] = useState<string | undefined>("10 Sep 2024 - OPD");
-  const [orderFromDate, setOrderFromDate] = useState<string>("10/09/2024");
-  const [orderToDate, setOrderToDate] = useState<string>("10/09/2024");
-  const [serviceFilter, setServiceFilter] = useState<string | undefined>("All");
+  const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:45");
+  const [orderFromDate, setOrderFromDate] = useState<string>("17/05/2025");
+  const [orderToDate, setOrderToDate] = useState<string>("17/05/2025");
+  const [serviceFilter, setServiceFilter] = useState<string | undefined>("UNIT DOSE MEDICATIONS");
   const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
-  const [showEntries, setShowEntries] = useState<string>("10");
+  const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
 
   const filteredOrders = mockOrderData;
@@ -153,20 +153,22 @@ const CpoeOrderListView = () => {
             <Label htmlFor="orderVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
               <SelectTrigger id="orderVisitDate" className="h-7 w-40 text-xs">
-                <SelectValue placeholder="Select Visit" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem>
                 <SelectItem value="10 Sep 2024 - OPD">10 Sep 2024 - OPD</SelectItem>
               </SelectContent>
             </Select>
 
             <Label htmlFor="orderService" className="shrink-0">Service</Label>
             <Select value={serviceFilter} onValueChange={setServiceFilter}>
-              <SelectTrigger id="orderService" className="h-7 w-32 text-xs">
-                <SelectValue placeholder="All" />
+              <SelectTrigger id="orderService" className="h-7 w-48 text-xs"> {/* Increased width for longer service name */}
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
+                <SelectItem value="UNIT DOSE MEDICATIONS">UNIT DOSE MEDICATIONS</SelectItem>
                 <SelectItem value="Lab">Laboratory</SelectItem>
                 <SelectItem value="Radiology">Radiology</SelectItem>
                 <SelectItem value="Pharmacy">Pharmacy</SelectItem>
@@ -178,10 +180,12 @@ const CpoeOrderListView = () => {
             <Label htmlFor="orderStatus" className="shrink-0">Status</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger id="orderStatus" className="h-7 w-28 text-xs">
-                <SelectValue placeholder="All" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
+                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
+                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="Cancelled">Cancelled</SelectItem>
@@ -207,6 +211,7 @@ const CpoeOrderListView = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="25">25</SelectItem>
                   <SelectItem value="50">50</SelectItem>
@@ -219,7 +224,7 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0"> 
+        <div className="flex-1 overflow-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
@@ -237,7 +242,10 @@ const CpoeOrderListView = () => {
               {filteredOrders.length > 0 ? filteredOrders.map((order, index) => (
                 <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3">{order.service}</TableCell>
-                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                  <TableCell className="py-1.5 px-3">
+                    <div>{order.order}</div>
+                    {order.orderNote && <div className="text-green-600 italic text-xs">{order.orderNote}</div>}
+                  </TableCell>
                   <TableCell className="py-1.5 px-3">
                     <div>Start: {order.startDate} {order.startTime}</div>
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
@@ -245,9 +253,11 @@ const CpoeOrderListView = () => {
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell>
                   <TableCell className="py-1.5 px-3">
                     <Badge 
-                      variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}
+                      variant={order.status === 'ACTIVE' || order.status === 'Completed' ? 'default' : order.status === 'UNRELEASED' || order.status === 'Pending' ? 'secondary' : 'destructive'}
                       className={`text-xs px-1.5 py-0.5 
-                        ${order.status === 'Completed' ? 'bg-green-100 text-green-700 border border-green-300' : 
+                        ${order.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border border-green-300' :
+                          order.status === 'UNRELEASED' ? 'bg-orange-100 text-orange-700 border border-orange-300' : 
+                          order.status === 'Completed' ? 'bg-blue-100 text-blue-700 border border-blue-300' : 
                           order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : 
                           'bg-red-100 text-red-700 border border-red-300'}`}
                     >
@@ -373,7 +383,7 @@ const IpMedicationView = () => {
             <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0">
           <Table className="text-xs min-w-[90rem] w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
@@ -390,19 +400,19 @@ const IpMedicationView = () => {
             <TableBody>
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
                 <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                  <TableCell className="py-1.5 px-3">{med.services}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.services}</TableCell>
                   <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell> 
-                  <TableCell className="py-1.5 px-3">
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">
                     <div>Start: {med.startDate} {med.startTime}</div>
                     {med.stopDate && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
-                  <TableCell className="py-1.5 px-3">{med.status}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.orderedBy}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.orderedBy}</TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
-                  <TableCell className="py-1.5 px-3">{med.medicationDay}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.schedule}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.medicationDay}</TableCell>
+                  <TableCell className="py-1.5 px-3 whitespace-nowrap">{med.schedule}</TableCell>
                 </TableRow>
               )) : (
                 <TableRow>
