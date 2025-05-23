@@ -1,17 +1,17 @@
-
 'use client';
 
 import type { NextPage } from 'next';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
-// Dialog imports removed
-import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, FileSignature, X, ImageUp } from 'lucide-react'; // Added X
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog'; // Corrected DialogTitle import alias
+import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X, FileSignature } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -91,7 +91,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'DRAFT',
     author: 'Dr. O. Green',
     location: 'Behavioral H.',
-    cosigner: undefined
+    cosigner: undefined // Or an empty string if preferred
   },
   {
     id: '8',
@@ -107,7 +107,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
 
 const ClinicalNotesPage = () => { 
   const [activeSubNav, setActiveSubNav] = useState<string>(clinicalNotesSubNavItems[0]);
-  const [viewMode, setViewMode] = useState<'table' | 'detail'>('table'); // New state for view mode
+  const [viewMode, setViewMode] = useState<'table' | 'detail'>('table');
 
   // State for filters
   const [groupBy, setGroupBy] = useState<string>("visitDate");
@@ -122,9 +122,9 @@ const ClinicalNotesPage = () => {
 
   const filteredNotes = mockNoteEntries;
 
-  const handleNoteClick = (fullNoteContent: string) => { // Parameter is fullNoteContent
+  const handleNoteClick = (fullNoteContent: string) => {
     setSelectedNoteContent(fullNoteContent);
-    setViewMode('detail'); // Change view to detail
+    setViewMode('detail');
   };
 
   const truncateText = (text: string, maxLength: number = 40) => {
@@ -141,7 +141,7 @@ const ClinicalNotesPage = () => {
             key={item}
             onClick={() => {
               setActiveSubNav(item);
-              setViewMode('table'); // Reset to table view when changing main tabs
+              setViewMode('table'); 
             }}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeSubNav === item
@@ -282,7 +282,7 @@ const ClinicalNotesPage = () => {
                     </Button>
                     <h3 className="text-base font-semibold text-foreground">Note Detail</h3>
                   </div>
-                  <ScrollArea className="flex-1 p-2.5 min-h-0"> {/* Ensure ScrollArea can shrink */}
+                  <ScrollArea className="flex-1 p-2.5 min-h-0">
                     <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
                         {selectedNoteContent}
                     </div>
@@ -303,10 +303,28 @@ const ClinicalNotesPage = () => {
           </Card>
         )}
       </main>
-      {/* Dialog removed */}
+      
+      <Dialog open={isNoteDetailDialogOpen} onOpenChange={setIsNoteDetailDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogUITitle>Note Detail</DialogUITitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] p-1 rounded-md">
+            <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
+                {selectedNoteContent}
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Close
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default ClinicalNotesPage;
-
