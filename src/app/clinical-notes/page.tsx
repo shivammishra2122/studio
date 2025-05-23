@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { NextPage } from 'next';
@@ -7,10 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, FileSignature, X, ImageUp } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardTitle } from '@/components/ui/card'; 
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -31,7 +32,7 @@ type NoteEntryDataType = {
 const mockNoteEntries: NoteEntryDataType[] = [
   {
     id: '1',
-    notesTitle: 'Physiotherapy Progress Note',
+    notesTitle: 'Physiotherapy Progress Note - Patient making good progress with range of motion exercises. Strength improving. Continue current plan.',
     dateOfEntry: '21 MAY, 2025 12:19',
     status: 'UNSIGNED',
     author: 'Sansys Doctor',
@@ -40,7 +41,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
   },
   {
     id: '2',
-    notesTitle: 'Psychologist Activity Sheet',
+    notesTitle: 'Psychologist Activity Sheet - Patient reports feeling less anxious this week. Coping mechanisms discussed and practiced.',
     dateOfEntry: '21 MAY, 2025 12:18',
     status: 'UNSIGNED',
     author: 'Sansys Doctor',
@@ -52,9 +53,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
     dateOfEntry: '15 MAY, 2025 20:05',
     status: 'COMPLETED',
-    author: 'Sansys Doctor Primary Care Physician',
-    location: 'ICU ONE - General Ward, Bed 103B, Room A',
-    cosigner: 'Dr. Jane Doe Supervising Physician'
+    author: 'Sansys Doctor', // Shortened
+    location: 'ICU ONE', // Shortened
+    cosigner: 'Dr. Jane Doe' // Shortened
   },
   {
     id: '4',
@@ -126,7 +127,7 @@ const ClinicalNotesPage = () => {
     setIsNoteDetailDialogOpen(true);
   };
 
-  const truncateText = (text: string, maxLength: number = 100) => {
+  const truncateText = (text: string, maxLength: number = 40) => { // Reduced maxLength
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };
@@ -214,16 +215,16 @@ const ClinicalNotesPage = () => {
                   <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        { name: "Notes Title", className: "min-w-[15rem]" }, 
+                        { name: "Notes Title", className: "min-w-[12rem]" }, // Reduced min-width
                         { name: "Date of Entry", className: "" }, 
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
                         { name: "Edit" },
-                        { name: "Delete" },
+                        // { name: "Delete" }, // Removed Delete column
                         { name: "Action" }, 
-                        { name: "Author", className: "whitespace-nowrap" }, 
-                        { name: "Location", className: "whitespace-nowrap" }, 
-                        { name: "Cosigner", className: "whitespace-nowrap" }, 
+                        { name: "Author", className: "" }, // Allow wrapping
+                        { name: "Location", className: "" }, // Allow wrapping
+                        { name: "Cosigner", className: "" }, // Allow wrapping
                         { name: "Image Upload" }
                       ].map(header => (
                         <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 ${header.className || 'whitespace-nowrap'}`}>
@@ -238,7 +239,7 @@ const ClinicalNotesPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                        <TableCell className="py-1.5 px-3 min-w-[15rem]">{truncateText(note.notesTitle, 100)}</TableCell>
+                        <TableCell className="py-1.5 px-3 min-w-[12rem]">{truncateText(note.notesTitle, 40)}</TableCell> {/* Reduced min-width, updated truncate length */}
                         <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
@@ -247,9 +248,9 @@ const ClinicalNotesPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><Edit2 className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3 text-center">
+                        {/* <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><X className="h-3.5 w-3.5" /></Button>
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -262,7 +263,7 @@ const ClinicalNotesPage = () => {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={11} className="text-center py-10 text-muted-foreground">
+                        <TableCell colSpan={10} className="text-center py-10 text-muted-foreground"> {/* Adjusted colSpan */}
                           No notes found.
                         </TableCell>
                       </TableRow>
