@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -9,10 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog'; // Corrected DialogTitle import alias
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X, FileSignature } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -92,7 +90,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     status: 'DRAFT',
     author: 'Dr. O. Green',
     location: 'Behavioral H.',
-    cosigner: undefined // Or an empty string if preferred
+    cosigner: undefined
   },
   {
     id: '8',
@@ -105,22 +103,17 @@ const mockNoteEntries: NoteEntryDataType[] = [
   }
 ];
 
-
 const ClinicalNotesPage = () => { 
   const [activeSubNav, setActiveSubNav] = useState<string>(clinicalNotesSubNavItems[0]);
   const [viewMode, setViewMode] = useState<'table' | 'detail'>('table');
-
-  // State for filters
   const [groupBy, setGroupBy] = useState<string>("visitDate");
   const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45"); 
   const [statusFilter, setStatusFilter] = useState<string>("ALL"); 
   const [fromDate, setFromDate] = useState<string>("");
   const [toDateValue, setToDateValue] = useState<string>(""); 
   const [searchText, setSearchText] = useState<string>("");
-
-  // State for Note Detail 
-  const [selectedNoteContent, setSelectedNoteContent] = useState<string>("");
-  const [isNoteDetailDialogOpen, setIsNoteDetailDialogOpen] = useState(false); // Re-added this line
+  const [selectedNoteContent, setSelectedNoteContent] = useState<string>(mockNoteEntries[0].notesTitle);
+  const [isNoteDetailDialogOpen, setIsNoteDetailDialogOpen] = useState(false);
 
   const filteredNotes = mockNoteEntries;
 
@@ -136,7 +129,6 @@ const ClinicalNotesPage = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
-      {/* Horizontal Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {clinicalNotesSubNavItems.map((item) => (
           <Button
@@ -156,14 +148,12 @@ const ClinicalNotesPage = () => {
         ))}
       </div>
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow overflow-hidden">
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {viewMode === 'table' ? (
                 <>
-                  {/* Filter Bar - Single Line */}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
                       <Label htmlFor="groupBy" className="shrink-0 text-xs">Group By</Label>
                       <Select value={groupBy} onValueChange={setGroupBy}>
@@ -271,30 +261,52 @@ const ClinicalNotesPage = () => {
                     </Table>
                   </div>
 
-                  {/* Footer */}
                   <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
                     <div>Showing {filteredNotes.length > 0 ? 1 : 0} to {filteredNotes.length} of {filteredNotes.length} entries</div>
                   </div>
                 </>
-              ) : ( // viewMode === 'detail'
-                <>
-                  <div className="flex items-center justify-between p-2.5 border-b">
-                    <Button variant="outline" size="sm" onClick={() => setViewMode('table')} className="text-xs h-7">
-                      <X className="h-3.5 w-3.5 mr-1.5" /> Back to List
-                    </Button>
-                    <h3 className="text-base font-semibold text-foreground">Note Detail</h3>
-                  </div>
-                  <ScrollArea className="flex-1 p-2.5 min-h-0">
-                    <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
-                        {selectedNoteContent}
+              ) : (
+                <div className="flex flex-1 h-full">
+                  {/* Left Side: List of Note Titles */}
+                  <div className="w-1/3 border-r flex flex-col">
+                    <div className="flex items-center justify-between p-2.5 border-b">
+                      <h3 className="text-base font-semibold text-foreground">Notes</h3>
+                      <Button variant="outline" size="sm" onClick={() => setViewMode('table')} className="text-xs h-7">
+                        <X className="h-3.5 w-3.5 mr-1.5" /> Back to Table
+                      </Button>
                     </div>
-                  </ScrollArea>
-                </>
+                    <ScrollArea className="flex-1">
+                      {filteredNotes.map((note, index) => (
+                        <div
+                          key={note.id}
+                          onClick={() => setSelectedNoteContent(note.notesTitle)}
+                          className={`p-3 border-b cursor-pointer hover:bg-muted/50 ${
+                            selectedNoteContent === note.notesTitle ? 'bg-muted' : ''
+                          }`}
+                        >
+                          <p className="text-sm font-medium">{truncateText(note.notesTitle, 40)}</p>
+                          <p className="text-xs text-muted-foreground">{note.dateOfEntry}</p>
+                        </div>
+                      ))}
+                    </ScrollArea>
+                  </div>
+                  {/* Right Side: Selected Note Description */}
+                  <div className="w-2/3 flex flex-col">
+                    <div className="p-2.5 border-b">
+                      <h3 className="text-base font-semibold text-foreground">Note Detail</h3>
+                    </div>
+                    <ScrollArea className="flex-1 p-2.5">
+                      <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
+                        {selectedNoteContent}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
         )}
-         {activeSubNav !== "Notes View" && (
+        {activeSubNav !== "Notes View" && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
               <CardTitle className="text-xl text-muted-foreground">
@@ -330,5 +342,3 @@ const ClinicalNotesPage = () => {
 };
 
 export default ClinicalNotesPage;
-
-
