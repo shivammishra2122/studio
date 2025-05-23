@@ -1,7 +1,5 @@
-
 'use client';
 
-import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,21 +32,62 @@ type OrderDataType = {
   id: string;
   service: string;
   order: string;
-  startDate: string;
-  startTime: string;
+  orderNote?: string; // Added for the second line in Order column
+  startDate?: string;
+  startTime?: string;
   stopDate?: string;
   stopTime?: string;
   provider: string;
-  status: "Completed" | "Pending" | "Cancelled";
+  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled"; // Added UNRELEASED, ACTIVE
   location: string;
 };
 
 const mockOrderData: OrderDataType[] = [
-    { id: '1', service: 'Lab', order: 'CBC with Differential', startDate: '10 Sep 2024', startTime: '09:00', provider: 'Dr. Smith', status: 'Completed', location: 'Main Lab' },
-    { id: '2', service: 'Radiology', order: 'Chest X-Ray, PA and Lateral', startDate: '10 Sep 2024', startTime: '10:30', stopDate: '10 Sep 2024', stopTime: '11:00', provider: 'Dr. Jones', status: 'Pending', location: 'Radiology Dept.' },
-    { id: '3', service: 'Pharmacy', order: 'Amoxicillin 500mg Cap', startDate: '11 Sep 2024', startTime: '08:00', provider: 'Dr. Brown', status: 'Completed', location: 'Inpatient Pharmacy' },
-    { id: '4', service: 'Dietary', order: 'NPO after midnight', startDate: '11 Sep 2024', startTime: '00:01', provider: 'Dr. White', status: 'Pending', location: 'Patient Room' },
-    { id: '5', service: 'Consult', order: 'Cardiology Consult', startDate: '12 Sep 2024', startTime: '14:00', provider: 'Dr. Green', status: 'Cancelled', location: 'Cardiology Clinic' },
+  { 
+    id: '1', 
+    service: 'Inpt. Meds', 
+    order: 'AMOXICILLIN 250MG UD CAP 250MG PO BID(08&20HRS) PRN', 
+    orderNote: 'First Dose NOW *UNSIGNED*',
+    provider: 'Sansys Doctor', 
+    status: 'UNRELEASED', 
+    location: 'ICU ONE' 
+  },
+  { 
+    id: '2', 
+    service: 'Inpt. Meds', 
+    order: 'AEROCORT ROTACAP 1 ROTACAP INHL BID(08&20HRS)', 
+    startDate: '17 MAY, 2025', 
+    startTime: '20:00', 
+    stopDate: '19 MAY, 2025', 
+    stopTime: '20:00', 
+    provider: 'Internalmed Doc', 
+    status: 'ACTIVE', 
+    location: 'ICU ONE' 
+  },
+  { 
+    id: '3', 
+    service: 'Inpt. Meds', 
+    order: 'DIGOXIN PAED UD SYRUP 60ML BTL 10ML PO STAT(ONE TIME ONLY) STAT', 
+    startDate: '17 MAY, 2025', 
+    startTime: '13:00', 
+    stopDate: '18 MAY, 2025', 
+    stopTime: '13:00', 
+    provider: 'Internalmed Doc', 
+    status: 'ACTIVE', 
+    location: 'ICU ONE' 
+  },
+  { 
+    id: '4', 
+    service: 'Inpt. Meds', 
+    order: 'CARMICIDE PAED SYRUP 100ML BTL 10 ML PO BID(08&20HRS)', 
+    startDate: '17 MAY, 2025', 
+    startTime: '20:00', 
+    stopDate: '22 MAY, 2025', 
+    stopTime: '20:00', 
+    provider: 'Internalmed Doc', 
+    status: 'ACTIVE', 
+    location: 'ICU ONE' 
+  },
 ];
 
 type IpMedicationEntryDataType = {
@@ -74,17 +113,16 @@ const mockIpMedicationData: IpMedicationEntryDataType[] = [
   { id: '6', services: 'Inpt. Meds', medicationName: 'PARACETAMOL ER UD 650MG TAB', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
 ];
 
-
 const CpoeOrderListView = () => {
-  const [visitDate, setVisitDate] = useState<string | undefined>("10 Sep 2024 - OPD");
-  const [orderFromDate, setOrderFromDate] = useState<string>("10/09/2024");
-  const [orderToDate, setOrderToDate] = useState<string>("10/09/2024");
-  const [serviceFilter, setServiceFilter] = useState<string | undefined>("All");
+  const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:45");
+  const [orderFromDate, setOrderFromDate] = useState<string>("");
+  const [orderToDate, setOrderToDate] = useState<string>("");
+  const [serviceFilter, setServiceFilter] = useState<string | undefined>("UNIT DOSE MEDICATIONS");
   const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
-  const [showEntries, setShowEntries] = useState<string>("10");
+  const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
 
-  const filteredOrders = mockOrderData;
+  const filteredOrders = mockOrderData; // In a real app, filter based on state
 
   return (
     <Card className="flex-1 flex flex-col shadow overflow-hidden">
@@ -108,23 +146,26 @@ const CpoeOrderListView = () => {
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
         {/* Filter Bars */}
         <div className="space-y-2 mb-2 text-xs">
+          {/* First row of filters */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="orderVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
               <SelectTrigger id="orderVisitDate" className="h-7 w-40 text-xs">
-                <SelectValue placeholder="Select Visit" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem>
                 <SelectItem value="10 Sep 2024 - OPD">10 Sep 2024 - OPD</SelectItem>
               </SelectContent>
             </Select>
 
             <Label htmlFor="orderService" className="shrink-0">Service</Label>
             <Select value={serviceFilter} onValueChange={setServiceFilter}>
-              <SelectTrigger id="orderService" className="h-7 w-32 text-xs">
-                <SelectValue placeholder="All" />
+              <SelectTrigger id="orderService" className="h-7 w-48 text-xs">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="UNIT DOSE MEDICATIONS">UNIT DOSE MEDICATIONS</SelectItem>
                 <SelectItem value="All">All</SelectItem>
                 <SelectItem value="Lab">Laboratory</SelectItem>
                 <SelectItem value="Radiology">Radiology</SelectItem>
@@ -137,10 +178,12 @@ const CpoeOrderListView = () => {
             <Label htmlFor="orderStatus" className="shrink-0">Status</Label>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger id="orderStatus" className="h-7 w-28 text-xs">
-                <SelectValue placeholder="All" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
+                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
+                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="Cancelled">Cancelled</SelectItem>
@@ -153,19 +196,21 @@ const CpoeOrderListView = () => {
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
           </div>
+          {/* Second row of filters */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="orderToDate" className="shrink-0">Order To</Label>
             <div className="relative">
               <Input id="orderToDate" type="text" value={orderToDate} onChange={e => setOrderToDate(e.target.value)} className="h-7 w-28 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <div className="flex items-center space-x-1 ml-auto"> 
+            <div className="flex items-center space-x-1"> 
               <Label htmlFor="orderShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
-                <SelectTrigger id="orderShowEntries" className="h-7 w-16 text-xs">
+                <SelectTrigger id="orderShowEntries" className="h-7 w-20 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="25">25</SelectItem>
                   <SelectItem value="50">50</SelectItem>
@@ -173,13 +218,15 @@ const CpoeOrderListView = () => {
               </Select>
               <Label htmlFor="orderShowEntries" className="text-xs shrink-0">entries</Label>
             </div>
+            <div className="flex-grow"></div> {/* Pushes search to the right */}
             <Label htmlFor="orderSearch" className="shrink-0">Search:</Label>
             <Input id="orderSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
           </div>
         </div>
 
+        {/* Table Container */}
         <div className="flex-1 overflow-auto min-h-0">
-          <Table className="text-xs min-w-[70rem]">
+          <Table className="text-xs min-w-[80rem]"> {/* Increased min-width for more columns */}
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
@@ -196,19 +243,28 @@ const CpoeOrderListView = () => {
               {filteredOrders.length > 0 ? filteredOrders.map((order, index) => (
                 <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{order.service}</TableCell>
-                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                  <TableCell className="py-1.5 px-3 min-w-[30rem]"> {/* Increased min-width */}
+                    <div>{order.order}</div>
+                    {order.orderNote && <div className="text-green-600 italic text-xs">{order.orderNote}</div>}
+                  </TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
-                    <div>Start: {order.startDate} {order.startTime}</div>
-                    {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
+                    {order.startDate && (
+                      <div>Start: {order.startDate} {order.startTime}</div>
+                    )}
+                    {order.stopDate && (
+                      <div>Stop: {order.stopDate} {order.stopTime}</div>
+                    )}
                   </TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">{order.provider}</TableCell>
                   <TableCell className="py-1.5 px-3 whitespace-nowrap">
                     <Badge 
-                      variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}
+                      variant={order.status === 'ACTIVE' || order.status === 'Completed' ? 'default' : order.status === 'UNRELEASED' ? 'outline' : 'secondary'}
                       className={`text-xs px-1.5 py-0.5 
-                        ${order.status === 'Completed' ? 'bg-green-100 text-green-700 border border-green-300' : 
+                        ${order.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border border-green-300' :
+                          order.status === 'UNRELEASED' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : // Adjusted for UNRELEASED
+                          order.status === 'Completed' ? 'bg-green-100 text-green-700 border border-green-300' : // Kept for consistency
                           order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : 
-                          'bg-red-100 text-red-700 border border-red-300'}`}
+                          'bg-red-100 text-red-700 border border-red-300'}`} // For Cancelled
                     >
                       {order.status}
                     </Badge>
@@ -387,7 +443,7 @@ const IpMedicationView = () => {
 };
 
 
-const OrdersPage: NextPage = () => {
+const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
@@ -410,7 +466,7 @@ const OrdersPage: NextPage = () => {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col gap-3 overflow-hidden">
+      <main className="flex-1 flex flex-col gap-3 overflow-hidden"> {/* Changed from overflow-auto */}
         {activeOrderSubNav === "CPOE Order List" && <CpoeOrderListView />}
         {activeOrderSubNav === "IP Medication" && <IpMedicationView />}
         
@@ -429,5 +485,4 @@ const OrdersPage: NextPage = () => {
   );
 };
 
-export default OrdersPage
-
+export default OrdersPage;
