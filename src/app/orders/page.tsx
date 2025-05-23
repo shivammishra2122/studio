@@ -1,6 +1,6 @@
-
 'use client';
 
+import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,15 +103,15 @@ type IpMedicationEntryDataType = {
   id: string;
   services: string;
   medicationName: string;
-  startDate?: string; // Optional
-  startTime?: string; // Optional
-  stopDate?: string;  // Optional
-  stopTime?: string;  // Optional
+  startDate?: string;
+  startTime?: string;
+  stopDate?: string;
+  stopTime?: string;
   status: "ACTIVE" | "HOLD" | "UNRELEASED";
-  orderedBy?: string; // Optional
-  medicationDay?: string; // Optional
-  schedule?: string; // Optional
-  scheduleNote?: string; // Optional
+  orderedBy?: string;
+  medicationDay?: string;
+  schedule?: string;
+  scheduleNote?: string;
 };
 
 const mockIpMedicationData: IpMedicationEntryDataType[] = [
@@ -122,6 +122,13 @@ const mockIpMedicationData: IpMedicationEntryDataType[] = [
   { id: '4', services: 'Inpt. Meds', medicationName: 'AZITHROMYCIN UD 250MG TAB', startDate: '17 MAY, 2025', startTime: '12:39', stopDate: '', stopTime: '', status: 'HOLD', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
   { id: '5', services: 'Inpt. Meds', medicationName: 'ACILOC 150MG TABLET (1X30)*', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
   { id: '6', services: 'Inpt. Meds', medicationName: 'PARACETAMOL ER UD 650MG TAB', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
+];
+
+const ALL_AVAILABLE_MEDICATIONS = [
+  "AGREGATE TAB", "ALLEGRA M TAB", "ALLEGRA UD 120MG", "ALLEGRA UD 180MG",
+  "ALLEGRA UD 30MG", "ALLEGRA UD 30MG SYRUP", "ARGIPREG PLUS SACHET POUCH",
+  "CAPEGARD UD 500MG TAB", "DEGARELIX 80MG UD VIAL INJ", "DILTEGESIC ORGANOGEL UD 2%W/V",
+  "PARACETAMOL 500MG", "IBUPROFEN 200MG", "AMOXICILLIN 250MG", "ASPIRIN 100MG", "METFORMIN 500MG"
 ];
 
 const CpoeOrderListView = () => {
@@ -286,22 +293,15 @@ const CpoeOrderListView = () => {
   );
 };
 
-const ALL_AVAILABLE_MEDICATIONS = [
-  "AGREGATE TAB", "ALLEGRA M TAB", "ALLEGRA UD 120MG", "ALLEGRA UD 180MG",
-  "ALLEGRA UD 30MG", "ALLEGRA UD 30MG SYRUP", "ARGIPREG PLUS SACHET POUCH",
-  "CAPEGARD UD 500MG TAB", "DEGARELIX 80MG UD VIAL INJ", "DILTEGESIC ORGANOGEL UD 2%W/V",
-  "PARACETAMOL 500MG", "IBUPROFEN 200MG", "AMOXICILLIN 250MG", "ASPIRIN 100MG", "METFORMIN 500MG"
-];
-
 const IpMedicationView = () => {
   const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
   
   // State for "Order Medicines" Dialog
-  const [isOrderMedicinesDialogOpen, setIsOrderMedicinesDialogOpen] = useState(false);
-  const [orderMedicationName, setOrderMedicationName] = useState(''); // This will store the selected medication name
+  const [isAddIpMedicationDialogOpen, setIsAddIpMedicationDialogOpen] = useState(false);
+  const [orderMedicationName, setOrderMedicationName] = useState('');
   const [orderQuickOrder, setOrderQuickOrder] = useState('');
   const [isMedicationPopoverOpen, setIsMedicationPopoverOpen] = useState(false);
-  const [showQuickOrderFields, setShowQuickOrderFields] = useState(false);
+  
 
 
   // State for filters
@@ -313,23 +313,38 @@ const IpMedicationView = () => {
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
 
-
   const openOrderMedicinesDialog = () => {
     setOrderMedicationName(''); 
     setOrderQuickOrder('');
-    setShowQuickOrderFields(false);
-    setIsOrderMedicinesDialogOpen(true);
+    setIsAddIpMedicationDialogOpen(true);
   };
 
   const handleConfirmOrder = () => {
+    // For now, just log and close. Actual order creation would go here.
     console.log("Order Confirmed:", { medicationName: orderMedicationName, quickOrder: orderQuickOrder });
-    setIsOrderMedicinesDialogOpen(false);
+    // Add to ipMedicationList for demonstration
+    if (orderMedicationName.trim()) {
+        const newMed: IpMedicationEntryDataType = {
+            id: Date.now().toString(),
+            services: 'Inpt. Meds', 
+            medicationName: orderMedicationName,
+            status: 'UNRELEASED', 
+            startDate: new Date().toLocaleDateString('en-CA'), 
+            startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+            stopDate: '',
+            stopTime: '',
+            orderedBy: 'System (Dialog)',
+            medicationDay: 'Day 1',  
+            schedule: 'Pending Entry',
+          };
+          setIpMedicationList(prev => [newMed, ...prev]);
+    }
+    setIsAddIpMedicationDialogOpen(false);
   };
 
   const handleResetOrderForm = () => {
     setOrderMedicationName('');
     setOrderQuickOrder('');
-    setShowQuickOrderFields(false);
   };
 
   const filteredMedications = ipMedicationList;
@@ -397,8 +412,8 @@ const IpMedicationView = () => {
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-             <div className="flex items-center space-x-1">
+           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
               <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
                 <SelectTrigger id="ipShowEntries" className="h-7 w-20 text-xs">
@@ -468,8 +483,8 @@ const IpMedicationView = () => {
         </div>
       </CardContent>
 
-      <Dialog open={isOrderMedicinesDialogOpen} onOpenChange={setIsOrderMedicinesDialogOpen}>
-        <DialogContent className="sm:max-w-4xl p-0 overflow-hidden">
+      <Dialog open={isAddIpMedicationDialogOpen} onOpenChange={setIsAddIpMedicationDialogOpen}>
+        <DialogContent className="max-w-6xl p-0 overflow-hidden">
           <div className="bg-sky-100 p-3">
             <h2 className="text-lg font-semibold text-sky-800">Order Medicines</h2>
           </div>
@@ -483,54 +498,52 @@ const IpMedicationView = () => {
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
               
-            <div className="space-y-1">
-              <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
-              <Popover open={isMedicationPopoverOpen} onOpenChange={setIsMedicationPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="orderMedicationNameBtn"
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={isMedicationPopoverOpen}
-                    className="w-full justify-between h-9 font-normal text-left"
-                  >
-                    {orderMedicationName || "Select medication..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                  <Command>
-                    <CommandInput placeholder="Search medication..." />
-                    <CommandList>
-                      <CommandEmpty>No medication found.</CommandEmpty>
-                      <CommandGroup>
-                        {ALL_AVAILABLE_MEDICATIONS.map((medication) => (
-                          <CommandItem
-                            key={medication}
-                            value={medication}
-                            onSelect={(currentValue) => {
-                              setOrderMedicationName(currentValue.toUpperCase() === orderMedicationName.toUpperCase() ? "" : currentValue);
-                              setShowQuickOrderFields(true);
-                              setIsMedicationPopoverOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                orderMedicationName.toUpperCase() === medication.toUpperCase() ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {medication}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </div>
+                <div className="space-y-1">
+                  <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
+                  <Popover open={isMedicationPopoverOpen} onOpenChange={setIsMedicationPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="orderMedicationNameBtn"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isMedicationPopoverOpen}
+                        className="w-full justify-between h-9 font-normal text-left"
+                      >
+                        {orderMedicationName || "Select medication..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search medication..." />
+                        <CommandList className="max-h-[300px] overflow-y-auto"> {/* Internal scroll for medicine list */}
+                          <CommandEmpty>No medication found.</CommandEmpty>
+                          <CommandGroup>
+                            {ALL_AVAILABLE_MEDICATIONS.map((medication) => (
+                              <CommandItem
+                                key={medication}
+                                value={medication}
+                                onSelect={(currentValue) => {
+                                  setOrderMedicationName(currentValue.toUpperCase() === orderMedicationName.toUpperCase() ? "" : currentValue);
+                                  setIsMedicationPopoverOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    orderMedicationName.toUpperCase() === medication.toUpperCase() ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {medication}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
-              {showQuickOrderFields && (
                 <div className="flex items-end space-x-2">
                   <div className="flex-grow space-y-1">
                     <Label htmlFor="orderQuickOrder" className="text-sm font-medium">Quick Order</Label>
@@ -543,8 +556,15 @@ const IpMedicationView = () => {
                   </div>
                   <Button type="button" className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">Edit Quick List</Button>
                 </div>
-              )}
             </div>
+            {/* Placeholder for more form fields that might appear after medication selection */}
+            {orderMedicationName && (
+                <div className="mt-6 border-t pt-6">
+                    <p className="text-sm text-muted-foreground">Further configuration for: <span className="font-semibold text-foreground">{orderMedicationName}</span></p>
+                    {/* Add more detailed form inputs here (e.g., Dosage, Route, Frequency) */}
+                    {/* These would be controlled by additional state variables */}
+                </div>
+            )}
           </div>
           <div className="flex justify-center space-x-4 p-4 pt-2 border-t border-gray-200">
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleConfirmOrder}>Confirm Order</Button>
@@ -567,7 +587,7 @@ const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
