@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react'; // Added React import
+import { useState, useEffect, useRef } from 'react'; // Added React import and hooks
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,18 +20,18 @@ import {
   Download,
   Filter,
   PenLine,
-  ChevronsUpDown, // Added
-  Check,           // Added
-  X as XIcon,      // Added for Remove button
-  Save             // Added for Save Quick Order
+  ChevronsUpDown, 
+  Check,           
+  X as XIcon,      
+  Save             
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
-import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area'; // Added for dialog content scroll
-import { Checkbox } from '@/components/ui/checkbox'; // Added for PRN and Additional Dose Now
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'; 
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'; 
+import { cn } from '@/lib/utils'; 
+import { ScrollArea } from '@/components/ui/scroll-area'; 
+import { Checkbox } from '@/components/ui/checkbox'; 
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -129,7 +129,7 @@ const mockIpMedicationData: IpMedicationEntryDataType[] = [
 ];
 
 const ALL_AVAILABLE_MEDICATIONS = [
-  "ALBUMIN BOUND PACLITAXEL-100.000-MG", // From image
+  "ALBUMIN BOUND PACLITAXEL-100.000-MG",
   "AGREGATE TAB", "ALLEGRA M TAB", "ALLEGRA UD 120MG", "ALLEGRA UD 180MG",
   "ALLEGRA UD 30MG", "ALLEGRA UD 30MG SYRUP", "ARGIPREG PLUS SACHET POUCH",
   "CAPEGARD UD 500MG TAB", "DEGARELIX 80MG UD VIAL INJ", "DILTEGESIC ORGANOGEL UD 2%W/V",
@@ -244,12 +244,12 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0"> {/* Vertical scroll here */}
-          <Table className="text-xs w-full"> {/* Table takes full width, wrapping handles overflow */}
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full"> 
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-1 px-3 text-foreground text-xs h-auto">
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto font-normal">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -466,12 +466,12 @@ const IpMedicationView = () => {
             </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0"> {/* Vertical scroll here */}
-          <Table className="text-xs w-full"> {/* Table takes full width, wrapping handles overflow */}
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full"> 
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-1 px-3 text-foreground text-xs h-auto">
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto font-normal">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -686,9 +686,8 @@ const IpMedicationView = () => {
         </DialogContent>
       </Dialog>
     </Card>
-  )
+  );
 };
-
 
 const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
@@ -732,4 +731,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage; update this code
+export default OrdersPage;
