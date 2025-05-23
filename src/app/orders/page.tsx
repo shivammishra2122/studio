@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -18,11 +19,15 @@ import {
   Printer,
   Download,
   Filter,
-  PenLine
+  PenLine,
+  ChevronsUpDown, // Added
+  Check // Added
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
-
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'; // Added
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'; // Added
+import { cn } from '@/lib/utils'; // Added
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -98,25 +103,25 @@ type IpMedicationEntryDataType = {
   id: string;
   services: string;
   medicationName: string;
-  startDate?: string;
-  startTime?: string;
-  stopDate?: string;
-  stopTime?: string;
+  startDate?: string; // Optional
+  startTime?: string; // Optional
+  stopDate?: string;  // Optional
+  stopTime?: string;  // Optional
   status: "ACTIVE" | "HOLD" | "UNRELEASED";
-  orderedBy?: string;
-  medicationDay?: string;
-  schedule?: string;
-  scheduleNote?: string;
+  orderedBy?: string; // Optional
+  medicationDay?: string; // Optional
+  schedule?: string; // Optional
+  scheduleNote?: string; // Optional
 };
 
 const mockIpMedicationData: IpMedicationEntryDataType[] = [
-  { id: '1', services: 'Inpt. Meds', medicationName: 'AMOXICILLIN 250MG UD CAP', status: 'UNRELEASED', orderedBy: 'Sansys Doctor', medicationDay: 'Day 3', schedule: 'BID(08&20HRS)', scheduleNote: 'PRN' },
-  { id: '2', services: 'Inpt. Meds', medicationName: 'AEROCORT ROTACAP', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '19 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
-  { id: '3', services: 'Inpt. Meds', medicationName: 'CARMICIDE PAED SYRUP 100ML BTL', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '22 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
-  { id: '4', services: 'Inpt. Meds', medicationName: 'DIGOXIN PAED UD SYRUP 60ML BTL', startDate: '17 MAY, 2025', startTime: '13:00', stopDate: '18 MAY, 2025', stopTime: '13:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'STAT(ONE TIME ONLY)' },
-  { id: '5', services: 'Inpt. Meds', medicationName: 'AZITHROMYCIN UD 250MG TAB', startDate: '17 MAY, 2025', startTime: '12:39', status: 'HOLD', orderedBy: 'Internalmed Doc', medicationDay: 'Day 9', schedule: 'BID(08&20HRS)' },
-  { id: '6', services: 'Inpt. Meds', medicationName: 'ACILOC 150MG TABLET (1X30)*', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 9', schedule: 'BID(08&20HRS)' },
-  { id: '7', services: 'Inpt. Meds', medicationName: 'PARACETAMOL ER UD 650MG TAB', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 9', schedule: 'BID(08&20HRS)' },
+  { id: '0', services: 'Inpt. Meds', medicationName: 'AMOXICILLIN 250MG UD CAP', status: 'UNRELEASED', orderedBy: 'Sansys Doctor', medicationDay: 'Day 3', schedule: 'BID(08&20HRS)', scheduleNote: 'PRN', startDate: '17 MAY, 2025', startTime: '19:00' },
+  { id: '1', services: 'Inpt. Meds', medicationName: 'AEROCORT ROTACAP', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '19 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 5', schedule: 'BID(08&20HRS)' },
+  { id: '2', services: 'Inpt. Meds', medicationName: 'CARMICIDE PAED SYRUP 100ML BTL', startDate: '17 MAY, 2025', startTime: '20:00', stopDate: '22 MAY, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 5', schedule: 'BID(08&20HRS)' },
+  { id: '3', services: 'Inpt. Meds', medicationName: 'DIGOXIN PAED UD SYRUP 60ML BTL', startDate: '17 MAY, 2025', startTime: '13:00', stopDate: '18 MAY, 2025', stopTime: '13:00', status: 'ACTIVE', orderedBy: 'Internalmed Doc', medicationDay: 'Day 5', schedule: 'STAT(ONE TIME ONLY)' },
+  { id: '4', services: 'Inpt. Meds', medicationName: 'AZITHROMYCIN UD 250MG TAB', startDate: '17 MAY, 2025', startTime: '12:39', stopDate: '', stopTime: '', status: 'HOLD', orderedBy: 'Internalmed Doc', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
+  { id: '5', services: 'Inpt. Meds', medicationName: 'ACILOC 150MG TABLET (1X30)*', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
+  { id: '6', services: 'Inpt. Meds', medicationName: 'PARACETAMOL ER UD 650MG TAB', startDate: '15 MAY, 2025', startTime: '20:00', stopDate: '23 AUG, 2025', stopTime: '20:00', status: 'ACTIVE', orderedBy: 'Sansys Doctor', medicationDay: 'Day 7', schedule: 'BID(08&20HRS)' },
 ];
 
 const CpoeOrderListView = () => {
@@ -227,12 +232,12 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-xs h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -254,9 +259,7 @@ const CpoeOrderListView = () => {
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell>
-                  <TableCell className="py-1.5 px-3 text-xs">
-                    {order.status}
-                  </TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{order.status}</TableCell>
                   <TableCell className="py-1.5 px-3">{order.location}</TableCell>
                 </TableRow>
               )) : (
@@ -283,12 +286,24 @@ const CpoeOrderListView = () => {
   );
 };
 
+const ALL_AVAILABLE_MEDICATIONS = [
+  "AGREGATE TAB", "ALLEGRA M TAB", "ALLEGRA UD 120MG", "ALLEGRA UD 180MG",
+  "ALLEGRA UD 30MG", "ALLEGRA UD 30MG SYRUP", "ARGIPREG PLUS SACHET POUCH",
+  "CAPEGARD UD 500MG TAB", "DEGARELIX 80MG UD VIAL INJ", "DILTEGESIC ORGANOGEL UD 2%W/V",
+  "PARACETAMOL 500MG", "IBUPROFEN 200MG", "AMOXICILLIN 250MG", "ASPIRIN 100MG", "METFORMIN 500MG"
+];
+
 const IpMedicationView = () => {
   const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
-  const [isOrderMedicinesDialogOpen, setIsOrderMedicinesDialogOpen] = useState(false);
-  const [orderMedicationName, setOrderMedicationName] = useState('');
-  const [orderQuickOrder, setOrderQuickOrder] = useState('');
   
+  // State for "Order Medicines" Dialog
+  const [isOrderMedicinesDialogOpen, setIsOrderMedicinesDialogOpen] = useState(false);
+  const [orderMedicationName, setOrderMedicationName] = useState(''); // This will store the selected medication name
+  const [orderQuickOrder, setOrderQuickOrder] = useState('');
+  const [isMedicationPopoverOpen, setIsMedicationPopoverOpen] = useState(false);
+  const [showQuickOrderFields, setShowQuickOrderFields] = useState(false);
+
+
   // State for filters
   const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:4");
   const [scheduleType, setScheduleType] = useState<string | undefined>();
@@ -302,20 +317,19 @@ const IpMedicationView = () => {
   const openOrderMedicinesDialog = () => {
     setOrderMedicationName(''); 
     setOrderQuickOrder('');
+    setShowQuickOrderFields(false);
     setIsOrderMedicinesDialogOpen(true);
   };
 
   const handleConfirmOrder = () => {
-    // For now, just log and close. Actual addition logic would go here.
     console.log("Order Confirmed:", { medicationName: orderMedicationName, quickOrder: orderQuickOrder });
-    // Potentially add to ipMedicationList state if this dialog is for direct addition
-    // For now, this dialog is just a UI placeholder based on the image.
     setIsOrderMedicinesDialogOpen(false);
   };
 
   const handleResetOrderForm = () => {
     setOrderMedicationName('');
     setOrderQuickOrder('');
+    setShowQuickOrderFields(false);
   };
 
   const filteredMedications = ipMedicationList;
@@ -342,7 +356,7 @@ const IpMedicationView = () => {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
-              <SelectTrigger id="ipVisitDate" className="h-7 w-40 text-xs">
+              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -351,7 +365,7 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipScheduleType" className="shrink-0">Schedule Type</Label>
             <Select value={scheduleType} onValueChange={setScheduleType}>
-              <SelectTrigger id="ipScheduleType" className="h-7 w-32 text-xs">
+              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -362,7 +376,7 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipStatus" className="shrink-0">Status</Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="ipStatus" className="h-7 w-28 text-xs">
+              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -372,19 +386,19 @@ const IpMedicationView = () => {
                 <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-             <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
+            <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
             <div className="relative">
-              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-28 text-xs pr-7" />
+              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
             <Label htmlFor="ipOrderTo" className="shrink-0">Order To</Label>
             <div className="relative">
-              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-28 text-xs pr-7" />
+              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <div className="flex items-center space-x-1 ml-auto">
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+             <div className="flex items-center space-x-1">
               <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
                 <SelectTrigger id="ipShowEntries" className="h-7 w-20 text-xs">
@@ -398,16 +412,17 @@ const IpMedicationView = () => {
               </Select>
               <Label htmlFor="ipShowEntries" className="text-xs shrink-0">entries</Label>
             </div>
+            <div className="flex-grow"></div>
             <Label htmlFor="ipSearch" className="shrink-0">Search:</Label>
             <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-xs h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-auto">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -467,27 +482,68 @@ const IpMedicationView = () => {
           </div>
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-              <div className="space-y-1">
-                <Label htmlFor="orderMedicationName" className="text-sm font-medium">Medication Name</Label>
-                <Input 
-                  id="orderMedicationName" 
-                  value={orderMedicationName} 
-                  onChange={(e) => setOrderMedicationName(e.target.value)} 
-                  className="h-9"
-                />
-              </div>
-              <div className="flex items-end space-x-2">
-                <div className="flex-grow space-y-1">
-                  <Label htmlFor="orderQuickOrder" className="text-sm font-medium">Quick Order</Label>
-                  <Input 
-                    id="orderQuickOrder" 
-                    value={orderQuickOrder} 
-                    onChange={(e) => setOrderQuickOrder(e.target.value)}
-                    className="h-9"
-                  />
+              
+            <div className="space-y-1">
+              <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
+              <Popover open={isMedicationPopoverOpen} onOpenChange={setIsMedicationPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="orderMedicationNameBtn"
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isMedicationPopoverOpen}
+                    className="w-full justify-between h-9 font-normal text-left"
+                  >
+                    {orderMedicationName || "Select medication..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search medication..." />
+                    <CommandList>
+                      <CommandEmpty>No medication found.</CommandEmpty>
+                      <CommandGroup>
+                        {ALL_AVAILABLE_MEDICATIONS.map((medication) => (
+                          <CommandItem
+                            key={medication}
+                            value={medication}
+                            onSelect={(currentValue) => {
+                              setOrderMedicationName(currentValue.toUpperCase() === orderMedicationName.toUpperCase() ? "" : currentValue);
+                              setShowQuickOrderFields(true);
+                              setIsMedicationPopoverOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                orderMedicationName.toUpperCase() === medication.toUpperCase() ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {medication}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+              {showQuickOrderFields && (
+                <div className="flex items-end space-x-2">
+                  <div className="flex-grow space-y-1">
+                    <Label htmlFor="orderQuickOrder" className="text-sm font-medium">Quick Order</Label>
+                    <Input 
+                      id="orderQuickOrder" 
+                      value={orderQuickOrder} 
+                      onChange={(e) => setOrderQuickOrder(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                  <Button type="button" className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">Edit Quick List</Button>
                 </div>
-                <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">Edit Quick List</Button>
-              </div>
+              )}
             </div>
           </div>
           <div className="flex justify-center space-x-4 p-4 pt-2 border-t border-gray-200">
@@ -503,7 +559,7 @@ const IpMedicationView = () => {
         </DialogContent>
       </Dialog>
     </Card>
-  )
+  );
 };
 
 
