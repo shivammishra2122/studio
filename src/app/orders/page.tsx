@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react'; // Added React import
@@ -22,7 +21,6 @@ import {
   Filter,
   PenLine
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -166,7 +164,7 @@ const CpoeOrderListView = () => {
 
             <Label htmlFor="orderService" className="shrink-0">Service</Label>
             <Select value={serviceFilter} onValueChange={setServiceFilter}>
-              <SelectTrigger id="orderService" className="h-7 w-40 text-xs"> {/* Increased width slightly for "UNIT DOSE MEDICATIONS" */}
+              <SelectTrigger id="orderService" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
@@ -211,7 +209,7 @@ const CpoeOrderListView = () => {
             <div className="flex items-center space-x-1 ml-auto"> 
               <Label htmlFor="orderShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
-                <SelectTrigger id="orderShowEntries" className="h-7 w-20 text-xs"> {/* Increased width to fit "All" */}
+                <SelectTrigger id="orderShowEntries" className="h-7 w-20 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -228,12 +226,12 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0"> {/* Handles vertical scroll */}
+        <div className="flex-1 overflow-y-auto min-h-0">
           <Table className="text-xs w-full"> 
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {["Service", "Order", "Start/Stop Date", "Provider", "Status", "Location"].map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
+                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-8 whitespace-nowrap">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -255,19 +253,7 @@ const CpoeOrderListView = () => {
                     {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell> 
-                  <TableCell className="py-1.5 px-3"> 
-                    <Badge 
-                      variant={order.status === 'ACTIVE' || order.status === 'Completed' ? 'default' : order.status === 'UNRELEASED' || order.status === 'Pending' ? 'secondary' : 'destructive'}
-                      className={`text-xs px-1.5 py-0.5 
-                        ${order.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border border-green-300' :
-                          order.status === 'UNRELEASED' ? 'bg-orange-100 text-orange-700 border border-orange-300' : 
-                          order.status === 'Completed' ? 'bg-blue-100 text-blue-700 border border-blue-300' : 
-                          order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : 
-                          'bg-red-100 text-red-700 border border-red-300'}`}
-                    >
-                      {order.status}
-                    </Badge>
-                  </TableCell>
+                  <TableCell className="py-1.5 px-3">{order.status}</TableCell>
                   <TableCell className="py-1.5 px-3">{order.location}</TableCell> 
                 </TableRow>
               )) : (
@@ -393,7 +379,7 @@ const IpMedicationView = () => {
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
+                  <TableHead key={header} className="py-2 px-3 text-foreground text-xs h-8 whitespace-nowrap">
                     <div className="flex items-center justify-between">
                       {header}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -411,18 +397,7 @@ const IpMedicationView = () => {
                     {med.startDate && med.startTime && <div>Start: {med.startDate} {med.startTime}</div>}
                     {med.stopDate && med.stopTime && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
                   </TableCell>
-                  <TableCell className="py-1.5 px-3"> 
-                    <Badge
-                      variant={med.status === 'ACTIVE' ? 'default' : med.status === 'HOLD' ? 'secondary' : 'destructive'}
-                      className={`text-xs px-1.5 py-0.5
-                        ${med.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border border-green-300' :
-                          med.status === 'HOLD' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
-                          'bg-orange-100 text-orange-700 border border-orange-300' 
-                        }`}
-                    >
-                      {med.status}
-                    </Badge>
-                  </TableCell>
+                  <TableCell className="py-1.5 px-3">{med.status}</TableCell>
                   <TableCell className="py-1.5 px-3">{med.orderedBy}</TableCell> 
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
                   <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
@@ -458,7 +433,7 @@ const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
@@ -496,4 +471,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage; make the edit in this code for the cope list and remove type next from the page
+export default OrdersPage;
