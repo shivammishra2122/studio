@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -53,9 +52,9 @@ const mockNoteEntries: NoteEntryDataType[] = [
     notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
     dateOfEntry: '15 MAY, 2025 20:05',
     status: 'COMPLETED',
-    author: 'Sansys Doctor', // Shortened
-    location: 'ICU ONE', // Shortened
-    cosigner: 'Dr. Jane Doe' // Shortened
+    author: 'Sansys Doc.', // Shortened
+    location: 'ICU 1', // Shortened
+    cosigner: 'Dr. J. Doe' // Shortened
   },
   {
     id: '4',
@@ -72,7 +71,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '19 MAY, 2025 11:45',
     status: 'COMPLETED',
     author: 'Dr. M. Chen',
-    location: 'Surgical Pre-Op',
+    location: 'Surg Pre-Op',
     cosigner: 'Dr. S. Bell'
   },
   {
@@ -90,7 +89,7 @@ const mockNoteEntries: NoteEntryDataType[] = [
     dateOfEntry: '21 MAY, 2025 13:00',
     status: 'DRAFT',
     author: 'Dr. O. Green',
-    location: 'Behavioral Health',
+    location: 'Behavioral H.',
     cosigner: undefined
   },
   {
@@ -127,7 +126,7 @@ const ClinicalNotesPage = () => {
     setIsNoteDetailDialogOpen(true);
   };
 
-  const truncateText = (text: string, maxLength: number = 40) => { // Reduced maxLength
+  const truncateText = (text: string, maxLength: number = 40) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };
@@ -155,7 +154,7 @@ const ClinicalNotesPage = () => {
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
            <Card className="flex-1 flex flex-col shadow overflow-hidden">
-            {/* CardHeader removed as per previous request to match other page styles */}
+            {/* CardHeader removed */}
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
               {/* Filter Bar */}
               <div className="space-y-2 mb-2 text-xs">
@@ -215,16 +214,15 @@ const ClinicalNotesPage = () => {
                   <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        { name: "Notes Title", className: "min-w-[12rem]" }, // Reduced min-width
+                        { name: "Notes Title", className: "min-w-[8rem]" }, // Changed width
                         { name: "Date of Entry", className: "" }, 
                         { name: "Status", className: "whitespace-nowrap" }, 
                         { name: "Sign" }, 
                         { name: "Edit" },
-                        // { name: "Delete" }, // Removed Delete column
                         { name: "Action" }, 
-                        { name: "Author", className: "" }, // Allow wrapping
-                        { name: "Location", className: "" }, // Allow wrapping
-                        { name: "Cosigner", className: "" }, // Allow wrapping
+                        { name: "Author", className: "" },
+                        { name: "Location", className: "" },
+                        { name: "Cosigner", className: "" },
                         { name: "Image Upload" }
                       ].map(header => (
                         <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-8 ${header.className || 'whitespace-nowrap'}`}>
@@ -239,7 +237,7 @@ const ClinicalNotesPage = () => {
                   <TableBody>
                     {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
                       <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                        <TableCell className="py-1.5 px-3 min-w-[12rem]">{truncateText(note.notesTitle, 40)}</TableCell> {/* Reduced min-width, updated truncate length */}
+                        <TableCell className="py-1.5 px-3 min-w-[8rem]">{truncateText(note.notesTitle, 40)}</TableCell> {/* Changed width */}
                         <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
                         <TableCell className="py-1.5 px-3 whitespace-nowrap">{note.status}</TableCell>
                         <TableCell className="py-1.5 px-3 text-center">
@@ -248,9 +246,6 @@ const ClinicalNotesPage = () => {
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><Edit2 className="h-3.5 w-3.5" /></Button>
                         </TableCell>
-                        {/* <TableCell className="py-1.5 px-3 text-center">
-                          <Button variant="ghost" size="icon" className="h-6 w-6"><X className="h-3.5 w-3.5" /></Button>
-                        </TableCell> */}
                         <TableCell className="py-1.5 px-3 text-center">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                         </TableCell>
@@ -263,7 +258,7 @@ const ClinicalNotesPage = () => {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={10} className="text-center py-10 text-muted-foreground"> {/* Adjusted colSpan */}
+                        <TableCell colSpan={10} className="text-center py-10 text-muted-foreground">
                           No notes found.
                         </TableCell>
                       </TableRow>
