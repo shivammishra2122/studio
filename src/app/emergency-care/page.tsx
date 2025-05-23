@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -9,14 +8,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpDown, RefreshCw } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
 
 const subNavItems = ["COPD List", "MLC/Non-MLC Note"];
 
 const copdTableHeaders = [
-  "Visit", "Visit Date/Time", "Type", "MLC", "MLC/Progress Id",
-  "Treating Facility", "Injury", "Criticality", "Consultant Name",
-  "Attended By", "Referred From" // Corrected typo
+  { name: "Visit", className: "w-[10%]" },
+  { name: "Visit Date/Time", className: "w-[12%]" },
+  { name: "Type", className: "w-[8%]" },
+  { name: "MLC", className: "w-[8%]" },
+  { name: "MLC/Progress Id", className: "w-[10%]" },
+  { name: "Treating Facility", className: "w-[12%]" },
+  { name: "Injury", className: "w-[10%]" },
+  { name: "Criticality", className: "w-[10%]" },
+  { name: "Consultant Name", className: "w-[10%]" },
+  { name: "Attended By", className: "w-[10%]" },
+  { name: "Referred From", className: "w-[10%]" },
 ];
 
 const EmergencyCarePage = () => {
@@ -29,7 +35,7 @@ const EmergencyCarePage = () => {
       {/* Horizontal Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {subNavItems.map((item) => (
-           <Button
+          <Button
             key={item}
             onClick={() => setActiveSubNav(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
@@ -71,7 +77,7 @@ const EmergencyCarePage = () => {
                     onChange={e => setSearchText(e.target.value)}
                     className="h-7 w-40 text-xs"
                   />
-                   <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>
@@ -79,14 +85,17 @@ const EmergencyCarePage = () => {
             </CardHeader>
 
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-auto min-h-0">
-                <Table className="text-xs min-w-[90rem] w-full">
-                  <TableHeader className="bg-accent sticky top-0 z-10">
+              <div className="flex-1 overflow-y-auto min-h-0 relative">
+                <Table className="text-xs w-full">
+                  <TableHeader className="bg-background sticky top-0 z-10 border-b">
                     <TableRow>
                       {copdTableHeaders.map(header => (
-                        <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto whitespace-nowrap">
+                        <TableHead
+                          key={header.name}
+                          className={`py-2 px-3 text-foreground font-semibold h-auto whitespace-normal ${header.className}`}
+                        >
                           <div className="flex items-center justify-between">
-                            {header}
+                            {header.name}
                             <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                           </div>
                         </TableHead>
@@ -95,16 +104,15 @@ const EmergencyCarePage = () => {
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={copdTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                      <TableCell
+                        colSpan={copdTableHeaders.length}
+                        className="text-center py-10 text-muted-foreground whitespace-normal"
+                      >
                         No Data Found
                       </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
-              </div>
-
-              <div className="py-2 mt-2">
-                <Progress value={33} className="h-2" />
               </div>
 
               <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
@@ -140,5 +148,3 @@ const EmergencyCarePage = () => {
 };
 
 export default EmergencyCarePage;
-
-    
