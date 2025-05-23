@@ -1,13 +1,14 @@
-
 'use client';
 
-import { useState } from 'react';
+import type { NextPage } from 'next';
+import React, { useState } from 'react'; // Added React import
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { 
   Settings, 
   FileEdit, 
@@ -21,8 +22,8 @@ import {
   Filter,
   PenLine
 } from 'lucide-react';
-// Badge component is not used in CpoeOrderListView status after previous changes
-// import { Badge } from '@/components/ui/badge'; 
+// Badge import is no longer needed as per previous request
+// import { Badge } from '@/components/ui/badge';
 
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
@@ -103,9 +104,9 @@ type IpMedicationEntryDataType = {
   stopDate?: string;
   stopTime?: string;
   status: "ACTIVE" | "HOLD" | "UNRELEASED";
-  orderedBy: string;
-  medicationDay: string;
-  schedule: string;
+  orderedBy?: string;
+  medicationDay?: string;
+  schedule?: string;
   scheduleNote?: string;
 };
 
@@ -120,10 +121,10 @@ const mockIpMedicationData: IpMedicationEntryDataType[] = [
 ];
 
 const CpoeOrderListView = () => {
-  const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:45");
+  const [visitDate, setVisitDate] = useState<string | undefined>("10 Sep 2024 - OPD");
   const [orderFromDate, setOrderFromDate] = useState<string>("10/09/2024");
   const [orderToDate, setOrderToDate] = useState<string>("10/09/2024");
-  const [serviceFilter, setServiceFilter] = useState<string | undefined>("UNIT DOSE MEDICATIONS");
+  const [serviceFilter, setServiceFilter] = useState<string | undefined>("All");
   const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
@@ -159,8 +160,8 @@ const CpoeOrderListView = () => {
                 <SelectValue placeholder="Select Visit" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem>
                 <SelectItem value="10 Sep 2024 - OPD">10 Sep 2024 - OPD</SelectItem>
+                <SelectItem value="15 MAY, 2025 19:45">15 MAY, 2025 19:45</SelectItem>
               </SelectContent>
             </Select>
 
@@ -293,7 +294,35 @@ const IpMedicationView = () => {
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
 
-  const filteredMedications = mockIpMedicationData;
+  const [isAddIpMedicationDialogOpen, setIsAddIpMedicationDialogOpen] = useState(false);
+  const [newIpMedicationName, setNewIpMedicationName] = useState('');
+  const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
+
+  const openAddIpMedicationDialog = () => {
+    setNewIpMedicationName(''); 
+    setIsAddIpMedicationDialogOpen(true);
+  };
+
+  const handleAddIpMedication = () => {
+    if (!newIpMedicationName.trim()) return;
+    const newMed: IpMedicationEntryDataType = {
+      id: Date.now().toString(),
+      services: 'Inpt. Meds', 
+      medicationName: newIpMedicationName,
+      status: 'UNRELEASED', 
+      startDate: new Date().toLocaleDateString('en-CA'), 
+      startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+      stopDate: '',
+      stopTime: '',
+      orderedBy: 'System', 
+      medicationDay: 'Day 1',  
+      schedule: 'Pending',   
+    };
+    setIpMedicationList(prev => [newMed, ...prev]);
+    setIsAddIpMedicationDialogOpen(false);
+  };
+
+  const filteredMedications = ipMedicationList; // Use stateful list
 
   const ipMedTableHeaders = ["Services", "Medication Name", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Actions", "Medication Day", "Schedule"];
 
@@ -303,7 +332,7 @@ const IpMedicationView = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">IPD Medication List</CardTitle>
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><FileEdit className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50" onClick={openAddIpMedicationDialog}><FileEdit className="h-4 w-4" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><RefreshCw className="h-4 w-4" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><Settings className="h-4 w-4" /></Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50"><Printer className="h-4 w-4" /></Button>
@@ -318,7 +347,7 @@ const IpMedicationView = () => {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
             <Select value={visitDate} onValueChange={setVisitDate}>
-              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs"> {/* Adjusted width */}
+              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -327,7 +356,7 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipScheduleType" className="shrink-0">Schedule Type</Label>
             <Select value={scheduleType} onValueChange={setScheduleType}>
-              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs"> {/* Adjusted width */}
+              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -338,7 +367,7 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipStatus" className="shrink-0">Status</Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs"> {/* Adjusted width */}
+              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
@@ -350,12 +379,12 @@ const IpMedicationView = () => {
             </Select>
             <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
             <div className="relative">
-              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* Adjusted width */}
+              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
             <Label htmlFor="ipOrderTo" className="shrink-0">Order To</Label>
             <div className="relative">
-              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" /> {/* Adjusted width */}
+              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
           </div>
@@ -364,7 +393,7 @@ const IpMedicationView = () => {
             <div className="flex items-center space-x-1">
               <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
               <Select value={showEntries} onValueChange={setShowEntries}>
-                <SelectTrigger id="ipShowEntries" className="h-7 w-16 text-xs"> {/* Adjusted width */}
+                <SelectTrigger id="ipShowEntries" className="h-7 w-16 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -377,10 +406,10 @@ const IpMedicationView = () => {
             </div>
             <div className="flex-grow"></div>
             <Label htmlFor="ipSearch" className="shrink-0">Search:</Label>
-            <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" /> {/* Adjusted width */}
+            <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
@@ -430,6 +459,34 @@ const IpMedicationView = () => {
           </div>
         </div>
       </CardContent>
+      <Dialog open={isAddIpMedicationDialogOpen} onOpenChange={setIsAddIpMedicationDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogUITitle>Add New IP Medication</DialogUITitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="ipMedName" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="ipMedName"
+                value={newIpMedicationName}
+                onChange={(e) => setNewIpMedicationName(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="button" onClick={handleAddIpMedication}>Add Medication</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
