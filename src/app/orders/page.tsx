@@ -182,8 +182,6 @@ const CpoeOrderListView = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
-                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
-                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
                 <SelectItem value="Completed">Completed</SelectItem>
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="Cancelled">Cancelled</SelectItem>
@@ -221,7 +219,7 @@ const CpoeOrderListView = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0"> 
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
@@ -239,26 +237,17 @@ const CpoeOrderListView = () => {
               {filteredOrders.length > 0 ? filteredOrders.map((order, index) => (
                 <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3">{order.service}</TableCell>
-                  <TableCell className="py-1.5 px-3"> {/* Order column will wrap */}
-                    <div>{order.order}</div>
-                    {order.orderNote && <div className="text-green-600 italic text-xs">{order.orderNote}</div>}
-                  </TableCell>
-                  <TableCell className="py-1.5 px-3"> {/* Start/Stop Date column will wrap */}
-                    {order.startDate && (
-                      <div>Start: {order.startDate} {order.startTime}</div>
-                    )}
-                    {order.stopDate && (
-                      <div>Stop: {order.stopDate} {order.stopTime}</div>
-                    )}
+                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                  <TableCell className="py-1.5 px-3">
+                    <div>Start: {order.startDate} {order.startTime}</div>
+                    {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
                   </TableCell>
                   <TableCell className="py-1.5 px-3">{order.provider}</TableCell>
                   <TableCell className="py-1.5 px-3">
                     <Badge 
-                      variant={order.status === 'ACTIVE' || order.status === 'Completed' ? 'default' : order.status === 'UNRELEASED' ? 'outline' : 'secondary'}
+                      variant={order.status === 'Completed' ? 'default' : order.status === 'Pending' ? 'secondary' : 'destructive'}
                       className={`text-xs px-1.5 py-0.5 
-                        ${order.status === 'ACTIVE' ? 'bg-green-100 text-green-700 border border-green-300' :
-                          order.status === 'UNRELEASED' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' :
-                          order.status === 'Completed' ? 'bg-green-100 text-green-700 border border-green-300' :
+                        ${order.status === 'Completed' ? 'bg-green-100 text-green-700 border border-green-300' : 
                           order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : 
                           'bg-red-100 text-red-700 border border-red-300'}`}
                     >
@@ -385,7 +374,7 @@ const IpMedicationView = () => {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
-          <Table className="text-xs w-full">
+          <Table className="text-xs min-w-[90rem] w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {ipMedTableHeaders.map(header => (
@@ -402,7 +391,7 @@ const IpMedicationView = () => {
               {filteredMedications.length > 0 ? filteredMedications.map((med, index) => (
                 <TableRow key={med.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
                   <TableCell className="py-1.5 px-3">{med.services}</TableCell>
-                  <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell>
+                  <TableCell className="py-1.5 px-3">{med.medicationName}</TableCell> 
                   <TableCell className="py-1.5 px-3">
                     <div>Start: {med.startDate} {med.startTime}</div>
                     {med.stopDate && <div className="text-green-600">Stop: {med.stopDate} {med.stopTime}</div>}
@@ -438,11 +427,11 @@ const IpMedicationView = () => {
   );
 };
 
-const OrdersPage = () => {
+const OrdersPage = () => { // Removed NextPage type
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {orderSubNavItems.map((item) => (
