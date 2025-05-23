@@ -1,27 +1,25 @@
 
 'use client';
 
-import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-// ScrollArea removed
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpDown, RefreshCw } from 'lucide-react';
-import { Progress } from '@/components/ui/progress'; 
+import { Progress } from '@/components/ui/progress';
 
 const subNavItems = ["COPD List", "MLC/Non-MLC Note"];
 
 const copdTableHeaders = [
-  "Visit", "Visit Date/Time", "Type", "MLC", "MLC/Progress Id", 
-  "Treating Facility", "Injury", "Criticality", "Consultant Name", 
-  "Attended By", "Refered From" 
+  "Visit", "Visit Date/Time", "Type", "MLC", "MLC/Progress Id",
+  "Treating Facility", "Injury", "Criticality", "Consultant Name",
+  "Attended By", "Referred From" // Corrected typo
 ];
 
-const EmergencyCarePage: NextPage = () => {
+const EmergencyCarePage = () => {
   const [activeSubNav, setActiveSubNav] = useState<string>(subNavItems[0]);
   const [showEntries, setShowEntries] = useState<string>("10");
   const [searchText, setSearchText] = useState<string>("");
@@ -36,7 +34,7 @@ const EmergencyCarePage: NextPage = () => {
             onClick={() => setActiveSubNav(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeSubNav === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary'
                 : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >
@@ -66,12 +64,12 @@ const EmergencyCarePage: NextPage = () => {
                   <Label htmlFor="showEntries" className="text-xs shrink-0">entries</Label>
                   <div className="flex-grow"></div>
                   <Label htmlFor="copdSearch" className="text-xs shrink-0">Search:</Label>
-                  <Input 
-                    id="copdSearch" 
-                    type="text" 
-                    value={searchText} 
-                    onChange={e => setSearchText(e.target.value)} 
-                    className="h-7 w-40 text-xs" 
+                  <Input
+                    id="copdSearch"
+                    type="text"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)}
+                    className="h-7 w-40 text-xs"
                   />
                    <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
                     <RefreshCw className="h-4 w-4" />
@@ -79,14 +77,14 @@ const EmergencyCarePage: NextPage = () => {
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-hidden min-h-0">
-                <Table className="text-xs min-w-[90rem] flex-1 min-h-0"> {/* Increased min-width */}
+              <div className="flex-1 overflow-auto min-h-0">
+                <Table className="text-xs min-w-[90rem] w-full">
                   <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {copdTableHeaders.map(header => (
-                        <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
+                        <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto whitespace-nowrap">
                           <div className="flex items-center justify-between">
                             {header}
                             <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
@@ -104,9 +102,9 @@ const EmergencyCarePage: NextPage = () => {
                   </TableBody>
                 </Table>
               </div>
-              
+
               <div className="py-2 mt-2">
-                <Progress value={33} className="h-2" /> 
+                <Progress value={33} className="h-2" />
               </div>
 
               <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
@@ -134,4 +132,13 @@ const EmergencyCarePage: NextPage = () => {
               </CardTitle>
               <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
             </CardContent>
-          </Card
+          </Card>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default EmergencyCarePage;
+
+    
