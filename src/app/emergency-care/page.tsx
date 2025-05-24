@@ -167,34 +167,24 @@ const PatientCOPDListView = () => {
 
   return (
     <Card className="flex-1 flex flex-col shadow overflow-hidden">
-      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
-        <div className="flex items-center justify-end"> {/* Changed to justify-end to keep icon on the right */}
-          {/* <CardTitle className="text-base font-semibold">Patient COPD List</CardTitle> Removed title */}
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </div>
-      </ShadcnCardHeader>
+      
 
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
         {/* Filter Bars */}
         <div className="space-y-2 mb-2 text-xs">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex items-center space-x-1.5">
-              <div className="w-24 h-4 bg-muted rounded-full"></div> {/* Placeholder for slider */}
-              <span className="text-xs">1 Month</span>
-            </div>
-            <Label htmlFor="copdFromDate" className="shrink-0">From Date</Label>
+            
+            <Label htmlFor="copdFromDate" className="shrink-0 text-xs">From Date</Label>
             <div className="relative">
               <Input id="copdFromDate" type="text" value={copdFromDate} onChange={e => setCopdFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <Label htmlFor="copdToDate" className="shrink-0">To</Label>
+            <Label htmlFor="copdToDate" className="shrink-0 text-xs">To</Label>
             <div className="relative">
               <Input id="copdToDate" type="text" value={copdToDate} onChange={e => setCopdToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
               <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <Label htmlFor="copdTypeFilter" className="shrink-0">Type</Label>
+            <Label htmlFor="copdTypeFilter" className="shrink-0 text-xs">Type</Label>
             <Select value={copdTypeFilter} onValueChange={setCopdTypeFilter}>
               <SelectTrigger id="copdTypeFilter" className="h-7 w-24 text-xs">
                 <SelectValue />
@@ -205,7 +195,7 @@ const PatientCOPDListView = () => {
                 <SelectItem value="Progress">Progress</SelectItem>
               </SelectContent>
             </Select>
-            <Label htmlFor="copdCriticalityFilter" className="shrink-0">Criticality</Label>
+            <Label htmlFor="copdCriticalityFilter" className="shrink-0 text-xs">Criticality</Label>
             <Select value={copdCriticalityFilter} onValueChange={setCopdCriticalityFilter}>
               <SelectTrigger id="copdCriticalityFilter" className="h-7 w-24 text-xs">
                 <SelectValue />
@@ -217,8 +207,7 @@ const PatientCOPDListView = () => {
                 <SelectItem value="High">High</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <Label htmlFor="copdShowEntries" className="text-xs shrink-0">Show</Label>
             <Select value={copdShowEntries} onValueChange={setCopdShowEntries}>
               <SelectTrigger id="copdShowEntries" className="h-7 w-16 text-xs">
@@ -235,6 +224,8 @@ const PatientCOPDListView = () => {
             <Label htmlFor="copdSearch" className="text-xs shrink-0">Search:</Label>
             <Input id="copdSearch" type="text" value={copdSearchText} onChange={e => setCopdSearchText(e.target.value)} className="h-7 w-32 text-xs" />
           </div>
+          </div>
+          
         </div>
         
         <div className="flex-1 overflow-auto min-h-0">
@@ -242,7 +233,7 @@ const PatientCOPDListView = () => {
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
               <TableRow>
                 {copdTableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto">
+                  <TableHead key={header} className="py-2 px-3 text-foreground h-auto">
                     <div className="flex items-center justify-between">
                       <span className="break-words text-xs">{header}</span> {/* Allow header text to wrap */}
                       <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
