@@ -103,6 +103,59 @@ const mockOrderData: OrderDataType[] = [
   },
 ];
 
+type VisitAdtDataType = {
+  id: string;
+  event: string;
+  dateTime: string;
+  provider: string;
+  status: "COMPLETED" | "DISCONTINUED";
+  location: string;
+};
+
+// Mock Visit/ADT Data
+const mockVisitAdtData: VisitAdtDataType[] = [
+  { 
+    id: '1', 
+    event: 'ADMISSION TO LAJPATNAGAR', 
+    dateTime: '23 NOV, 2024 11:30', 
+    provider: 'Ess User', 
+    status: 'COMPLETED', 
+    location: 'BLK-EMERGENCY WARD' 
+  },
+  { 
+    id: '2', 
+    event: 'TRANSFER TO ICU', 
+    dateTime: '16 NOV, 2024 15:34', 
+    provider: 'Dr. Sharma', 
+    status: 'COMPLETED', 
+    location: 'BLK-ICU WARD' 
+  },
+  { 
+    id: '3', 
+    event: 'DISCHARGE', 
+    dateTime: '10 JAN, 2025 09:00', 
+    provider: 'Dr. Gupta', 
+    status: 'DISCONTINUED', 
+    location: 'BLK-GENERAL WARD' 
+  },
+  { 
+    id: '4', 
+    event: 'ADMISSION TO OPD', 
+    dateTime: '05 MAR, 2025 14:20', 
+    provider: 'Ess User', 
+    status: 'COMPLETED', 
+    location: 'OPD WARD' 
+  },
+  { 
+    id: '5', 
+    event: 'TRANSFER TO GENERAL WARD', 
+    dateTime: '15 APR, 2025 10:45', 
+    provider: 'Dr. Patel', 
+    status: 'COMPLETED', 
+    location: 'BLK-GENERAL WARD' 
+  },
+];
+
 // IP Medication Data
 type IpMedicationEntryDataType = {
   id: string;
@@ -1135,23 +1188,534 @@ const OrdersPage = () => {
         {activeOrderSubNav === "Write Delay Order" && <DelayOrdersView />}
         {activeOrderSubNav === "Laboratory" && <LabCpoeListView />}
         {activeOrderSubNav === "Radiology" && <RadiologyView />}
+        {activeOrderSubNav === "Visit/ADT" && <VisitAdtView />}
+        {activeOrderSubNav === "Procedure Order" && <ProcedureOrderView />}
+        {activeOrderSubNav === "Nursing Care" && <NursingCareView />}
         
-        {activeOrderSubNav !== "CPOE Order List" && 
-         activeOrderSubNav !== "IP Medication" && 
-         activeOrderSubNav !== "Write Delay Order" && 
-         activeOrderSubNav !== "Laboratory" && 
-         activeOrderSubNav !== "Radiology" && (
-          <Card className="flex-1 flex items-center justify-center">
-            <CardContent className="text-center">
-              <CardTitle className="text-xl text-muted-foreground">
-                {activeOrderSubNav} View
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
-            </CardContent>
-          </Card>
-        )}
+        
+      
       </main>
     </div>
+  );
+};
+const VisitAdtView = () => {
+  const [visitDate, setVisitDate] = useState<string | undefined>("23 NOV, 2024 11:30");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
+  const [showEntries, setShowEntries] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredVisitAdtData = mockVisitAdtData;
+
+  const visitAdtTableHeaders = ["Event", "Date:Time", "Provider", "Status", "Location"];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Visit/ADT Events</CardTitle>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ShadcnCardHeader>
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="space-y-2 mb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Label htmlFor="visitAdtDate" className="shrink-0">Visit Date</Label>
+            <Select value={visitDate} onValueChange={setVisitDate}>
+              <SelectTrigger id="visitAdtDate" className="h-7 w-32 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="23 NOV, 2024 11:30">23 NOV, 2024 11:30</SelectItem>
+                <SelectItem value="16 NOV, 2024 15:34">16 NOV, 2024 15:34</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="visitAdtStatus" className="shrink-0">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="visitAdtStatus" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                <SelectItem value="DISCONTINUED">DISCONTINUED</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="visitAdtShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="visitAdtShowEntries" className="h-7 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="visitAdtShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="visitAdtSearch" className="shrink-0">Search:</Label>
+            <Input id="visitAdtSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {visitAdtTableHeaders.map(header => (
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
+                    <div className="flex items-center justify-between">
+                      {header}
+                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredVisitAdtData.length > 0 ? filteredVisitAdtData.map((visit, index) => (
+                <TableRow key={visit.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{visit.event}</TableCell>
+                  <TableCell className="py-1.5 px-3">{visit.dateTime}</TableCell>
+                  <TableCell className="py-1.5 px-3">{visit.provider}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{visit.status}</TableCell>
+                  <TableCell className="py-1.5 px-3">{visit.location}</TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={visitAdtTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Visit/ADT events found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredVisitAdtData.length > 0 ? 1 : 0} to {filteredVisitAdtData.length} of {filteredVisitAdtData.length} entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+type ProcedureOrderDataType = {
+  id: string;
+  order: string;
+  startDate?: string;
+  startTime?: string;
+  stopDate?: string;
+  stopTime?: string;
+  provider: string;
+  status: "UNRELEASED" | "PENDING" | "DISCONTINUED";
+  location: string;
+};
+
+// Mock Procedure Order Data
+const mockProcedureOrderData: ProcedureOrderDataType[] = [
+  { 
+    id: '1', 
+    order: 'ENDOSCOPY', 
+    startDate: '23 NOV, 2024', 
+    startTime: '09:00', 
+    stopDate: '23 NOV, 2024', 
+    stopTime: '10:30', 
+    provider: 'Dr. Sharma', 
+    status: 'DISCONTINUED', 
+    location: 'BLK-ENDOSCOPY UNIT' 
+  },
+  { 
+    id: '2', 
+    order: 'COLONOSCOPY', 
+    startDate: '15 JAN, 2025', 
+    startTime: '14:00', 
+    provider: 'Ess User', 
+    status: 'PENDING', 
+    location: 'BLK-PROCEDURE ROOM' 
+  },
+  { 
+    id: '3', 
+    order: 'BRONCHOSCOPY', 
+    startDate: '10 FEB, 2025', 
+    startTime: '11:30', 
+    provider: 'Dr. Gupta', 
+    status: 'UNRELEASED', 
+    location: 'BLK-ICU WARD' 
+  },
+  { 
+    id: '4', 
+    order: 'BIOPSY - LIVER', 
+    startDate: '05 MAR, 2025', 
+    startTime: '08:45', 
+    stopDate: '05 MAR, 2025', 
+    stopTime: '09:15', 
+    provider: 'Dr. Patel', 
+    status: 'DISCONTINUED', 
+    location: 'BLK-DAYCARE UNIT' 
+  },
+  { 
+    id: '5', 
+    order: 'ANGIOGRAPHY', 
+    startDate: '20 APR, 2025', 
+    startTime: '13:20', 
+    provider: 'Ess User', 
+    status: 'PENDING', 
+    location: 'BLK-CATH LAB' 
+  },
+];
+
+const ProcedureOrderView = () => {
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
+  const [orderFromDate, setOrderFromDate] = useState<string>("");
+  const [orderToDate, setOrderToDate] = useState<string>("");
+  const [showEntries, setShowEntries] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredProcedureOrders = mockProcedureOrderData;
+
+  const procedureOrderTableHeaders = ["Order", "Start/Stop Date", "Provider", "Status", "Sign", "Discontinue", "Location"];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Procedure Orders</CardTitle>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ShadcnCardHeader>
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="space-y-2 mb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Label htmlFor="procedureStatus" className="shrink-0">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="procedureStatus" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
+                <SelectItem value="PENDING">PENDING</SelectItem>
+                <SelectItem value="DISCONTINUED">DISCONTINUED</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="procedureOrderFrom" className="shrink-0">Order From</Label>
+            <div className="relative">
+              <Input id="procedureOrderFrom" type="text" value={orderFromDate} onChange={e => setOrderFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <Label htmlFor="procedureOrderTo" className="shrink-0">Order To</Label>
+            <div className="relative">
+              <Input id="procedureOrderTo" type="text" value={orderToDate} onChange={e => setOrderToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="procedureShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="procedureShowEntries" className="h-7 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="procedureShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="procedureSearch" className="shrink-0">Search:</Label>
+            <Input id="procedureSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {procedureOrderTableHeaders.map(header => (
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
+                    <div className="flex items-center justify-between">
+                      {header}
+                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredProcedureOrders.length > 0 ? filteredProcedureOrders.map((order, index) => (
+                <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                  <TableCell className="py-1.5 px-3">
+                    {order.startDate && <div>Start: {order.startDate} {order.startTime}</div>}
+                    {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
+                  </TableCell>
+                  <TableCell className="py-1.5 px-3">{order.provider}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{order.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3">{order.location}</TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={procedureOrderTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No procedure orders found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredProcedureOrders.length > 0 ? 1 : 0} to {filteredProcedureOrders.length} of {filteredProcedureOrders.length} entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+type NursingCareDataType = {
+  id: string;
+  order: string;
+  startDate?: string;
+  startTime?: string;
+  stopDate?: string;
+  stopTime?: string;
+  provider: string;
+  status: "ACTIVE" | "DISCONTINUED";
+  admissionAdvice?: string;
+  location: string;
+};
+
+// Mock Nursing Care Data
+const mockNursingCareData: NursingCareDataType[] = [
+  { 
+    id: '1', 
+    order: 'VITAL SIGNS MONITORING Q4H', 
+    startDate: '20 MAY, 2025', 
+    startTime: '08:00', 
+    stopDate: '24 MAY, 2025', 
+    stopTime: '08:00', 
+    provider: 'Nurse Patel', 
+    status: 'ACTIVE', 
+    admissionAdvice: 'Monitor BP, HR, Temp', 
+    location: 'BLK-GENERAL WARD' 
+  },
+  { 
+    id: '2', 
+    order: 'WOUND DRESSING DAILY', 
+    startDate: '22 MAY, 2025', 
+    startTime: '09:00', 
+    provider: 'Nurse Sharma', 
+    status: 'ACTIVE', 
+    admissionAdvice: 'Change dressing, check for infection', 
+    location: 'BLK-SURGICAL WARD' 
+  },
+  { 
+    id: '3', 
+    order: 'IV FLUID ADMINISTRATION', 
+    startDate: '15 MAY, 2025', 
+    startTime: '10:30', 
+    stopDate: '20 MAY, 2025', 
+    stopTime: '10:30', 
+    provider: 'Nurse Gupta', 
+    status: 'DISCONTINUED', 
+    admissionAdvice: 'NS 500ml over 4 hours', 
+    location: 'BLK-ICU WARD' 
+  },
+  { 
+    id: '4', 
+    order: 'PATIENT POSITIONING Q2H', 
+    startDate: '23 MAY, 2025', 
+    startTime: '07:00', 
+    provider: 'Nurse Singh', 
+    status: 'ACTIVE', 
+    admissionAdvice: 'Prevent pressure ulcers', 
+    location: 'BLK-DAYCARE UNIT' 
+  },
+  { 
+    id: '5', 
+    order: 'ORAL CARE Q8H', 
+    startDate: '18 MAY, 2025', 
+    startTime: '06:00', 
+    stopDate: '22 MAY, 2025', 
+    stopTime: '06:00', 
+    provider: 'Nurse Verma', 
+    status: 'DISCONTINUED', 
+    location: 'BLK-GENERAL WARD' 
+  },
+];
+
+const NursingCareView = () => {
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
+  const [orderFromDate, setOrderFromDate] = useState<string>("");
+  const [orderToDate, setOrderToDate] = useState<string>("");
+  const [showEntries, setShowEntries] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredNursingCareData = mockNursingCareData;
+
+  const nursingCareTableHeaders = ["Order", "Start/Stop Date", "Provider", "Status", "Admission Advice", "Location"];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Nursing Care Orders</CardTitle>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ShadcnCardHeader>
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="space-y-2 mb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Label htmlFor="nursingStatus" className="shrink-0">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="nursingStatus" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+                <SelectItem value="DISCONTINUED">DISCONTINUED</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="nursingOrderFrom" className="shrink-0">Order From</Label>
+            <div className="relative">
+              <Input id="nursingOrderFrom" type="text" value={orderFromDate} onChange={e => setOrderFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <Label htmlFor="nursingOrderTo" className="shrink-0">Order To</Label>
+            <div className="relative">
+              <Input id="nursingOrderTo" type="text" value={orderToDate} onChange={e => setOrderToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="nursingShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="nursingShowEntries" className="h-7 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="nursingShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="nursingSearch" className="shrink-0">Search:</Label>
+            <Input id="nursingSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {nursingCareTableHeaders.map(header => (
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
+                    <div className="flex items-center justify-between">
+                      {header}
+                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredNursingCareData.length > 0 ? filteredNursingCareData.map((care, index) => (
+                <TableRow key={care.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{care.order}</TableCell>
+                  <TableCell className="py-1.5 px-3">
+                    {care.startDate && <div>Start: {care.startDate} {care.startTime}</div>}
+                    {care.stopDate && <div>Stop: {care.stopDate} {care.stopTime}</div>}
+                  </TableCell>
+                  <TableCell className="py-1.5 px-3">{care.provider}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{care.status}</TableCell>
+                  <TableCell className="py-1.5 px-3">{care.admissionAdvice || 'N/A'}</TableCell>
+                  <TableCell className="py-1.5 px-3">{care.location}</TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={nursingCareTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No nursing care orders found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredNursingCareData.length > 0 ? 1 : 0} to {filteredNursingCareData.length} of {filteredNursingCareData.length} entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
