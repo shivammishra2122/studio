@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react'; // Added React import and hooks
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,20 +24,21 @@ import {
   X as XIcon,      
   Save             
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'; 
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'; 
 import { cn } from '@/lib/utils'; 
-import { ScrollArea } from '@/components/ui/scroll-area'; 
-// Checkbox is removed as it's not used in the new dialog
 
+// Navigation items
 const orderSubNavItems = [
   "CPOE Order List", "Write Delay Order", "IP Medication", 
-  "Laboratory", "Radiology", "Visit/ ADT", 
+  "Laboratory", "Radiology", "Visit/ADT", 
   "Procedure Order", "Nursing Care"
 ];
 
+// Data Types and Mock Data
+
+// CPOE Order List Data
 type OrderDataType = {
   id: string;
   service: string;
@@ -102,6 +103,7 @@ const mockOrderData: OrderDataType[] = [
   },
 ];
 
+// IP Medication Data
 type IpMedicationEntryDataType = {
   id: string;
   services: string;
@@ -135,6 +137,120 @@ const ALL_AVAILABLE_MEDICATIONS = [
   "PARACETAMOL 500MG", "IBUPROFEN 200MG", "AMOXICILLIN 250MG", "ASPIRIN 100MG", "METFORMIN 500MG"
 ];
 
+// Delay Orders Data
+type DelayOrderDataType = {
+  id: string;
+  event: string;
+  order: string;
+  startDate: string;
+  startTime: string;
+  stopDate?: string;
+  stopTime?: string;
+  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled";
+  orderedBy: string;
+};
+
+const mockDelayOrderData: DelayOrderDataType[] = [
+  // Intentionally empty to match "No Data Found" in the screenshot
+];
+
+// Lab CPOE List Data
+type LabCpoeDataType = {
+  id: string;
+  section: string;
+  labTest: string;
+  sample: string;
+  orderDate: string;
+  orderTime: string;
+  startDate: string;
+  startTime: string;
+  status: "UNRELEASED" | "ACTIVE" | "Completed" | "Pending" | "Cancelled";
+};
+
+const mockLabCpoeData: LabCpoeDataType[] = [
+  { id: '1', section: 'CHEMISTRY', labTest: 'VITAMIN C - ASCORBIC ACID (SERUM)', sample: 'UNKNOWN', orderDate: '26 MAR, 2025', orderTime: '10:48', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '2', section: 'CHEMISTRY', labTest: 'AFB SENSITIVITY (12 DRUGS PANEL)', sample: 'BRONCHUS AND ALVEOLUS, CS', orderDate: '22 JAN, 2025', orderTime: '15:58', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '3', section: 'CHEMISTRY', labTest: 'VITAMIN C - ASCORBIC ACID (SERUM)', sample: 'UNKNOWN', orderDate: '22 JAN, 2025', orderTime: '15:58', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '4', section: 'CHEMISTRY', labTest: 'HCV IGG', sample: 'SERUM', orderDate: '22 JAN, 2025', orderTime: '15:58', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '5', section: 'MICROBIOLOGY', labTest: 'ALBERT STAIN', sample: 'UNKNOWN', orderDate: '18 JAN, 2025', orderTime: '11:04', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '6', section: 'CHEMISTRY', labTest: '17 HYDROXYPROGESTERONE (17 - OHP)', sample: 'UNKNOWN', orderDate: '18 JAN, 2025', orderTime: '11:00', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '7', section: 'CHEMISTRY', labTest: 'ALLERGY 11 PANEL DRUG PANEL (M)', sample: 'SERUM', orderDate: '17 JAN, 2025', orderTime: '16:47', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '8', section: 'CHEMISTRY', labTest: 'ALLERGY 11 PANEL DRUG PANEL (M)', sample: 'SERUM', orderDate: '17 JAN, 2025', orderTime: '16:47', startDate: '', startTime: '', status: 'UNRELEASED' },
+  { id: '9', section: 'CHEMISTRY', labTest: 'ALLERGEN F13 - PEANUT', sample: 'SERUM', orderDate: '17 JAN, 2025', orderTime: '16:44', startDate: '', startTime: '', status: 'UNRELEASED' },
+];
+
+type RadiologyDataType = {
+  id: string;
+  testName: string;
+  orderDate: string;
+  orderTime: string;
+  startDate?: string;
+  startTime?: string;
+  provider: string;
+  status: "UNRELEASED" | "PENDING" | "COMPLETED";
+  location: string;
+};
+
+// Mock Radiology Data
+const mockRadiologyData: RadiologyDataType[] = [
+  { 
+    id: '1', 
+    testName: 'X-RAY CHEST PA', 
+    orderDate: '16 MAY, 2024', 
+    orderTime: '16:22', 
+    startDate: '16 MAY, 2024', 
+    startTime: '16:30', 
+    provider: 'Atul Prasad', 
+    status: 'COMPLETED', 
+    location: 'BLK-EMERGENCY WARD' 
+  },
+  { 
+    id: '2', 
+    testName: 'CT SCAN BRAIN', 
+    orderDate: '09 NOV, 2024', 
+    orderTime: '15:43', 
+    startDate: '09 NOV, 2024', 
+    startTime: '16:00', 
+    provider: 'Ess User', 
+    status: 'PENDING', 
+    location: 'BLK-EMERGENCY WARD' 
+  },
+  { 
+    id: '3', 
+    testName: 'MRI SPINE', 
+    orderDate: '20 JAN, 2025', 
+    orderTime: '09:15', 
+    startDate: '20 JAN, 2025', 
+    startTime: '09:30', 
+    provider: 'Dr. Sharma', 
+    status: 'UNRELEASED', 
+    location: 'RADIOLOGY DEPT' 
+  },
+  { 
+    id: '4', 
+    testName: 'ULTRASOUND ABDOMEN', 
+    orderDate: '15 MAR, 2025', 
+    orderTime: '11:00', 
+    startDate: '15 MAR, 2025', 
+    startTime: '11:15', 
+    provider: 'Dr. Gupta', 
+    status: 'COMPLETED', 
+    location: 'BLK-EMERGENCY WARD' 
+  },
+  { 
+    id: '5', 
+    testName: 'X-RAY KNEE AP/LAT', 
+    orderDate: '10 APR, 2025', 
+    orderTime: '14:20', 
+    provider: 'Ess User', 
+    status: 'PENDING', 
+    location: 'OPD RADIOLOGY' 
+  },
+];
+
+// Components
+
+// CPOE Order List View
 const CpoeOrderListView = () => {
   const [visitDate, setVisitDate] = useState<string | undefined>("10 Sep 2024 - OPD");
   const [orderFromDate, setOrderFromDate] = useState<string>("10/09/2024");
@@ -296,6 +412,7 @@ const CpoeOrderListView = () => {
   );
 };
 
+// IP Medication View
 const IpMedicationView = () => {
   const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
   
@@ -319,22 +436,20 @@ const IpMedicationView = () => {
   };
 
   const handleConfirmOrder = () => {
-    // This is a placeholder. In a real app, you'd submit the order.
     console.log("Order Confirmed:", { medicationName: orderMedicationName, quickOrder: orderQuickOrder });
     if (orderMedicationName.trim()) {
         const newMed: IpMedicationEntryDataType = {
             id: Date.now().toString(),
-            services: 'Inpt. Meds', // Default or could be part of the form
+            services: 'Inpt. Meds',
             medicationName: orderMedicationName,
-            status: 'UNRELEASED', // Default status for new entries
-            // Other fields can be defaulted or added to the dialog form later
-            startDate: new Date().toLocaleDateString('en-CA'), // Example: YYYY-MM-DD
+            status: 'UNRELEASED',
+            startDate: new Date().toLocaleDateString('en-CA'),
             startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
             stopDate: '',
             stopTime: '',
             orderedBy: 'System (Dialog)',
-            medicationDay: 'Day 1',  // Placeholder
-            schedule: 'Pending',   // Placeholder
+            medicationDay: 'Day 1',
+            schedule: 'Pending',
           };
           setIpMedicationList(prev => [newMed, ...prev]);
     }
@@ -482,12 +597,10 @@ const IpMedicationView = () => {
       </CardContent>
 
       <Dialog open={isAddIpMedicationDialogOpen} onOpenChange={setIsAddIpMedicationDialogOpen}>
-        <DialogContent className="sm:max-w-2xl p-0"> {/* Adjusted max-width, removed padding */}
-          {/* Dialog Header Bar */}
+        <DialogContent className="sm:max-w-2xl p-0">
           <div className="bg-sky-100 p-3">
             <DialogUITitle className="text-lg font-semibold text-sky-800">Order Medicines</DialogUITitle>
           </div>
-          {/* Patient Info Bar */}
           <div className="bg-sky-100 p-3 text-xs text-sky-700 flex flex-wrap items-center gap-x-6 gap-y-1">
             <span>Patient ID : 80000035</span>
             <span>Name : Anonymous Two</span>
@@ -496,8 +609,7 @@ const IpMedicationView = () => {
             <span>Patient Type : In Patient</span>
           </div>
           
-          {/* Main Form Area */}
-          <div className="p-6 space-y-4"> {/* Added padding here */}
+          <div className="p-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                 <div className="space-y-1">
                   <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
@@ -560,7 +672,6 @@ const IpMedicationView = () => {
             </div>
           </div>
 
-          {/* Dialog Action Buttons Area */}
           <div className="flex justify-center space-x-4 p-4 pt-2 border-t border-gray-200">
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleConfirmOrder}>Confirm Order</Button>
             <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleResetOrderForm}>Reset</Button>
@@ -568,7 +679,6 @@ const IpMedicationView = () => {
               <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6">Close</Button>
             </DialogClose>
           </div>
-          {/* Dialog Footer Bar */}
           <div className="bg-sky-100 p-2 text-center">
             <p className="text-xs text-sky-700">Copyright © 2015 Sansys Informatics Pvt. Ltd</p>
           </div>
@@ -578,7 +688,424 @@ const IpMedicationView = () => {
   );
 };
 
+// Delay Orders View
+const DelayOrdersView = () => {
+  const [delayOrderView, setDelayOrderView] = useState<string>("Delay Order List");
+  const [eventFilter, setEventFilter] = useState<string>("ADMISSION TO LAJPATNAGAR");
+  const [showEntries, setShowEntries] = useState<string>("10");
+  const [searchText, setSearchText] = useState<string>("");
 
+  const filteredDelayOrders = mockDelayOrderData;
+
+  const delayOrderTableHeaders = ["S.No.", "Event", "Order", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Change Event", "Release Order", "Order View"];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Delay Orders - List/Events</CardTitle>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ShadcnCardHeader>
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="space-y-2 mb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id="delayOrderList"
+                name="delayOrderView"
+                value="Delay Order List"
+                checked={delayOrderView === "Delay Order List"}
+                onChange={() => setDelayOrderView("Delay Order List")}
+                className="h-4 w-4 text-blue-600"
+              />
+              <Label htmlFor="delayOrderList" className="text-xs">Delay Order List</Label>
+              <input
+                type="radio"
+                id="delayOrderEvents"
+                name="delayOrderView"
+                value="Delay Order Events"
+                checked={delayOrderView === "Delay Order Events"}
+                onChange={() => setDelayOrderView("Delay Order Events")}
+                className="h-4 w-4 text-blue-600"
+              />
+              <Label htmlFor="delayOrderEvents" className="text-xs">Delay Order Events</Label>
+            </div>
+            <Select value={eventFilter} onValueChange={setEventFilter}>
+              <SelectTrigger className="h-7 w-48 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ADMISSION TO LAJPATNAGAR">ADMISSION TO LAJPATNAGAR</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="delayShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="delayShowEntries" className="h-7 w-16 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="delayShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="delaySearch" className="shrink-0">Search:</Label>
+            <Input id="delaySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {delayOrderTableHeaders.map(header => (
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
+                    <div className="flex items-center justify-between">
+                      {header}
+                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredDelayOrders.length > 0 ? filteredDelayOrders.map((order, index) => (
+                <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{index + 1}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.event}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.order}</TableCell>
+                  <TableCell className="py-1.5 px-3">
+                    <div>Start: {order.startDate} {order.startTime}</div>
+                    {order.stopDate && <div>Stop: {order.stopDate} {order.stopTime}</div>}
+                  </TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{order.status}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.orderedBy}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={delayOrderTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Data Found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredDelayOrders.length > 0 ? 1 : 0} to {filteredDelayOrders.length} of {filteredDelayOrders.length} entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const RadiologyView = () => {
+  const [visitDate, setVisitDate] = useState<string | undefined>("16 MAY, 2024 16:22");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
+  const [orderFromDate, setOrderFromDate] = useState<string>("");
+  const [orderToDate, setOrderToDate] = useState<string>("");
+  const [showEntries, setShowEntries] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredRadiologyOrders = mockRadiologyData;
+
+  const radiologyTableHeaders = ["Test Name", "Order Date:Time", "Start Date:Time", "Provider", "Status", "Sign", "Discontinue", "Result", "Location"];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Radiology Orders</CardTitle>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Download className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ShadcnCardHeader>
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="space-y-2 mb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Label htmlFor="radiologyVisitDate" className="shrink-0">Visit Date</Label>
+            <Select value={visitDate} onValueChange={setVisitDate}>
+              <SelectTrigger id="radiologyVisitDate" className="h-7 w-32 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="16 MAY, 2024 16:22">16 MAY, 2024 16:22</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="radiologyStatus" className="shrink-0">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="radiologyStatus" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
+                <SelectItem value="PENDING">PENDING</SelectItem>
+                <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="radiologyOrderFrom" className="shrink-0">Order From</Label>
+            <div className="relative">
+              <Input id="radiologyOrderFrom" type="text" value={orderFromDate} onChange={e => setOrderFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <Label htmlFor="radiologyOrderTo" className="shrink-0">Order To</Label>
+            <div className="relative">
+              <Input id="radiologyOrderTo" type="text" value={orderToDate} onChange={e => setOrderToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="radiologyShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="radiologyShowEntries" className="h-7 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="radiologyShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="radiologySearch" className="shrink-0">Search:</Label>
+            <Input id="radiologySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {radiologyTableHeaders.map(header => (
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
+                    <div className="flex items-center justify-between">
+                      {header}
+                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredRadiologyOrders.length > 0 ? filteredRadiologyOrders.map((order, index) => (
+                <TableRow key={order.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{order.testName}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.orderDate} {order.orderTime}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.startDate} {order.startTime}</TableCell>
+                  <TableCell className="py-1.5 px-3">{order.provider}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{order.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><FileText className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3">{order.location}</TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={radiologyTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No radiology orders found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredRadiologyOrders.length > 0 ? 1 : 0} to {filteredRadiologyOrders.length} of {filteredRadiologyOrders.length} entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+
+// Lab CPOE List View
+const LabCpoeListView = () => {
+  const [visitDate, setVisitDate] = useState<string | undefined>("16 MAY, 2024 16:22");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>("All");
+  const [orderFromDate, setOrderFromDate] = useState<string>("");
+  const [orderToDate, setOrderToDate] = useState<string>("");
+  const [showEntries, setShowEntries] = useState<string>("All");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredLabOrders = mockLabCpoeData;
+
+  const labCpoeTableHeaders = ["Section", "Lab Test", "Sample", "Order Date and Time", "Start Date and Time", "Status", "Order Sign", "Discontinue"];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-semibold">Lab CPOE List</CardTitle>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </ShadcnCardHeader>
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="space-y-2 mb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Label htmlFor="labVisitDate" className="shrink-0">Visit Date</Label>
+            <Select value={visitDate} onValueChange={setVisitDate}>
+              <SelectTrigger id="labVisitDate" className="h-7 w-32 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="16 MAY, 2024 16:22">16 MAY, 2024 16:22</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="labStatus" className="shrink-0">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="labStatus" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
+                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="labOrderFrom" className="shrink-0">Order From</Label>
+            <div className="relative">
+              <Input id="labOrderFrom" type="text" value={orderFromDate} onChange={e => setOrderFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <Label htmlFor="labOrderTo" className="shrink-0">Order To</Label>
+            <div className="relative">
+              <Input id="labOrderTo" type="text" value={orderToDate} onChange={e => setOrderToDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="labShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="labShowEntries" className="h-7 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="labShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="labSearch" className="shrink-0">Search:</Label>
+            <Input id="labSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {labCpoeTableHeaders.map(header => (
+                  <TableHead key={header} className="py-1 px-3 text-xs h-auto">
+                    <div className="flex items-center justify-between">
+                      {header}
+                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredLabOrders.length > 0 ? filteredLabOrders.map((lab, index) => (
+                <TableRow key={lab.id} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{lab.section}</TableCell>
+                  <TableCell className="py-1.5 px-3">{lab.labTest}</TableCell>
+                  <TableCell className="py-1.5 px-3">{lab.sample}</TableCell>
+                  <TableCell className="py-1.5 px-3">{lab.orderDate} {lab.orderTime}</TableCell>
+                  <TableCell className="py-1.5 px-3">{lab.startDate} {lab.startTime}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-xs">{lab.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><PenLine className="h-3.5 w-3.5 text-blue-600" /></Button></TableCell>
+                  <TableCell className="py-1.5 px-3 text-center"><Button variant="ghost" size="icon" className="h-6 w-6"><Ban className="h-3.5 w-3.5 text-red-500" /></Button></TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={labCpoeTableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No lab orders found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredLabOrders.length > 0 ? 1 : 0} to {filteredLabOrders.length} of {filteredLabOrders.length} entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Main Orders Page
 const OrdersPage = () => {
   const [activeOrderSubNav, setActiveOrderSubNav] = useState<string>(orderSubNavItems[0]);
 
@@ -605,8 +1132,15 @@ const OrdersPage = () => {
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeOrderSubNav === "CPOE Order List" && <CpoeOrderListView />}
         {activeOrderSubNav === "IP Medication" && <IpMedicationView />}
+        {activeOrderSubNav === "Write Delay Order" && <DelayOrdersView />}
+        {activeOrderSubNav === "Laboratory" && <LabCpoeListView />}
+        {activeOrderSubNav === "Radiology" && <RadiologyView />}
         
-        {activeOrderSubNav !== "CPOE Order List" && activeOrderSubNav !== "IP Medication" && (
+        {activeOrderSubNav !== "CPOE Order List" && 
+         activeOrderSubNav !== "IP Medication" && 
+         activeOrderSubNav !== "Write Delay Order" && 
+         activeOrderSubNav !== "Laboratory" && 
+         activeOrderSubNav !== "Radiology" && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
               <CardTitle className="text-xl text-muted-foreground">
@@ -621,4 +1155,4 @@ const OrdersPage = () => {
   );
 };
 
-export default OrdersPage; 
+export default OrdersPage;
