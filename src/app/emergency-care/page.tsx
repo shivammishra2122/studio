@@ -168,8 +168,8 @@ const PatientCOPDListView = () => {
   return (
     <Card className="flex-1 flex flex-col shadow overflow-hidden">
       <ShadcnCardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Patient COPD List</CardTitle>
+        <div className="flex items-center justify-end"> {/* Changed to justify-end to keep icon on the right */}
+          {/* <CardTitle className="text-base font-semibold">Patient COPD List</CardTitle> Removed title */}
           <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
             <RefreshCw className="h-4 w-4" />
           </Button>
