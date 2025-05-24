@@ -19,27 +19,26 @@ const NursingPage: NextPage = () => {
   const [activeSubNav, setActiveSubNav] = useState<string>(nursingSubNavItems[0]);
 
   return (
-    <div className="flex h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm">
-      {/* Left Vertical Navigation Panel */}
-      <aside className="w-52 bg-card border-r p-3 flex flex-col space-y-1">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,60px))] bg-background text-sm p-3">
+      {/* Horizontal Navigation Bar */}
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {nursingSubNavItems.map((item) => (
           <Button
             key={item}
-            variant={activeSubNav === item ? "secondary" : "ghost"}
-            className={`w-full justify-start text-left h-10 px-3 text-sm ${
-              activeSubNav === item
-                ? 'bg-secondary text-primary border-l-4 border-primary hover:bg-secondary hover:text-primary'
-                : 'hover:bg-accent hover:text-foreground'
-            }`}
             onClick={() => setActiveSubNav(item)}
+            className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
+              ${activeSubNav === item
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
+              }`}
           >
             {item}
           </Button>
         ))}
-      </aside>
+      </div>
 
       {/* Right Content Panel */}
-      <main className="flex-1 p-3 flex flex-col">
+      <main className="flex-1 flex flex-col overflow-hidden">
         {activeSubNav === "Nurse Order" && (
           <Card className="flex-1 flex flex-col shadow-sm">
             <CardHeader className="bg-accent py-3 px-4 border-b rounded-t-md">
