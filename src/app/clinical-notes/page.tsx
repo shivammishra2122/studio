@@ -306,16 +306,13 @@ const ClinicalNotesPage = () => {
             </CardContent>
           </Card>
         )}
-        {activeSubNav !== "Notes View" && (
-          <Card className="flex-1 flex items-center justify-center">
-            <CardContent className="text-center">
-              <CardTitle className="text-xl text-muted-foreground">
-                {activeSubNav} View
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
-            </CardContent>
-          </Card>
-        )}
+        {activeSubNav === "New Notes" && <NewNotesView />}
+        {activeSubNav === "Scanned Notes" && <ScannedNotesView />}
+        {activeSubNav === "Clinical Report" && <ClinicalReportView />}
+        {activeSubNav === "Clinical Reminder" && <ClinicalReminderView />}
+        {activeSubNav === "Clinical Reminder Analysis" && <ClinicalReminderAnalysisView />}
+        {activeSubNav === "Clinical Template" && <ClinicalTemplateView />}
+        
       </main>
       
       <Dialog open={isNoteDetailDialogOpen} onOpenChange={setIsNoteDetailDialogOpen}>
@@ -338,6 +335,1114 @@ const ClinicalNotesPage = () => {
         </DialogContent>
       </Dialog>
     </div>
+  );
+};
+
+type NewNoteTemplateType = {
+  id: string;
+  templateName: string;
+  department: string;
+  lastUpdated: string;
+};
+
+// Mock New Notes Template Data
+const mockNewNoteTemplates: NewNoteTemplateType[] = [
+  { 
+    id: '1', 
+    templateName: 'Progress Note - General Medicine', 
+    department: 'General Medicine', 
+    lastUpdated: '20 MAY, 2025 14:00' 
+  },
+  { 
+    id: '2', 
+    templateName: 'Post-Operative Note - Surgery', 
+    department: 'Surgery', 
+    lastUpdated: '21 MAY, 2025 09:30' 
+  },
+  { 
+    id: '3', 
+    templateName: 'Psychiatric Assessment', 
+    department: 'Psychiatry', 
+    lastUpdated: '22 MAY, 2025 11:15' 
+  },
+  { 
+    id: '4', 
+    templateName: 'Physical Therapy Session Note', 
+    department: 'Rehabilitation', 
+    lastUpdated: '23 MAY, 2025 13:45' 
+  },
+  { 
+    id: '5', 
+    templateName: 'Pediatric Discharge Summary', 
+    department: 'Pediatrics', 
+    lastUpdated: '24 MAY, 2025 08:00' 
+  },
+];
+
+const NewNotesView = () => {
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [noteTitle, setNoteTitle] = useState<string>("");
+  const [noteContent, setNoteContent] = useState<string>("");
+  const [status, setStatus] = useState<"DRAFT" | "PENDING">("DRAFT");
+
+  const handleSave = (status: "DRAFT" | "PENDING") => {
+    setStatus(status);
+    // Placeholder for save logic
+    console.log("Saving note:", { title: noteTitle, content: noteContent, status });
+  };
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between border-b pb-2 mb-2">
+          <h3 className="text-base font-semibold text-foreground">New Clinical Note</h3>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-3 text-xs flex-1 flex flex-col">
+          <div className="flex items-center gap-x-3">
+            <Label htmlFor="noteTemplate" className="shrink-0">Select Template</Label>
+            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+              <SelectTrigger id="noteTemplate" className="h-7 w-48 text-xs">
+                <SelectValue placeholder="Select a template" />
+              </SelectTrigger>
+              <SelectContent>
+                {mockNewNoteTemplates.map(template => (
+                  <SelectItem key={template.id} value={template.templateName} className="text-xs">
+                    {template.templateName} ({template.department})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-x-3">
+            <Label htmlFor="noteTitle" className="shrink-0">Note Title</Label>
+            <Input
+              id="noteTitle"
+              type="text"
+              value={noteTitle}
+              onChange={e => setNoteTitle(e.target.value)}
+              className="h-7 w-full text-xs"
+              placeholder="Enter note title"
+            />
+          </div>
+
+          <div className="flex flex-col flex-1">
+            <Label htmlFor="noteContent" className="mb-1">Note Content</Label>
+            <ScrollArea className="flex-1 border rounded-md">
+              <textarea
+                id="noteContent"
+                value={noteContent}
+                onChange={e => setNoteContent(e.target.value)}
+                className="w-full h-full p-2 text-xs resize-none border-none focus:outline-none"
+                placeholder="Enter clinical note details..."
+              />
+            </ScrollArea>
+          </div>
+
+          <div className="flex justify-end space-x-2 mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSave("DRAFT")}
+              className="h-7 text-xs"
+            >
+              Save as Draft
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => handleSave("PENDING")}
+              className="h-7 text-xs"
+            >
+              Submit
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+type ScannedNoteDataType = {
+  id: string;
+  documentName: string;
+  scanDate: string;
+  scanTime: string;
+  uploadedBy: string;
+  status: "VERIFIED" | "PENDING";
+  location: string;
+};
+
+// Mock Scanned Notes Data
+const mockScannedNotes: ScannedNoteDataType[] = [
+  { 
+    id: '1', 
+    documentName: 'Handwritten Progress Note - ICU', 
+    scanDate: '20 MAY, 2025', 
+    scanTime: '10:30', 
+    uploadedBy: 'Nurse Patel', 
+    status: 'VERIFIED', 
+    location: 'ICU 1' 
+  },
+  { 
+    id: '2', 
+    documentName: 'Surgical Consent Form', 
+    scanDate: '21 MAY, 2025', 
+    scanTime: '14:00', 
+    uploadedBy: 'Nurse Sharma', 
+    status: 'PENDING', 
+    location: 'Surg Pre-Op' 
+  },
+  { 
+    id: '3', 
+    documentName: 'Discharge Summary Scan', 
+    scanDate: '22 MAY, 2025', 
+    scanTime: '09:15', 
+    uploadedBy: 'Dr. Gupta', 
+    status: 'VERIFIED', 
+    location: 'Gen Ward' 
+  },
+  { 
+    id: '4', 
+    documentName: 'Lab Results - Handwritten', 
+    scanDate: '23 MAY, 2025', 
+    scanTime: '11:45', 
+    uploadedBy: 'Nurse Singh', 
+    status: 'PENDING', 
+    location: 'Clinic A' 
+  },
+  { 
+    id: '5', 
+    documentName: 'Patient Consent Form', 
+    scanDate: '24 MAY, 2025', 
+    scanTime: '08:00', 
+    uploadedBy: 'Dr. Verma', 
+    status: 'VERIFIED', 
+    location: 'Peds Ward' 
+  },
+];
+
+const ScannedNotesView = () => {
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredScannedNotes = mockScannedNotes;
+
+  const scannedNotesTableHeaders = [
+    "Document Name",
+    "Scan Date:Time",
+    "Uploaded By",
+    "Status",
+    "Action",
+    "Location",
+  ];
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
+          <Label htmlFor="scannedStatus" className="shrink-0 text-xs">Status</Label>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger id="scannedStatus" className="h-6 w-24 text-xs">
+              <SelectValue placeholder="ALL" className="text-xs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+              <SelectItem value="VERIFIED" className="text-xs">VERIFIED</SelectItem>
+              <SelectItem value="PENDING" className="text-xs">PENDING</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Label htmlFor="scannedFromDate" className="shrink-0 text-xs">From Date</Label>
+          <div className="relative">
+            <Input
+              id="scannedFromDate"
+              type="text"
+              value={fromDate}
+              onChange={e => setFromDate(e.target.value)}
+              className="h-6 w-24 text-xs pr-7"
+            />
+            <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          </div>
+
+          <Label htmlFor="scannedToDate" className="shrink-0 text-xs">To</Label>
+          <div className="relative">
+            <Input
+              id="scannedToDate"
+              type="text"
+              value={toDate}
+              onChange={e => setToDate(e.target.value)}
+              className="h-6 w-24 text-xs pr-7"
+            />
+            <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          </div>
+
+          <Label htmlFor="scannedSearch" className="shrink-0 text-xs">Search:</Label>
+          <Input
+            id="scannedSearch"
+            type="text"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+            className="h-6 w-28 text-xs"
+          />
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {scannedNotesTableHeaders.map(header => (
+                  <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto">
+                    <div className="flex items-center justify-between">
+                      <span className="break-words text-xs">{header}</span>
+                      <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredScannedNotes.length > 0 ? filteredScannedNotes.map((note, index) => (
+                <TableRow key={note.id} className={`hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{note.documentName}</TableCell>
+                  <TableCell className="py-1.5 px-3">{note.scanDate} {note.scanTime}</TableCell>
+                  <TableCell className="py-1.5 px-3">{note.uploadedBy}</TableCell>
+                  <TableCell className="py-1.5 px-3">{note.status}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-center">
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      {note.status === "PENDING" ? (
+                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                      ) : (
+                        <FileSignature className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  </TableCell>
+                  <TableCell className="py-1.5 px-3">{note.location}</TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                    No scanned notes found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredScannedNotes.length > 0 ? 1 : 0} to {filteredScannedNotes.length} of {filteredScannedNotes.length} entries</div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+type ClinicalReportDataType = {
+  id: string;
+  reportTitle: string;
+  generatedDate: string;
+  generatedTime: string;
+  department: string;
+  generatedBy: string;
+  summary: string;
+};
+
+// Mock Clinical Report Data
+const mockClinicalReports: ClinicalReportDataType[] = [
+  { 
+    id: '1', 
+    reportTitle: 'Monthly Patient Outcomes - ICU', 
+    generatedDate: '20 MAY, 2025', 
+    generatedTime: '15:00', 
+    department: 'ICU', 
+    generatedBy: 'Dr. Sharma', 
+    summary: 'Summary of patient outcomes in ICU for May 2025, including recovery rates and complications.' 
+  },
+  { 
+    id: '2', 
+    reportTitle: 'Surgical Procedure Report', 
+    generatedDate: '21 MAY, 2025', 
+    generatedTime: '12:30', 
+    department: 'Surgery', 
+    generatedBy: 'Dr. Gupta', 
+    summary: 'Details of surgical procedures performed, including success rates and post-op complications.' 
+  },
+  { 
+    id: '3', 
+    reportTitle: 'Psychiatric Ward Summary', 
+    generatedDate: '22 MAY, 2025', 
+    generatedTime: '10:00', 
+    department: 'Psychiatry', 
+    generatedBy: 'Dr. Patel', 
+    summary: 'Overview of patient progress, medication adherence, and therapy outcomes in the psychiatric ward.' 
+  },
+  { 
+    id: '4', 
+    reportTitle: 'Rehabilitation Progress Report', 
+    generatedDate: '23 MAY, 2025', 
+    generatedTime: '14:15', 
+    department: 'Rehabilitation', 
+    generatedBy: 'Laura White, PT', 
+    summary: 'Progress of patients in rehabilitation, focusing on physical therapy outcomes.' 
+  },
+  { 
+    id: '5', 
+    reportTitle: 'Pediatric Admissions Report', 
+    generatedDate: '24 MAY, 2025', 
+    generatedTime: '09:00', 
+    department: 'Pediatrics', 
+    generatedBy: 'Dr. Young', 
+    summary: 'Summary of pediatric admissions, including common diagnoses and treatment plans.' 
+  },
+];
+
+const ClinicalReportView = () => {
+  const [departmentFilter, setDepartmentFilter] = useState<string>("ALL");
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedReportSummary, setSelectedReportSummary] = useState<string>("");
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+
+  const filteredReports = mockClinicalReports;
+
+  const clinicalReportTableHeaders = [
+    "Report Title",
+    "Generated Date:Time",
+    "Department",
+    "Generated By",
+    "Action",
+  ];
+
+  const handleViewReport = (summary: string) => {
+    setSelectedReportSummary(summary);
+    setIsReportDialogOpen(true);
+  };
+
+  return (
+    <>
+      <Card className="flex-1 flex flex-col shadow overflow-hidden">
+        <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
+            <Label htmlFor="reportDepartment" className="shrink-0 text-xs">Department</Label>
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger id="reportDepartment" className="h-6 w-24 text-xs">
+                <SelectValue placeholder="ALL" className="text-xs" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+                <SelectItem value="ICU" className="text-xs">ICU</SelectItem>
+                <SelectItem value="Surgery" className="text-xs">Surgery</SelectItem>
+                <SelectItem value="Psychiatry" className="text-xs">Psychiatry</SelectItem>
+                <SelectItem value="Rehabilitation" className="text-xs">Rehabilitation</SelectItem>
+                <SelectItem value="Pediatrics" className="text-xs">Pediatrics</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Label htmlFor="reportFromDate" className="shrink-0 text-xs">From Date</Label>
+            <div className="relative">
+              <Input
+                id="reportFromDate"
+                type="text"
+                value={fromDate}
+                onChange={e => setFromDate(e.target.value)}
+                className="h-6 w-24 text-xs pr-7"
+              />
+              <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+
+            <Label htmlFor="reportToDate" className="shrink-0 text-xs">To</Label>
+            <div className="relative">
+              <Input
+                id="reportToDate"
+                type="text"
+                value={toDate}
+                onChange={e => setToDate(e.target.value)}
+                className="h-6 w-24 text-xs pr-7"
+              />
+              <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+
+            <Label htmlFor="reportSearch" className="shrink-0 text-xs">Search:</Label>
+            <Input
+              id="reportSearch"
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              className="h-6 w-28 text-xs"
+            />
+          </div>
+
+          <div className="flex-1 overflow-auto min-h-0">
+            <Table className="text-xs w-full">
+              <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+                <TableRow>
+                  {clinicalReportTableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto">
+                      <div className="flex items-center justify-between">
+                        <span className="break-words text-xs">{header}</span>
+                        <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </ShadcnTableHeader>
+              <TableBody>
+                {filteredReports.length > 0 ? filteredReports.map((report, index) => (
+                  <TableRow key={report.id} className={`hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                    <TableCell className="py-1.5 px-3">{report.reportTitle}</TableCell>
+                    <TableCell className="py-1.5 px-3">{report.generatedDate} {report.generatedTime}</TableCell>
+                    <TableCell className="py-1.5 px-3">{report.department}</TableCell>
+                    <TableCell className="py-1.5 px-3">{report.generatedBy}</TableCell>
+                    <TableCell className="py-1.5 px-3 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleViewReport(report.summary)}
+                      >
+                        <FileSignature className="h-3.5 w-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                      No clinical reports found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
+            <div>Showing {filteredReports.length > 0 ? 1 : 0} to {filteredReports.length} of {filteredReports.length} entries</div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogUITitle>Report Summary</DialogUITitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] p-1 rounded-md">
+            <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
+              {selectedReportSummary}
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Close
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+type ClinicalReminderDataType = {
+  id: string;
+  reminderTitle: string;
+  dueDate: string;
+  dueTime: string;
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  status: "PENDING" | "COMPLETED" | "OVERDUE";
+  assignedTo: string;
+  patient: string;
+};
+
+// Mock Clinical Reminder Data
+const mockClinicalReminders: ClinicalReminderDataType[] = [
+  { 
+    id: '1', 
+    reminderTitle: 'Follow-up Appointment', 
+    dueDate: '25 MAY, 2025', 
+    dueTime: '09:00', 
+    priority: 'MEDIUM', 
+    status: 'PENDING', 
+    assignedTo: 'Dr. Sharma', 
+    patient: 'John Doe' 
+  },
+  { 
+    id: '2', 
+    reminderTitle: 'Lab Results Review', 
+    dueDate: '24 MAY, 2025', 
+    dueTime: '14:30', 
+    priority: 'HIGH', 
+    status: 'OVERDUE', 
+    assignedTo: 'Dr. Gupta', 
+    patient: 'Jane Smith' 
+  },
+  { 
+    id: '3', 
+    reminderTitle: 'Medication Renewal', 
+    dueDate: '26 MAY, 2025', 
+    dueTime: '10:00', 
+    priority: 'LOW', 
+    status: 'PENDING', 
+    assignedTo: 'Nurse Patel', 
+    patient: 'Alice Brown' 
+  },
+  { 
+    id: '4', 
+    reminderTitle: 'Vaccination Schedule', 
+    dueDate: '23 MAY, 2025', 
+    dueTime: '11:00', 
+    priority: 'MEDIUM', 
+    status: 'COMPLETED', 
+    assignedTo: 'Dr. Singh', 
+    patient: 'Bob Wilson' 
+  },
+  { 
+    id: '5', 
+    reminderTitle: 'Annual Checkup', 
+    dueDate: '27 MAY, 2025', 
+    dueTime: '08:30', 
+    priority: 'LOW', 
+    status: 'PENDING', 
+    assignedTo: 'Dr. Verma', 
+    patient: 'Emma Davis' 
+  },
+];
+
+// Clinical Reminder View
+const ClinicalReminderView = () => {
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
+
+  const filteredReminders = mockClinicalReminders;
+
+  const clinicalReminderTableHeaders = [
+    "Reminder Title",
+    "Due Date:Time",
+    "Priority",
+    "Status",
+    "Assigned To",
+    "Patient",
+    "Action",
+  ];
+
+  const handleMarkAsCompleted = (id: string) => {
+    // Placeholder for marking reminder as completed
+    console.log(`Marking reminder ${id} as completed`);
+  };
+
+  return (
+    <Card className="flex-1 flex flex-col shadow overflow-hidden">
+      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
+          <Label htmlFor="reminderStatus" className="shrink-0 text-xs">Status</Label>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger id="reminderStatus" className="h-6 w-24 text-xs">
+              <SelectValue placeholder="ALL" className="text-xs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+              <SelectItem value="PENDING" className="text-xs">PENDING</SelectItem>
+              <SelectItem value="COMPLETED" className="text-xs">COMPLETED</SelectItem>
+              <SelectItem value="OVERDUE" className="text-xs">OVERDUE</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Label htmlFor="reminderPriority" className="shrink-0 text-xs">Priority</Label>
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger id="reminderPriority" className="h-6 w-24 text-xs">
+              <SelectValue placeholder="ALL" className="text-xs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+              <SelectItem value="LOW" className="text-xs">LOW</SelectItem>
+              <SelectItem value="MEDIUM" className="text-xs">MEDIUM</SelectItem>
+              <SelectItem value="HIGH" className="text-xs">HIGH</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Label htmlFor="reminderFromDate" className="shrink-0 text-xs">From Date</Label>
+          <div className="relative">
+            <Input
+              id="reminderFromDate"
+              type="text"
+              value={fromDate}
+              onChange={e => setFromDate(e.target.value)}
+              className="h-6 w-24 text-xs pr-7"
+            />
+            <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          </div>
+
+          <Label htmlFor="reminderToDate" className="shrink-0 text-xs">To</Label>
+          <div className="relative">
+            <Input
+              id="reminderToDate"
+              type="text"
+              value={toDate}
+              onChange={e => setToDate(e.target.value)}
+              className="h-6 w-24 text-xs pr-7"
+            />
+            <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          </div>
+
+          <Label htmlFor="reminderSearch" className="shrink-0 text-xs">Search:</Label>
+          <Input
+            id="reminderSearch"
+            type="text"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+            className="h-6 w-28 text-xs"
+          />
+        </div>
+
+        <div className="flex-1 overflow-auto min-h-0">
+          <Table className="text-xs w-full">
+            <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+              <TableRow>
+                {clinicalReminderTableHeaders.map(header => (
+                  <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto">
+                    <div className="flex items-center justify-between">
+                      <span className="break-words text-xs">{header}</span>
+                      <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
+                    </div>
+                  </TableHead>
+                ))}
+              </TableRow>
+            </ShadcnTableHeader>
+            <TableBody>
+              {filteredReminders.length > 0 ? filteredReminders.map((reminder, index) => (
+                <TableRow key={reminder.id} className={`hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                  <TableCell className="py-1.5 px-3">{reminder.reminderTitle}</TableCell>
+                  <TableCell className="py-1.5 px-3">{reminder.dueDate} {reminder.dueTime}</TableCell>
+                  <TableCell className="py-1.5 px-3">{reminder.priority}</TableCell>
+                  <TableCell className="py-1.5 px-3">{reminder.status}</TableCell>
+                  <TableCell className="py-1.5 px-3">{reminder.assignedTo}</TableCell>
+                  <TableCell className="py-1.5 px-3">{reminder.patient}</TableCell>
+                  <TableCell className="py-1.5 px-3 text-center">
+                    {reminder.status !== "COMPLETED" && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleMarkAsCompleted(reminder.id)}
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                    No clinical reminders found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing {filteredReminders.length > 0 ? 1 : 0} to {filteredReminders.length} of {filteredReminders.length} entries</div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Clinical Reminder Analysis Data Type
+type ClinicalReminderAnalysisDataType = {
+  id: string;
+  department: string;
+  totalReminders: number;
+  completedReminders: number;
+  overdueReminders: number;
+  completionRate: string;
+  analysisDate: string;
+};
+
+// Mock Clinical Reminder Analysis Data
+const mockClinicalReminderAnalysis: ClinicalReminderAnalysisDataType[] = [
+  { 
+    id: '1', 
+    department: 'ICU', 
+    totalReminders: 50, 
+    completedReminders: 40, 
+    overdueReminders: 5, 
+    completionRate: '80%', 
+    analysisDate: '24 MAY, 2025' 
+  },
+  { 
+    id: '2', 
+    department: 'Surgery', 
+    totalReminders: 30, 
+    completedReminders: 25, 
+    overdueReminders: 2, 
+    completionRate: '83%', 
+    analysisDate: '24 MAY, 2025' 
+  },
+  { 
+    id: '3', 
+    department: 'Psychiatry', 
+    totalReminders: 20, 
+    completedReminders: 15, 
+    overdueReminders: 3, 
+    completionRate: '75%', 
+    analysisDate: '24 MAY, 2025' 
+  },
+  { 
+    id: '4', 
+    department: 'Rehabilitation', 
+    totalReminders: 40, 
+    completedReminders: 35, 
+    overdueReminders: 1, 
+    completionRate: '88%', 
+    analysisDate: '24 MAY, 2025' 
+  },
+  { 
+    id: '5', 
+    department: 'Pediatrics', 
+    totalReminders: 25, 
+    completedReminders: 20, 
+    overdueReminders: 2, 
+    completionRate: '80%', 
+    analysisDate: '24 MAY, 2025' 
+  },
+];
+
+// Clinical Reminder Analysis View
+const ClinicalReminderAnalysisView = () => {
+  const [departmentFilter, setDepartmentFilter] = useState<string>("ALL");
+  const [analysisDate, setAnalysisDate] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedAnalysisSummary, setSelectedAnalysisSummary] = useState<string>("");
+  const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false);
+
+  const filteredAnalysis = mockClinicalReminderAnalysis;
+
+  const clinicalReminderAnalysisTableHeaders = [
+    "Department",
+    "Total Reminders",
+    "Completed Reminders",
+    "Overdue Reminders",
+    "Completion Rate",
+    "Analysis Date",
+    "Action",
+  ];
+
+  const handleViewSummary = (department: string) => {
+    const summary = `Analysis for ${department}: Total Reminders: ${filteredAnalysis.find(d => d.department === department)?.totalReminders}, Completed: ${filteredAnalysis.find(d => d.department === department)?.completedReminders}, Overdue: ${filteredAnalysis.find(d => d.department === department)?.overdueReminders}, Completion Rate: ${filteredAnalysis.find(d => d.department === department)?.completionRate}`;
+    setSelectedAnalysisSummary(summary);
+    setIsAnalysisDialogOpen(true);
+  };
+
+  return (
+    <>
+      <Card className="flex-1 flex flex-col shadow overflow-hidden">
+        <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
+            <Label htmlFor="analysisDepartment" className="shrink-0 text-xs">Department</Label>
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger id="analysisDepartment" className="h-6 w-24 text-xs">
+                <SelectValue placeholder="ALL" className="text-xs" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+                <SelectItem value="ICU" className="text-xs">ICU</SelectItem>
+                <SelectItem value="Surgery" className="text-xs">Surgery</SelectItem>
+                <SelectItem value="Psychiatry" className="text-xs">Psychiatry</SelectItem>
+                <SelectItem value="Rehabilitation" className="text-xs">Rehabilitation</SelectItem>
+                <SelectItem value="Pediatrics" className="text-xs">Pediatrics</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Label htmlFor="analysisDate" className="shrink-0 text-xs">Analysis Date</Label>
+            <div className="relative">
+              <Input
+                id="analysisDate"
+                type="text"
+                value={analysisDate}
+                onChange={e => setAnalysisDate(e.target.value)}
+                className="h-6 w-24 text-xs pr-7"
+              />
+              <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            </div>
+
+            <Label htmlFor="analysisSearch" className="shrink-0 text-xs">Search:</Label>
+            <Input
+              id="analysisSearch"
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              className="h-6 w-28 text-xs"
+            />
+          </div>
+
+          <div className="flex-1 overflow-auto min-h-0">
+            <Table className="text-xs w-full">
+              <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+                <TableRow>
+                  {clinicalReminderAnalysisTableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto">
+                      <div className="flex items-center justify-between">
+                        <span className="break-words text-xs">{header}</span>
+                        <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </ShadcnTableHeader>
+              <TableBody>
+                {filteredAnalysis.length > 0 ? filteredAnalysis.map((data, index) => (
+                  <TableRow key={data.id} className={`hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                    <TableCell className="py-1.5 px-3">{data.department}</TableCell>
+                    <TableCell className="py-1.5 px-3">{data.totalReminders}</TableCell>
+                    <TableCell className="py-1.5 px-3">{data.completedReminders}</TableCell>
+                    <TableCell className="py-1.5 px-3">{data.overdueReminders}</TableCell>
+                    <TableCell className="py-1.5 px-3">{data.completionRate}</TableCell>
+                    <TableCell className="py-1.5 px-3">{data.analysisDate}</TableCell>
+                    <TableCell className="py-1.5 px-3 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleViewSummary(data.department)}
+                      >
+                        <FileSignature className="h-3.5 w-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                      No clinical reminder analysis data found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
+            <div>Showing {filteredAnalysis.length > 0 ? 1 : 0} to {filteredAnalysis.length} of {filteredAnalysis.length} entries</div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isAnalysisDialogOpen} onOpenChange={setIsAnalysisDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogUITitle>Reminder Analysis Summary</DialogUITitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] p-1 rounded-md">
+            <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
+              {selectedAnalysisSummary}
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Close
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+// Clinical Template Data Type
+type ClinicalTemplateDataType = {
+  id: string;
+  templateName: string;
+  department: string;
+  lastUpdated: string;
+  createdBy: string;
+  contentPreview: string;
+};
+
+// Mock Clinical Template Data
+const mockClinicalTemplates: ClinicalTemplateDataType[] = [
+  { 
+    id: '1', 
+    templateName: 'Progress Note - General Medicine', 
+    department: 'General Medicine', 
+    lastUpdated: '20 MAY, 2025 14:00', 
+    createdBy: 'Dr. Sharma', 
+    contentPreview: 'Patient presents with... Vital signs: BP, HR, Temp...' 
+  },
+  { 
+    id: '2', 
+    templateName: 'Post-Operative Note - Surgery', 
+    department: 'Surgery', 
+    lastUpdated: '21 MAY, 2025 09:30', 
+    createdBy: 'Dr. Gupta', 
+    contentPreview: 'Procedure performed... Post-op status: Stable...' 
+  },
+  { 
+    id: '3', 
+    templateName: 'Psychiatric Assessment', 
+    department: 'Psychiatry', 
+    lastUpdated: '22 MAY, 2025 11:15', 
+    createdBy: 'Dr. Patel', 
+    contentPreview: 'Mental status exam... Mood: Stable...' 
+  },
+  { 
+    id: '4', 
+    templateName: 'Physical Therapy Session Note', 
+    department: 'Rehabilitation', 
+    lastUpdated: '23 MAY, 2025 13:45', 
+    createdBy: 'Laura White, PT', 
+    contentPreview: 'Range of motion exercises... Progress: Improved...' 
+  },
+  { 
+    id: '5', 
+    templateName: 'Pediatric Discharge Summary', 
+    department: 'Pediatrics', 
+    lastUpdated: '24 MAY, 2025 08:00', 
+    createdBy: 'Dr. Young', 
+    contentPreview: 'Discharge condition: Stable... Follow-up: 1 week...' 
+  },
+];
+
+// Clinical Template View
+const ClinicalTemplateView = () => {
+  const [departmentFilter, setDepartmentFilter] = useState<string>("ALL");
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedTemplateContent, setSelectedTemplateContent] = useState<string>("");
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+
+  const filteredTemplates = mockClinicalTemplates;
+
+  const clinicalTemplateTableHeaders = [
+    "Template Name",
+    "Department",
+    "Last Updated",
+    "Created By",
+    "Action",
+  ];
+
+  const handleViewTemplate = (content: string) => {
+    setSelectedTemplateContent(content);
+    setIsTemplateDialogOpen(true);
+  };
+
+  return (
+    <>
+      <Card className="flex-1 flex flex-col shadow overflow-hidden">
+        <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
+            <Label htmlFor="templateDepartment" className="shrink-0 text-xs">Department</Label>
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger id="templateDepartment" className="h-6 w-24 text-xs">
+                <SelectValue placeholder="ALL" className="text-xs" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+                <SelectItem value="General Medicine" className="text-xs">General Medicine</SelectItem>
+                <SelectItem value="Surgery" className="text-xs">Surgery</SelectItem>
+                <SelectItem value="Psychiatry" className="text-xs">Psychiatry</SelectItem>
+                <SelectItem value="Rehabilitation" className="text-xs">Rehabilitation</SelectItem>
+                <SelectItem value="Pediatrics" className="text-xs">Pediatrics</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Label htmlFor="templateSearch" className="shrink-0 text-xs">Search:</Label>
+            <Input
+              id="templateSearch"
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              className="h-6 w-28 text-xs"
+            />
+          </div>
+
+          <div className="flex-1 overflow-auto min-h-0">
+            <Table className="text-xs w-full">
+              <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+                <TableRow>
+                  {clinicalTemplateTableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-auto">
+                      <div className="flex items-center justify-between">
+                        <span className="break-words text-xs">{header}</span>
+                        <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </ShadcnTableHeader>
+              <TableBody>
+                {filteredTemplates.length > 0 ? filteredTemplates.map((template, index) => (
+                  <TableRow key={template.id} className={`hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                    <TableCell className="py-1.5 px-3">{template.templateName}</TableCell>
+                    <TableCell className="py-1.5 px-3">{template.department}</TableCell>
+                    <TableCell className="py-1.5 px-3">{template.lastUpdated}</TableCell>
+                    <TableCell className="py-1.5 px-3">{template.createdBy}</TableCell>
+                    <TableCell className="py-1.5 px-3 text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleViewTemplate(template.contentPreview)}
+                      >
+                        <FileSignature className="h-3.5 w-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                      No clinical templates found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
+            <div>Showing {filteredTemplates.length > 0 ? 1 : 0} to {filteredTemplates.length} of {filteredTemplates.length} entries</div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogUITitle>Template Preview</DialogUITitle>
+          </DialogHeader>
+          <ScrollArea className="max-h-[60vh] p-1 rounded-md">
+            <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
+              {selectedTemplateContent}
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end pt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Close
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
