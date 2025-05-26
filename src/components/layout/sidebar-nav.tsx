@@ -3,9 +3,9 @@
 import type { Patient } from '@/lib/constants';
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { SidebarContent } from '@/components/ui/sidebar';
+import { SidebarContent, SidebarHeader } from '@/components/ui/sidebar'; // Added SidebarHeader
 import Image from 'next/image';
-import { Button } from '@/components/ui/button'; // Added this import
+import { Button } from '@/components/ui/button'; 
 import {
   Phone,
   CalendarDays,
@@ -17,7 +17,7 @@ import {
   FileQuestion,
   User,
   Ban,
-  Edit3, // Changed from PenLine
+  Edit3,
   Search,
 } from 'lucide-react';
 
@@ -26,30 +26,31 @@ const patient: Patient = MOCK_PATIENT;
 type PatientDetailItem = {
   key: keyof Patient | 'wardAndBed';
   label: string;
-  value?: string; 
-  icon?: React.ElementType; 
+  value: string;
+  icon?: React.ElementType; // Changed typeof Phone to React.ElementType
 };
 
+// Updated and reordered patientDetails
 const patientDetails: PatientDetailItem[] = [
   { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
   {
     key: 'dob',
-    label: 'DOB', 
-    value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
+    label: 'DOB', // DOB label will be handled specifically in render
+    value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
     icon: CalendarDays,
   },
-  { key: 'wardAndBed', label: '', value: patient.wardNo && patient.bedDetails ? `${patient.wardNo}, ${patient.bedDetails}` : patient.wardNo || patient.bedDetails, icon: BedDouble },
   {
     key: 'admissionDate',
-    label: 'AD', 
-    value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
+    label: 'DOA',
+    value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
     icon: CalendarDays,
   },
-  { key: 'lengthOfStay', label: '', value: patient.lengthOfStay, icon: Clock },
+  { key: 'lengthOfStay', label: 'LOS', value: patient.lengthOfStay, icon: Clock },
+  { key: 'wardAndBed', label: '', value: `${patient.wardNo}, ${patient.bedDetails}`, icon: BedDouble },
   { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
+  { key: 'specialty', label: '', value: patient.specialty, icon: BriefcaseMedical },
   { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
-  { key: 'finalDiagnosis', label: '', value: patient.finalDiagnosis, icon: FileText },
-  { key: 'posting', label: '', value: patient.posting, icon: BriefcaseMedical },
+  { key: 'finalDiagnosis', label: 'Disease', value: patient.finalDiagnosis, icon: FileText },
   { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
 ];
 
@@ -57,40 +58,40 @@ export function SidebarNav() {
   const genderDisplay = patient.gender ? patient.gender.charAt(0).toUpperCase() : '';
 
   return (
-    <SidebarContent className="flex h-full w-full flex-col bg-sidebar text-sidebar-foreground px-3 pt-3">
-      
+    <SidebarContent className="flex h-full w-full flex-col bg-sidebar text-sidebar-primary-foreground px-3 pt-3">
+      {/* Removed SidebarHeader with company logo as per previous request */}
       <div className="min-h-0 gap-2 overflow-y-auto no-scrollbar flex flex-col flex-1">
-        {/* Patient Avatar, Name, UID Section */}
-        <div className="flex flex-col items-center space-y-1 mb-2"> 
-          <Avatar className="h-16 w-16"> 
+        <div className="flex flex-col items-center space-y-1 mb-2"> {/* Reduced space-y and mb */}
+          <Avatar className="h-14 w-14"> {/* Reduced Avatar size */}
             <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
             <AvatarFallback className="bg-white">
-              <User className="h-8 w-8 text-primary" /> 
+              <User className="h-8 w-8 text-primary" />
             </AvatarFallback>
           </Avatar>
-           <div className="mt-1 w-full px-4 text-center">
-            <p className="text-sm font-medium text-sidebar-primary-foreground">
-              {patient.name} ({genderDisplay} {patient.age})
+          <div className="mt-1 w-full px-4 text-center">
+            <p className="text-xs font-medium">
+              {patient.name} / {genderDisplay} {patient.age}
             </p>
           </div>
-          <div className="mt-0.5 w-full px-4"> {/* UID/Barcode container */}
-            <p className="text-xs font-medium text-sidebar-primary-foreground text-center">
+          <div className="mt-1 w-full px-4 text-center"> {/* Barcode/UID container */}
+            <p className="text-xs font-medium text-sidebar-primary-foreground">
               UID: 2734577854
             </p>
           </div>
         </div>
 
-        {/* Patient Details List */}
-        <ul className="space-y-1 text-xs pt-2"> 
+        <ul className="space-y-1 text-xs pt-2"> {/* Adjusted padding */}
           {patientDetails.map((detail) => (
             detail.value && (
-              <li key={detail.key} className="flex items-start space-x-1"> 
+              <li key={detail.key} className="flex items-start space-x-1.5">
                 {detail.icon && <detail.icon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sidebar-primary-foreground" />}
                 <div className="flex-1 min-w-0">
-                  {detail.label && <span className={detail.key === 'dob' || detail.key === 'admissionDate' ? "font-normal" : "font-semibold"}>{detail.label}</span>}
-                  <span className="font-normal">
-                    {detail.label ? ' ' : ''}{detail.value}
-                  </span>
+                  {detail.label && (
+                    <span className={detail.key === 'dob' ? 'font-normal' : 'font-medium'}>
+                      {detail.label}:{' '}
+                    </span>
+                  )}
+                  <span className="font-normal">{detail.value}</span>
                 </div>
               </li>
             )
@@ -112,10 +113,10 @@ export function SidebarNav() {
           </div>
           <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
             <Image
-              src="/sansys.png" // Placeholder, ensure this is in /public
+              src="/company-logo.png" 
               alt="Company Logo"
-              width={150} 
-              height={50}  
+              width={120} // Adjusted width for narrower sidebar
+              height={40}  // Adjusted height
               className="object-contain"
               priority 
             />
