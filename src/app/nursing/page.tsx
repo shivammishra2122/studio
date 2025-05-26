@@ -44,7 +44,7 @@ const NursingPage: NextPage = () => {
             <CardHeader className="bg-accent py-3 px-4 border-b rounded-t-md">
               <CardTitle className="text-base font-semibold text-foreground">Nurse Order</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 space-y-3">
+            <CardContent className="p-4 space-y-3 ">
               {nurseOrderOptions.map((option) => (
                 <Button
                   key={option}
