@@ -29,6 +29,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
+// Chart configurations
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } }
 const bloodPressureChartConfig: ChartConfig = {
   systolic: { label: 'Systolic (mmHg)', color: 'hsl(var(--chart-1))' },
@@ -37,6 +38,7 @@ const bloodPressureChartConfig: ChartConfig = {
 const bodyTemperatureChartConfig: ChartConfig = { temp: { label: 'Temperature (°F)', color: 'hsl(var(--chart-4))' } }
 const weightChartConfig: ChartConfig = { weight: { label: 'Weight (kg)', color: 'hsl(var(--chart-5))' } }
 
+// Icon mappings for informational cards
 const infoCardIcons: Record<string, React.ElementType> = {
   Allergies: Ban,
   Radiology: ScanLine,
@@ -46,10 +48,21 @@ const infoCardIcons: Record<string, React.ElementType> = {
   'Clinical reminder': BellRing,
 }
 
+// Card titles for dashboard rows
 const secondRowInformationalCardTitles: string[] = ['Allergies', 'Medications History', 'Report', 'Radiology']
 const thirdRowInformationalCardTitles: string[] = ['Clinical notes', 'Encounter notes', 'Clinical reminder']
 
-type DialogType = 'problem' | 'medication' | 'info-item'
+// Define Allergy interface
+interface Allergy {
+  id: string
+  allergen: string
+  reaction: string
+  severity: 'Mild' | 'Moderate' | 'Severe' | ''
+  notes: string
+}
+
+// Dialog types
+type DialogType = 'problem' | 'medication' | 'info-item' | 'allergies'
 interface FloatingDialog {
   id: string
   type: DialogType
@@ -61,7 +74,15 @@ interface FloatingDialog {
 export default function DashboardPage(): JSX.Element {
   const [problems, setProblems] = useState<Problem[]>(MOCK_PROBLEMS)
   const [medications, setMedications] = useState<Medication[]>(MOCK_MEDICATIONS)
-  const [dynamicPageCardContent, setDynamicPageCardContent] = useState<Record<string, string[]>>(JSON.parse(JSON.stringify(pageCardSampleContent)))
+  // Update Allergies to use structured data
+  const [allergies, setAllergies] = useState<Allergy[]>([
+    { id: '1', allergen: 'Peanuts', reaction: 'Rash', severity: 'Moderate', notes: 'Avoid all peanut products' },
+    { id: '2', allergen: 'Shellfish', reaction: 'Anaphylaxis', severity: 'Severe', notes: 'Carry epinephrine' },
+  ])
+  // Update dynamicPageCardContent to exclude Allergies since it's now handled separately
+  const [dynamicPageCardContent, setDynamicPageCardContent] = useState<Record<string, string[]>>(Object.fromEntries(
+    Object.entries(JSON.parse(JSON.stringify(pageCardSampleContent))).filter(([key]) => key !== 'Allergies')
+  ))
   const [floatingDialogs, setFloatingDialogs] = useState<FloatingDialog[]>([])
   const [activeChartTab, setActiveChartTab] = useState<string>('heart-rate')
   const [detailViewTitle, setDetailViewTitle] = useState<string>('')
@@ -76,6 +97,9 @@ export default function DashboardPage(): JSX.Element {
   >({})
   const [infoItemInputs, setInfoItemInputs] = useState<
     Record<string, { title: string; item: string }>
+  >({})
+  const [allergyInputs, setAllergyInputs] = useState<
+    Record<string, { allergen: string; reaction: string; severity: 'Mild' | 'Moderate' | 'Severe' | ''; notes: string }>
   >({})
 
   const dialogRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -121,6 +145,11 @@ export default function DashboardPage(): JSX.Element {
         ...prev,
         [id]: { title: data?.title || '', item: '' },
       }))
+    } else if (type === 'allergies') {
+      setAllergyInputs(prev => ({
+        ...prev,
+        [id]: { allergen: '', reaction: '', severity: '', notes: '' },
+      }))
     }
   }, [])
 
@@ -135,6 +164,10 @@ export default function DashboardPage(): JSX.Element {
       return rest
     })
     setInfoItemInputs(prev => {
+      const { [id]: _, ...rest } = prev
+      return rest
+    })
+    setAllergyInputs(prev => {
       const { [id]: _, ...rest } = prev
       return rest
     })
@@ -203,12 +236,26 @@ export default function DashboardPage(): JSX.Element {
     const newMed: Medication = {
       id: Date.now().toString(),
       name: input.name,
-      reason: input.reason || 'General',
+      reaction: input.reason || 'General',
       amount: input.amount || 'N/A',
       timing: input.timing || 'N/A',
       status: 'Active',
     }
     setMedications(prev => [newMed, ...prev])
+    closeFloatingDialog(dialogId)
+  }
+
+  const handleAddAllergy = (dialogId: string) => {
+    const input = allergyInputs[dialogId]
+    if (!input?.allergen.trim() || !input.severity) return
+    const newAllergy: Allergy = {
+      id: Date.now().toString(),
+      allergen: input.allergen,
+      reaction: input.reaction || 'Not specified',
+      severity: input.severity as 'Mild' | 'Moderate' | 'Severe',
+      notes: input.notes || '',
+    }
+    setAllergies(prev => [newAllergy, ...prev])
     closeFloatingDialog(dialogId)
   }
 
@@ -232,26 +279,16 @@ export default function DashboardPage(): JSX.Element {
     setActiveChartTab('detail-view')
   }
 
+  const handleShowAllergyDetailInChartArea = (allergy: Allergy) => {
+    const summary = `${allergy.allergen} - ${allergy.reaction} (${allergy.severity})`
+    setDetailViewTitle(`Allergy Detail: ${summary.substring(0, 40)}${summary.length > 40 ? '...' : ''}`)
+    const contentToShow = `Allergen: ${allergy.allergen}\nReaction: ${allergy.reaction}\nSeverity: ${allergy.severity}\nNotes: ${allergy.notes || 'None'}`
+    setDetailViewContent(contentToShow)
+    setActiveChartTab('detail-view')
+  }
+
   return (
     <div className="flex flex-1 flex-col p-3 bg-background relative">
-      {/* Optional Patient Information Card (uncomment to enable)
-      <Card className="mb-3 shadow-lg">
-        <ShadcnCardHeader className="pt-2 pb-0 px-3">
-          <CardTitle className="text-base">Patient Information</CardTitle>
-        </ShadcnCardHeader>
-        <CardContent className="p-3 text-sm">
-          <div className="grid grid-cols-2 gap-2">
-            <div><span className="font-semibold">Name:</span> {MOCK_PATIENT.name}</div>
-            <div><span className="font-semibold">ID:</span> {MOCK_PATIENT.id}</div>
-            <div><span className="font-semibold">Age:</span> {MOCK_PATIENT.age} Years</div>
-            <div><span className="font-semibold">Gender:</span> {MOCK_PATIENT.gender}</div>
-            <div><span className="font-semibold">Consultant:</span> {MOCK_PATIENT.primaryConsultant}</div>
-            <div><span className="font-semibold">Specialty:</span> {MOCK_PATIENT.specialty}</div>
-          </div>
-        </CardContent>
-      </Card>
-      */}
-
       {/* Top Row: Problem, Chart, Vital */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
         <Card className="lg:col-span-3 shadow-lg">
@@ -413,7 +450,7 @@ export default function DashboardPage(): JSX.Element {
       <div className="grid grid-cols-1 md:grid-cols-10 gap-3 mb-2">
         {secondRowInformationalCardTitles.map((title) => {
           const IconComponent = infoCardIcons[title] || FileText
-          const items = dynamicPageCardContent[title] || []
+          const items = title === 'Allergies' ? allergies : dynamicPageCardContent[title] || []
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className={cn('shadow-lg', {
               'md:col-span-2': title === 'Allergies' || title === 'Radiology',
@@ -423,13 +460,21 @@ export default function DashboardPage(): JSX.Element {
                 <div className="flex items-center space-x-1.5">
                   <IconComponent className="h-4 w-4 text-primary" />
                   <CardTitle className="text-base">{title === 'Medications History' ? 'Medications' : title}</CardTitle>
-                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{title === 'Medications History' ? medications.length : items.length}</Badge>
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{title === 'Allergies' ? allergies.length : title === 'Medications History' ? medications.length : items.length}</Badge>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7"
-                  onClick={() => title === 'Medications History' ? openFloatingDialog('medication', 'Order Medicines') : openFloatingDialog('info-item', `Add New Item to ${title}`, { title })}
+                  onClick={() => {
+                    if (title === 'Medications History') {
+                      openFloatingDialog('medication', 'Order Medicines')
+                    } else if (title === 'Allergies') {
+                      openFloatingDialog('allergies', 'Add New Allergy')
+                    } else {
+                      openFloatingDialog('info-item', `Add New Item to ${title}`, { title })
+                    }
+                  }}
                 >
                   <Edit3 className="h-3.5 w-3.5" />
                   <span className="sr-only">Edit {title}</span>
@@ -438,7 +483,19 @@ export default function DashboardPage(): JSX.Element {
               <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
                 <Table>
                   <TableBody>
-                    {title === 'Medications History' ? (
+                    {title === 'Allergies' ? (
+                      allergies.map((allergy, index) => (
+                        <TableRow
+                          key={allergy.id}
+                          onClick={() => handleShowAllergyDetailInChartArea(allergy)}
+                          className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
+                        >
+                          <TableCell className="px-2 py-1">
+                            <div className="font-medium text-xs">{`${allergy.allergen} - ${allergy.reaction} (${allergy.severity})`}</div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : title === 'Medications History' ? (
                       medications.map((med, index) => (
                         <TableRow key={med.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
                           <TableCell className="px-2 py-1">
@@ -466,7 +523,7 @@ export default function DashboardPage(): JSX.Element {
                     )}
                   </TableBody>
                 </Table>
-                {(title === 'Medications History' ? medications.length : items.length) === 0 && (
+                {(title === 'Allergies' ? allergies.length : title === 'Medications History' ? medications.length : items.length) === 0 && (
                   <p className="py-4 text-center text-xs text-muted-foreground">No items listed.</p>
                 )}
               </CardContent>
@@ -747,10 +804,10 @@ export default function DashboardPage(): JSX.Element {
                     <Label htmlFor={`medicationReason-${dialog.id}`} className="w-[120px] min-w-[120px]">Reason</Label>
                     <Input
                       id={`medicationReason-${dialog.id}`}
-                      value={medicationInputs[dialog.id]?.reason}
+                      value={medicationInputs[dialog.id]?.reaction}
                       onChange={e => setMedicationInputs(prev => ({
                         ...prev,
-                        [dialog.id]: { ...prev[dialog.id], reason: e.target.value },
+                        [dialog.id]: { ...prev[dialog.id], reaction: e.target.value },
                       }))}
                       className="flex-1"
                     />
@@ -789,7 +846,7 @@ export default function DashboardPage(): JSX.Element {
                     className="bg-orange-500 hover:bg-orange-600 text-white"
                     onClick={() => setMedicationInputs(prev => ({
                       ...prev,
-                      [dialog.id]: { name: '', reason: '', amount: '', timing: '' },
+                      [dialog.id]: { name: '', reaction: '', amount: '', timing: '' },
                     }))}
                   >
                     Reset
@@ -801,6 +858,79 @@ export default function DashboardPage(): JSX.Element {
                   >
                     Close
                   </Button>
+                </div>
+              </div>
+            )}
+
+            {dialog.type === 'allergies' && (
+              <div className="flex flex-col gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor={`allergen-${dialog.id}`} className="w-[120px] min-w-[120px]">Allergen</Label>
+                  <Input
+                    id={`allergen-${dialog.id}`}
+                    value={allergyInputs[dialog.id]?.allergen}
+                    onChange={e => setAllergyInputs(prev => ({
+                      ...prev,
+                      [dialog.id]: { ...prev[dialog.id], allergen: e.target.value },
+                    }))}
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor={`reaction-${dialog.id}`} className="w-[120px] min-w-[120px]">Reaction</Label>
+                  <Input
+                    id={`reaction-${dialog.id}`}
+                    value={allergyInputs[dialog.id]?.reaction}
+                    onChange={e => setAllergyInputs(prev => ({
+                      ...prev,
+                      [dialog.id]: { ...prev[dialog.id], reaction: e.target.value },
+                    }))}
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor={`severity-${dialog.id}`} className="w-[120px] min-w-[120px]">Severity</Label>
+                  <Select
+                    value={allergyInputs[dialog.id]?.severity}
+                    onValueChange={value => setAllergyInputs(prev => ({
+                      ...prev,
+                      [dialog.id]: { ...prev[dialog.id], severity: value as 'Mild' | 'Moderate' | 'Severe' },
+                    }))}
+                  >
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Select Severity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Mild">Mild</SelectItem>
+                      <SelectItem value="Moderate">Moderate</SelectItem>
+                      <SelectItem value="Severe">Severe</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor={`notes-${dialog.id}`} className="w-[120px] min-w-[120px]">Notes</Label>
+                  <Textarea
+                    id={`notes-${dialog.id}`}
+                    value={allergyInputs[dialog.id]?.notes}
+                    onChange={e => setAllergyInputs(prev => ({
+                      ...prev,
+                      [dialog.id]: { ...prev[dialog.id], notes: e.target.value },
+                    }))}
+                    className="flex-1 min-h-[80px]"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button onClick={() => handleAddAllergy(dialog.id)}>Add Allergy</Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setAllergyInputs(prev => ({
+                      ...prev,
+                      [dialog.id]: { allergen: '', reaction: '', severity: '', notes: '' },
+                    }))}
+                  >
+                    Reset
+                  </Button>
+                  <Button variant="outline" onClick={() => closeFloatingDialog(dialog.id)}>Cancel</Button>
                 </div>
               </div>
             )}
