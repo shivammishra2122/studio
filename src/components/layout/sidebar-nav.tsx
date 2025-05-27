@@ -1,9 +1,9 @@
 'use client';
 
-import type { Patient } from '@/lib/constants';
+import type { Patient } from '@/lib/constants'; // Assuming Patient type definition
 import { MOCK_PATIENT } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { SidebarContent } from '@/components/ui/sidebar';
+import { SidebarContent } from '@/components/ui/sidebar'; // Your custom styled Sidebar
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,131 +11,330 @@ import {
   CalendarDays,
   BedDouble,
   Clock,
+  User,
   Hospital,
   FileText,
   BriefcaseMedical,
   FileQuestion,
-  User,
-  Heart,
   Ban,
-  PenLine,
+  Edit3,
   Search,
-  MapPin,
+  CircleUserRound,
 } from 'lucide-react';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const patient: Patient = MOCK_PATIENT;
 
 type PatientDetailItem = {
-  key: keyof Patient | 'wardAndBed' | 'vitalSigns';
+  key: string;
   label: string;
-  value: string | undefined;
-  icon?: React.ElementType;
+  value: string;
+  icon: React.ElementType;
 };
 
-const patientDetails: PatientDetailItem[] = [
-  { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
+type DetailSection = {
+  title?: string;
+  items: PatientDetailItem[];
+};
+
+const formatDate = (dateString: string | undefined | null): string => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const sections: DetailSection[] = [
   {
-    key: 'dob',
-    label: 'DOB',
-    value: patient.dob ? new Date(patient.dob).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
-    icon: CalendarDays,
+    items: [
+      { key: 'mobile', label: '', value: patient.mobile, icon: Phone },
+      { key: 'dob', label: 'DOB', value: formatDate(patient.dob), icon: CalendarDays },
+    ],
   },
   {
-    key: 'admissionDate',
-    label: 'DOA', // Changed from AD to DOA as per image
-    value: patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }) : undefined,
-    icon: CalendarDays,
+    title: 'ADMISSION',
+    items: [
+      { key: 'wardAndBed', label: '', value: `${patient.wardNo || ''}, ${patient.bedDetails || ''}`.replace(/^, |, $/g, ''), icon: BedDouble },
+      { key: 'admissionDate', label: 'AD', value: formatDate(patient.admissionDate), icon: CalendarDays },
+      { key: 'lengthOfStay', label: 'LOS', value: patient.lengthOfStay, icon: Clock },
+      { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
+    ],
   },
-  { key: 'lengthOfStay', label: 'LOS', value: patient.lengthOfStay, icon: Clock },
-  { key: 'wardAndBed', label: '', value: (patient.wardNo && patient.bedDetails) ? `${patient.wardNo}, ${patient.bedDetails}` : patient.wardNo || patient.bedDetails, icon: BedDouble },
-  { key: 'primaryConsultant', label: '', value: patient.primaryConsultant, icon: User },
-  { key: 'specialty', label: '', value: patient.specialty, icon: BriefcaseMedical },
-  { key: 'encounterProvider', label: '', value: patient.encounterProvider, icon: Hospital },
-  { key: 'finalDiagnosis', label: 'Disease', value: patient.finalDiagnosis, icon: FileText },
-  { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
+  {
+    title: 'CLINICAL',
+    items: [
+      { key: 'primaryConsultant', label: '', value: patient.primaryConsultant ? `Dr. ${patient.primaryConsultant}` : '', icon: User },
+      { key: 'specialty', label: '', value: patient.specialty, icon: BriefcaseMedical },
+      { key: 'finalDiagnosis', label: 'Disease', value: patient.finalDiagnosis, icon: FileText },
+      { key: 'reasonForVisit', label: '', value: patient.reasonForVisit, icon: FileQuestion },
+    ],
+  },
 ];
 
 export function SidebarNav() {
+  const [isPatientDetailsOpen, setIsPatientDetailsOpen] = useState(false);
+
   const genderDisplay = patient.gender ? patient.gender.charAt(0).toUpperCase() : '';
+  const patientNameDisplay = `${patient.name || 'N/A'} (${genderDisplay}${patient.age !== undefined ? ` ${patient.age}` : ''})`;
+
+  const twHsl = (variable: string) => `hsl(var(${variable}))`;
 
   return (
-    <SidebarContent className="flex h-full w-full flex-col bg-teal-600 text-white px-3 pt-3">
-      {/* Added Greeting */}
-      <div className="pb-3 text-sm font-medium text-sidebar-primary-foreground">
-        Good morning, Sansys Doctor
-      </div>
-
-      <div className="flex flex-col items-center space-y-1 mb-2">
-        <Avatar className="h-14 w-14">
-          <AvatarImage src={patient.avatarUrl} alt={patient.name} data-ai-hint="person patient" />
-          <AvatarFallback className="bg-white">
-            <User className="h-7 w-7 text-primary" />
-          </AvatarFallback>
-        </Avatar>
+    <SidebarContent
+      className="flex h-full w-full flex-col"
+      style={{
+        backgroundColor: twHsl('--sidebar-background'),
+        color: twHsl('--sidebar-foreground'),
+      }}
+    >
+      <div className="flex flex-1 flex-col overflow-y-auto no-scrollbar pb-1 pt-2 px-2.5">
+        {/* Patient Info Header & Action Buttons */}
         
-        <p className="text-sm font-medium">
-          {patient.name} ({genderDisplay} {patient.age})
-        </p>
-      </div>
-
-      {/* Main content section that scrolls */}
-      <div className="flex-1 flex flex-col min-h-0">
-        <ul className="space-y-1 text-xs pt-3 flex-1 min-h-0 overflow-y-auto no-scrollbar">
-          {patientDetails.map((detail) => {
-            if (!detail.value) return null; // Skip rendering if value is undefined or empty
-            return (
-              <li key={detail.key} className="flex items-start space-x-1.5">
-                {detail.icon && <detail.icon className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sidebar-primary-foreground" />}
-                <div className="flex-1 min-w-0">
-                  {detail.label && detail.label !== '' && (
-                    <span className={detail.key === 'dob' ? 'font-normal' : 'font-medium'}>{detail.label}: </span>
-                  )}
-                  <span className="font-normal break-words"> 
-                    {detail.value}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* User Name and Location Section */}
-        <div className="mt-3 pt-2 border-t border-sidebar-border text-xs">
-          <div className="flex items-start space-x-1.5 mb-1">
-            <User className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sidebar-primary-foreground" />
-            <span className="font-normal break-words">SANSYS DOCTOR</span>
+        <div className="pb-2.5"> {/* Wrapper for header and actions, add bottom padding before separator */}
+        <div className="flex items-center justify-around py-1.5">
+            {[
+              { icon: Ban, label: 'Block' },
+              { icon: Edit3, label: 'Edit' },
+              { icon: Search, label: 'Search' },
+            ].map((action) => (
+              <Button
+                key={action.label}
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded"
+                style={{
+                  color: twHsl('--sidebar-foreground'),
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = twHsl('--sidebar-accent')}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                aria-label={action.label}
+              >
+                <action.icon className="h-4 w-4" />
+              </Button>
+            ))}
           </div>
-          <div className="flex items-start space-x-1.5">
-            <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5 text-sidebar-primary-foreground" />
-            <span className="font-normal break-words">Main Clinic</span>
+        </div>
+          <div className="mb-2 flex flex-col items-center text-center"> {/* Reduced mb for tighter spacing before buttons */}
+            <Avatar
+              className="h-14 w-14 border-2 mb-1.5"
+              style={{ borderColor: twHsl('--sidebar-accent') }}
+            >
+              <AvatarImage src={patient.avatarUrl} alt={patient.name || 'Patient Avatar'} />
+              <AvatarFallback
+                className="text-inherit"
+                style={{ backgroundColor: twHsl('--sidebar-accent') }}
+              >
+                <CircleUserRound className="h-7 w-7" />
+              </AvatarFallback>
+            </Avatar>
+            <p className="text-sm font-medium leading-tight">
+ <span
+ className="cursor-pointer hover:underline"
+ onClick={() => setIsPatientDetailsOpen(true)}
+ >{patientNameDisplay}</span>
+            </p>
+            <p className="text-xs leading-tight opacity-80">
+              UID: {patient.uid || 'N/A'}
+            </p>
           </div>
+
+          {/* Action Buttons Moved Here */}
+          
+
+        {/* White Separator */}
+        <hr
+          className="border-t my-0.5" // my-0.5 gives a tiny bit of space around it. Adjust if needed.
+          style={{ borderColor: 'hsl(var(--sidebar-primary-foreground))' }} // Use --sidebar-primary-foreground (white)
+        />
+
+        {/* Patient Details Sections */}
+        <div className="space-y-2.5 pt-2.5"> {/* Added pt-2.5 to give space after the separator */}
+          {sections.map((section, sectionIndex) => (
+            <div key={section.title || `section-${sectionIndex}`}>
+              {section.title && (
+                <h3
+                  className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide px-0.5 opacity-70"
+                >
+                  {section.title}
+                </h3>
+              )}
+              <ul className="space-y-1">
+                {section.items.map((detail) => {
+                  const valueIsEmpty = !detail.value || detail.value.trim() === '' || detail.value.trim() === ',' || detail.value.toLowerCase().includes('undefined') || detail.value.toLowerCase() === 'n/a';
+                  if (valueIsEmpty) return null;
+
+                  return (
+                    <li key={detail.key} className="flex items-start space-x-1.5 text-xs">
+                      <detail.icon
+                        className="h-3.5 w-3.5 shrink-0 mt-[1px]"
+                      />
+                      <div className="flex-1 min-w-0 leading-snug">
+                        {detail.label && detail.label !== '' && (
+                          <span className="font-medium">
+                            {detail.label}:{' '}
+                          </span>
+                        )}
+                        <span className="font-normal opacity-90">
+                            {detail.value}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Footer Section */}
-      <div className="mt-auto"> {/* This pushes the footer to the bottom */}
-        <div className="flex items-center justify-around p-2 border-t border-sidebar-border">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-primary-foreground hover:bg-sidebar-accent">
-            <Ban className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-primary-foreground hover:bg-sidebar-accent">
-            <PenLine className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-sidebar-primary-foreground hover:bg-sidebar-accent">
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex items-center justify-center p-2 border-t border-sidebar-border">
+      {/* Footer with Company Logo ONLY */}
+      <div
+        className="mt-auto border-t" // This border will use your --sidebar-border
+        style={{ borderColor: twHsl('--sidebar-border') }}
+      >
+        <div
+          className="flex items-center justify-center py-1.5 px-2"
+        >
           <Image
-            src="/sansys.png" // Placeholder, replace with your actual logo path in /public
-            alt="Company Logo"
-            width={100} // Adjust as needed
-            height={30} // Adjust as needed
+            src="/sansys.png"
+            alt="Sansys Informatics Logo"
+            width={75}
+            height={25}
             className="object-contain"
             priority
           />
         </div>
       </div>
+
+      {/* Patient Details Dialog */}
+      <Dialog open={isPatientDetailsOpen} onOpenChange={setIsPatientDetailsOpen}>
+        <DialogContent className="max-w-screen-lg w-full h-full">
+          <DialogHeader>
+            <DialogTitle>Patient Details</DialogTitle>
+ <div className="flex flex-col md:flex-row items-center gap-4 border-b pb-4">
+              <div className="w-24 h-24 bg-gray-200 rounded-sm flex-shrink-0">
+                {/* Placeholder for image */}
+              </div>
+              <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2 text-sm">
+                <div className="col-span-1 text-xs ">
+                  <p className='text-xs'><span className="font-semibold">Name:</span> {patient.name || 'N/A'}</p>
+                  <p><span className="font-semibold">Gender:</span> {patient.gender || 'N/A'}</p>
+                  <p><span className="font-semibold">DOB:</span> {formatDate(patient.dob)}</p>
+                  <p><span className="font-semibold">Age:</span> {patient.age !== undefined ? `${patient.age} Years, ${patient.age * 12} Months, and ${patient.age * 365} Days` : 'N/A'}</p>
+                </div>
+                <div className="col-span-1 text-xs">
+                  <p><span className="font-semibold">Aadhaar No:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Local Address:</span> {patient.address || 'N/A'}</p>
+                  <p><span className="font-semibold">Mob No:</span> {patient.mobile || 'N/A'}</p>
+                  <p><span className="font-semibold">Local PH No:</span> {patient.mobile || 'N/A'}</p> {/* Assuming same as mobile for now */}
+                </div>
+                <div className="col-span-1 text-xs">
+                  <p><span className="font-semibold">Email ID:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Father's Name:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Mother's Name:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Passport:</span> :</p> {/* Placeholder */}
+                </div>
+              </div>
+ <div className="flex flex-col items-center text-xs">
+                {/* Placeholder for barcode */}
+                <div className="w-24 h-12 bg-gray-200 mb-1"></div>
+                <p className="text-xs">00000000000</p> {/* Placeholder */}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-b py-2 text-xs">
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">Patient Other Details</h4>
+                <div className="grid grid-cols-2 gap-y-1 text-sm">
+                  <p><span className="font-semibold">Registration Date/Time:</span> {patient.registrationDateTime || 'N/A'}</p>
+                  <p className='text-xs'><span className="font-semibold">Permanent Address:</span> {patient.permanentAddress || 'N/A'}</p>
+                  <p className='text-xs'><span className="font-semibold">Permanent Pin No:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Permanent Mob No:</span> {patient.permanentMobile || 'N/A'}</p>
+                  <p><span className="font-semibold">Local Guardian:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Relationship:</span> :</p> {/* Placeholder */} 
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">IPD Details</h4>
+                <div className="grid grid-cols-2 gap-y-1 text-sm">
+                  <p><span className="font-semibold">Status:</span> {patient.ipdStatus || 'N/A'}</p>
+                  <p><span className="font-semibold">IP No:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Admission Date:</span> {formatDate(patient.admissionDate)}</p>
+                  <p><span className="font-semibold">Transferred:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Ward:</span> {patient.wardNo || 'N/A'}</p>
+                  <p><span className="font-semibold">Specialty:</span> {patient.specialty || 'N/A'}</p> 
+                  <p><span className="font-semibold">Room/Bed:</span> {patient.bedDetails || 'N/A'}</p>
+                  <p><span className="font-semibold">Chief Complaint:</span> {patient.chiefComplaint || 'N/A'}</p>
+                  <p><span className="font-semibold">Primary Consultant 1:</span> {patient.primaryConsultant ? `Dr. ${patient.primaryConsultant}` : 'N/A'}</p>
+                  <p><span className="font-semibold">Final Diagnosis:</span> {patient.finalDiagnosis || 'N/A'}</p>
+                  <p><span className="font-semibold">Type Of Admission:</span> {patient.typeOfAdmission || 'N/A'}</p>
+                  <p><span className="font-semibold">Comorbidity:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Referred By:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Special Precautions:</span> :</p> {/* Placeholder */} 
+                </div>
+              </div>
+            </div>
+
+            <div className="border-b py-2 text-xs">
+              <h4 className="font-semibold mb-1 text-sm">Remarks</h4>
+              <p className="text-xs">{patient.remarks || 'N/A'}</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-b py-2 text-xs">
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">Insurance Details</h4>
+                <div className="grid grid-cols-2 gap-y-1 text-xs">
+                  <p><span className="font-semibold">Payer Category:</span> :</p> {/* Placeholder */}
+                </div>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">Electronic Medical Legal Case/MLC Details</h4>
+                <div className="grid grid-cols-2 gap-y-1 text-sm">
+                  <p className='text-xs'><span className="font-semibold">MLC ID:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Criticality:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">MLC Status:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Attempted By:</span> :</p> {/* Placeholder */} 
+                  <p><span className="font-semibold">Facility Incharge:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Brought By:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Mode of Injury:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Ref By:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Faculty:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">MLC Report Link:</span> :</p> {/* Placeholder */} 
+                  <p><span className="font-semibold">CT OPD (Visit No + Date):</span> :</p> {/* Placeholder */}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 py-4">
+              <div>
+                <h4 className="font-semibold mb-1 text-xs">Autopsy Details</h4>
+                <div className="grid grid-cols-2 gap-y-1 text-xs">
+                  <p><span className="font-semibold">Date of Death:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Source of Notification:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Death Certificate:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Death Report:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Death Card:</span> :</p> {/* Placeholder */}
+                  <p><span className="font-semibold">Police Application:</span> :</p> {/* Placeholder */}
+                </div>
+              </div>
+              <div className="flex justify-end items-end">
+                {/* Placeholder for print button */}
+                <Button size="sm" className="flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path d="M6 3.75A1.5 1.5 0 017.5 2.25h9A1.5 1.5 0 0118 3.75v2.25c0 .621-.504 1.125-1.125 1.125H7.125A1.125 1.125 0 016 6v-2.25z" />
+                    <path fillRule="evenodd" d="M5.25 9a6 6 0 016-6h2.25a6 6 0 016 6v3.375c0 4.006-3.245 7.25-7.25 7.25H9.75A7.25 7.25 0 012.5 12.375V9zm1.5 0a4.5 4.5 0 014.5-4.5h2.25a4.5 4.5 0 014.5 4.5v3.375c0 2.841-2.309 5.15-5.15 5.15H9.75A5.15 5.15 0 014.6 12.375V9z" clipRule="evenodd" />
+                  </svg>
+                  Print
+                </Button>
+              </div>
+            </div>
+          </DialogHeader>
+          {/* Add the content from the screenshot here */}
+        </DialogContent>
+      </Dialog>
     </SidebarContent>
   );
 }
