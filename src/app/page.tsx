@@ -244,10 +244,6 @@ export default function DashboardPage(): JSX.Element {
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Problems</span>
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddProblemDialog}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Problem</span>
-              </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
@@ -426,10 +422,6 @@ export default function DashboardPage(): JSX.Element {
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Allergies</span>
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Allergies")}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Allergy</span>
-              </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
@@ -462,10 +454,6 @@ export default function DashboardPage(): JSX.Element {
               <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddMedicationDialog}>
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Medications</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openAddMedicationDialog}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add Medication</span>
               </Button>
             </div>
           </ShadcnCardHeader>
@@ -505,10 +493,6 @@ export default function DashboardPage(): JSX.Element {
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Report</span>
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Report")}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add to Report</span>
-              </Button>
             </div>
           </ShadcnCardHeader>
           <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
@@ -545,10 +529,6 @@ export default function DashboardPage(): JSX.Element {
               <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog("Radiology")}>
                 <Edit3 className="h-3.5 w-3.5" />
                 <span className="sr-only">Edit Radiology</span>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog("Radiology")}>
-                <Plus className="h-3.5 w-3.5" />
-                <span className="sr-only">Add to Radiology</span>
               </Button>
             </div>
           </ShadcnCardHeader>
@@ -592,10 +572,6 @@ export default function DashboardPage(): JSX.Element {
                   <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={() => handleOpenAddItemDialog(title)}>
                     <Edit3 className="h-3.5 w-3.5" />
                     <span className="sr-only">Edit {title}</span>
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenAddItemDialog(title)}>
-                    <Plus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Add to {title}</span>
                   </Button>
                 </div>
               </ShadcnCardHeader>
