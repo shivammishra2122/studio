@@ -468,12 +468,7 @@ const CpoeOrderListView = () => {
 // IP Medication View
 const IpMedicationView = () => {
   const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
-  
   const [isAddIpMedicationDialogOpen, setIsAddIpMedicationDialogOpen] = useState(false);
-  const [orderMedicationName, setOrderMedicationName] = useState('');
-  const [orderQuickOrder, setOrderQuickOrder] = useState('');
-  const [isMedicationPopoverOpen, setIsMedicationPopoverOpen] = useState(false);
-  
   const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:4");
   const [scheduleType, setScheduleType] = useState<string | undefined>();
   const [status, setStatus] = useState<string | undefined>();
@@ -483,35 +478,27 @@ const IpMedicationView = () => {
   const [searchText, setSearchText] = useState<string>("");
 
   const openOrderMedicinesDialog = () => {
-    setOrderMedicationName(''); 
-    setOrderQuickOrder('');
     setIsAddIpMedicationDialogOpen(true);
   };
 
-  const handleConfirmOrder = () => {
-    console.log("Order Confirmed:", { medicationName: orderMedicationName, quickOrder: orderQuickOrder });
-    if (orderMedicationName.trim()) {
-        const newMed: IpMedicationEntryDataType = {
-            id: Date.now().toString(),
-            services: 'Inpt. Meds',
-            medicationName: orderMedicationName,
-            status: 'UNRELEASED',
-            startDate: new Date().toLocaleDateString('en-CA'),
-            startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-            stopDate: '',
-            stopTime: '',
-            orderedBy: 'System (Dialog)',
-            medicationDay: 'Day 1',
-            schedule: 'Pending',
-          };
-          setIpMedicationList(prev => [newMed, ...prev]);
-    }
-    setIsAddIpMedicationDialogOpen(false);
-  };
+  const handleConfirmOrder = (rows: any[]) => {
+    const newMedications = rows.map(row => ({
+      id: Date.now().toString() + Math.random().toString(36).slice(2, 9),
+      services: 'Inpt. Meds',
+      medicationName: row.medicationName,
+      status: 'UNRELEASED' as const,
+      startDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
+      startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+      stopDate: '',
+      stopTime: '',
+      orderedBy: 'System (Dialog)',
+      medicationDay: 'Day 1',
+      schedule: row.schedule === 'SELECT' ? 'Pending' : row.schedule,
+      scheduleNote: row.prn ? 'PRN' : row.comment || undefined,
+    }));
 
-  const handleResetOrderForm = () => {
-    setOrderMedicationName('');
-    setOrderQuickOrder('');
+    setIpMedicationList(prev => [...newMedications, ...prev]);
+    setIsAddIpMedicationDialogOpen(false);
   };
 
   const ipMedTableHeaders = ["Services", "Medication Name", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Actions", "Medication Day", "Schedule"];
@@ -533,69 +520,69 @@ const IpMedicationView = () => {
       </ShadcnCardHeader>
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
         <div className="space-y-2 mb-2 text-xs">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
-                <Select value={visitDate} onValueChange={setVisitDate}>
-                <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs">
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="15 MAY, 2025 19:4">15 MAY, 2025 19:4</SelectItem>
-                </SelectContent>
-                </Select>
-                <Label htmlFor="ipScheduleType" className="shrink-0">Schedule Type</Label>
-                <Select value={scheduleType} onValueChange={setScheduleType}>
-                <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs">
-                    <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="bid">BID</SelectItem>
-                    <SelectItem value="stat">STAT</SelectItem>
-                </SelectContent>
-                </Select>
-                <Label htmlFor="ipStatus" className="shrink-0">Status</Label>
-                <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs">
-                    <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-                    <SelectItem value="HOLD">HOLD</SelectItem>
-                    <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
-                </SelectContent>
-                </Select>
-                <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
-                <div className="relative">
-                <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" />
-                <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                </div>
-                <Label htmlFor="ipOrderTo" className="shrink-0">Order To</Label>
-                <div className="relative">
-                <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" />
-                <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Label htmlFor="ipVisitDate" className="shrink-0">Visit Date</Label>
+            <Select value={visitDate} onValueChange={setVisitDate}>
+              <SelectTrigger id="ipVisitDate" className="h-7 w-32 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15 MAY, 2025 19:4">15 MAY, 2025 19:4</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="ipScheduleType" className="shrink-0">Schedule Type</Label>
+            <Select value={scheduleType} onValueChange={setScheduleType}>
+              <SelectTrigger id="ipScheduleType" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="bid">BID</SelectItem>
+                <SelectItem value="stat">STAT</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="ipStatus" className="shrink-0">Status</Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger id="ipStatus" className="h-7 w-24 text-xs">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
+                <SelectItem value="HOLD">HOLD</SelectItem>
+                <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
+              </SelectContent>
+            </Select>
+            <Label htmlFor="ipOrderFrom" className="shrink-0">Order From</Label>
+            <div className="relative">
+              <Input id="ipOrderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <div className="flex items-center space-x-1">
-                <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
-                <Select value={showEntries} onValueChange={setShowEntries}>
-                    <SelectTrigger id="ipShowEntries" className="h-7 w-20 text-xs">
-                    <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                    <SelectItem value="All">All</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Label htmlFor="ipShowEntries" className="text-xs shrink-0">entries</Label>
-                </div>
-                <div className="flex-grow"></div>
-                <Label htmlFor="ipSearch" className="shrink-0">Search:</Label>
-                <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+            <Label htmlFor="ipOrderTo" className="shrink-0">Order To</Label>
+            <div className="relative">
+              <Input id="ipOrderTo" type="text" value={orderTo} onChange={e => setOrderTo(e.target.value)} className="h-7 w-24 text-xs pr-7" />
+              <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center space-x-1">
+              <Label htmlFor="ipShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={showEntries} onValueChange={setShowEntries}>
+                <SelectTrigger id="ipShowEntries" className="h-7 w-20 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="ipShowEntries" className="text-xs shrink-0">entries</Label>
+            </div>
+            <div className="flex-grow"></div>
+            <Label htmlFor="ipSearch" className="shrink-0">Search:</Label>
+            <Input id="ipSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
+          </div>
         </div>
 
         <div className="flex-1 overflow-auto min-h-0">
@@ -649,94 +636,12 @@ const IpMedicationView = () => {
         </div>
       </CardContent>
 
-      <Dialog open={isAddIpMedicationDialogOpen} onOpenChange={setIsAddIpMedicationDialogOpen}>
-        <DialogContent className="sm:max-w-2xl p-0">
-          <div className="bg-sky-100 p-3">
-            <DialogUITitle className="text-lg font-semibold text-sky-800">Order Medicines</DialogUITitle>
-          </div>
-          <div className="bg-sky-100 p-3 text-xs text-sky-700 flex flex-wrap items-center gap-x-6 gap-y-1">
-            <span>Patient ID : 80000035</span>
-            <span>Name : Anonymous Two</span>
-            <span>Age : 69 Years</span>
-            <span>Sex : MALE</span>
-            <span>Patient Type : In Patient</span>
-          </div>
-          
-          <div className="p-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                <div className="space-y-1">
-                  <Label htmlFor="orderMedicationNameBtn" className="text-sm font-medium">Medication Name</Label>
-                  <Popover open={isMedicationPopoverOpen} onOpenChange={setIsMedicationPopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="orderMedicationNameBtn"
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={isMedicationPopoverOpen}
-                        className="w-full justify-between h-9 font-normal text-left"
-                      >
-                        {orderMedicationName || "Select medication..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search medication..." />
-                        <CommandList className="max-h-[300px] overflow-y-auto">
-                          <CommandEmpty>No medication found.</CommandEmpty>
-                          <CommandGroup>
-                            {ALL_AVAILABLE_MEDICATIONS.map((medication) => (
-                              <CommandItem
-                                key={medication}
-                                value={medication}
-                                onSelect={(currentValue) => {
-                                  setOrderMedicationName(currentValue.toUpperCase() === orderMedicationName.toUpperCase() ? "" : currentValue);
-                                  setIsMedicationPopoverOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    orderMedicationName.toUpperCase() === medication.toUpperCase() ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {medication}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="flex items-end space-x-2">
-                  <div className="flex-grow space-y-1">
-                    <Label htmlFor="orderQuickOrder" className="text-sm font-medium">Quick Order</Label>
-                    <Input 
-                      id="orderQuickOrder" 
-                      value={orderQuickOrder} 
-                      onChange={(e) => setOrderQuickOrder(e.target.value)}
-                      className="h-9"
-                    />
-                  </div>
-                  <Button type="button" className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">Edit Quick List</Button>
-                </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center space-x-4 p-4 pt-2 border-t border-gray-200">
-            <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleConfirmOrder}>Confirm Order</Button>
-            <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6" onClick={handleResetOrderForm}>Reset</Button>
-            <DialogClose asChild>
-              <Button className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs px-6">Close</Button>
-            </DialogClose>
-          </div>
-          <div className="bg-sky-100 p-2 text-center">
-            <p className="text-xs text-sky-700">Copyright © 2015 Sansys Informatics Pvt. Ltd</p>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <IpMedicationOrderDialog
+        open={isAddIpMedicationDialogOpen}
+        onOpenChange={setIsAddIpMedicationDialogOpen}
+        // Pass handleConfirmOrder to the dialog
+        // handleConfirmOrder={handleConfirmOrder}
+      />
     </Card>
   );
 };

@@ -4,14 +4,14 @@ import { Card, CardContent, CardDescription, CardTitle, CardHeader as ShadcnCard
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import type { ChartConfig } from '@/components/ui/chart'; 
+import type { ChartConfig } from '@/components/ui/chart';
 import { CartesianGrid, XAxis, YAxis, Line, LineChart as RechartsLineChart } from 'recharts';
-import { 
+import {
   Droplet, HeartPulse, Activity, Thermometer, Scale, Edit3, Clock, Pill as PillIcon, Plus, MoreVertical,
   Ban, FileText, ScanLine, ClipboardList, BellRing
 } from 'lucide-react';
-import type { HealthMetric, Problem, Medication } from '@/lib/constants'; 
-import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent } from '@/lib/constants'; 
+import type { HealthMetric, Problem, Medication } from '@/lib/constants';
+import { MOCK_PROBLEMS, MOCK_MEDICATIONS, pageCardSampleContent } from '@/lib/constants';
 import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const keyIndicators: HealthMetric[] = [
-  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose' },
-  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate' },
-  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure' },
-  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature' },
-  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight' },
+// Updated keyIndicators with activeColor
+const keyIndicators: Array<HealthMetric & { activeColor: string }> = [
+  { name: 'Blood Glucose', value: '98', unit: 'mg/dL', icon: Droplet, tabValue: 'blood-glucose', activeColor: 'hsl(var(--chart-2))' },
+  { name: 'Heart Rate', value: '72', unit: 'bpm', icon: HeartPulse, tabValue: 'heart-rate', activeColor: 'hsl(var(--chart-1))' },
+  { name: 'Blood Pressure', value: '120/95', unit: 'mmHg', icon: Activity, tabValue: 'blood-pressure', activeColor: 'hsl(var(--chart-1))' },
+  { name: 'Body Temperature', value: '108', unit: 'F', icon: Thermometer, tabValue: 'body-temperature', activeColor: 'hsl(var(--chart-4))' },
+  { name: 'Weight', value: '70', unit: 'kg', icon: Scale, tabValue: 'weight', activeColor: 'hsl(var(--chart-5))' },
 ];
 
 const heartRateMonitorData: Array<{ time: string; hr: number }> = [
@@ -58,26 +59,26 @@ const bodyTemperatureData: Array<{ date: string; temp: number }> = [
 
 const weightData: Array<{ date: string; weight: number }> = [
   { date: 'Mon', weight: 70.0 }, { date: 'Tue', weight: 70.2 }, { date: 'Wed', weight: 69.8 },
-  { date: 'Thu', weight: 70.1 }, { date: 'Fri', weight: 69.9 }, { date: 'Sat', weight: 70.3 }, 
+  { date: 'Thu', weight: 70.1 }, { date: 'Fri', weight: 69.9 }, { date: 'Sat', weight: 70.3 },
   { date: 'Sun', weight: 70.0 },
 ];
 
 const heartRateMonitorChartConfig: ChartConfig = { hr: { label: 'Heart Rate (bpm)', color: 'hsl(var(--chart-1))' } };
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
-const bloodPressureChartConfig: ChartConfig = { 
+const bloodPressureChartConfig: ChartConfig = {
   systolic: { label: 'Systolic (mmHg)', color: 'hsl(var(--chart-1))' },
   diastolic: { label: 'Diastolic (mmHg)', color: 'hsl(var(--chart-3))' },
 };
-const bodyTemperatureChartConfig: ChartConfig = { temp: { label: 'Temperature (°F)', color: 'hsl(var(--chart-4))' } }; 
+const bodyTemperatureChartConfig: ChartConfig = { temp: { label: 'Temperature (°C)', color: 'hsl(var(--chart-4))' } }; // Adjusted unit for data
 const weightChartConfig: ChartConfig = { weight: { label: 'Weight (kg)', color: 'hsl(var(--chart-5))' } };
 
 const infoCardIcons: Record<string, React.ElementType> = {
   "Allergies": Ban,
   "Radiology": ScanLine,
   "Report": FileText,
-  "Clinical notes": FileText, 
+  "Clinical notes": FileText,
   "Encounter notes": ClipboardList,
-  "Clinical reminder": BellRing, 
+  "Clinical reminder": BellRing,
 };
 
 const secondRowInformationalCardTitles: string[] = ["Allergies", "Medications History", "Report", "Radiology"];
@@ -87,13 +88,13 @@ export default function DashboardPage(): JSX.Element {
   const [problems, setProblems] = useState<Problem[]>(MOCK_PROBLEMS);
   const [medications, setMedications] = useState<Medication[]>(MOCK_MEDICATIONS);
   const [dynamicPageCardSampleContent, setDynamicPageCardSampleContent] = useState<Record<string, string[]>>(() => JSON.parse(JSON.stringify(pageCardSampleContent)));
-  
+
   const [isAddProblemDialogOpen, setIsAddProblemDialogOpen] = useState(false);
   const [newProblemInput, setNewProblemInput] = useState('');
 
   const [isAddMedicationDialogOpen, setIsAddMedicationDialogOpen] = useState(false);
   const [newMedicationInput, setNewMedicationInput] = useState('');
-  
+
   const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
   const [editingInfoCardTitle, setEditingInfoCardTitle] = useState<string | null>(null);
   const [newItemInput, setNewItemInput] = useState('');
@@ -124,10 +125,10 @@ export default function DashboardPage(): JSX.Element {
     const newMed: Medication = {
       id: Date.now().toString(),
       name: newMedicationInput,
-      reason: 'General', 
+      reason: 'General',
       amount: 'N/A',
       timing: 'N/A',
-      status: 'Active', 
+      status: 'Active',
     };
     setMedications(prev => [newMed, ...prev]);
     setNewMedicationInput('');
@@ -141,7 +142,7 @@ export default function DashboardPage(): JSX.Element {
     }
     setIsAddProblemDialogOpen(true);
   };
-  
+
   const openAddMedicationDialog = () => {
     setNewMedicationInput('');
     setIsAddMedicationDialogOpen(true);
@@ -163,17 +164,17 @@ export default function DashboardPage(): JSX.Element {
     setIsAddItemDialogOpen(false);
     setEditingInfoCardTitle(null);
   };
-  
+
   const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
     setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
-    
+
     let contentToShow = itemText;
     if (titlePrefix === "Radiology Detail" && itemText === "Chest X-Ray: Clear") {
       contentToShow = `Normal lung expansion without fluid or masses.\nHeart size within normal limits.\nClear airways and no structural abnormalities in the bones or diaphragm.`;
     }
-    
+
     setDetailViewContent(contentToShow);
-    setActiveChartTab('detail-view'); 
+    setActiveChartTab('detail-view');
   };
 
   const handleProblemDialogMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -185,8 +186,8 @@ export default function DashboardPage(): JSX.Element {
       problemInitialDialogOffset.current = { x: matrix.m41, y: matrix.m42 };
 
       problemHeaderRef.current.style.cursor = 'grabbing';
-      document.body.style.cursor = 'grabbing'; 
-      e.preventDefault(); 
+      document.body.style.cursor = 'grabbing';
+      e.preventDefault();
     }
   };
 
@@ -195,7 +196,7 @@ export default function DashboardPage(): JSX.Element {
       if (!isProblemDialogDragging.current || !problemDialogRef.current) return;
       const deltaX = e.clientX - problemDragStartCoords.current.x;
       const deltaY = e.clientY - problemDragStartCoords.current.y;
-      
+
       const newX = problemInitialDialogOffset.current.x + deltaX;
       const newY = problemInitialDialogOffset.current.y + deltaY;
 
@@ -208,7 +209,7 @@ export default function DashboardPage(): JSX.Element {
         if (problemHeaderRef.current) {
           problemHeaderRef.current.style.cursor = 'grab';
         }
-        document.body.style.cursor = 'default'; 
+        document.body.style.cursor = 'default';
       }
     };
 
@@ -228,14 +229,14 @@ export default function DashboardPage(): JSX.Element {
   }, [isAddProblemDialogOpen]);
 
   return (
-    <div className="flex flex-1 flex-col p-3 bg-background"> 
+    <div className="flex flex-1 flex-col p-3 bg-background">
       {/* Top Row: Problem, Chart, Vital */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
         <Card className="lg:col-span-3 shadow-lg">
-          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3"> 
+          <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <Clock className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Problem</CardTitle>
+              <CardTitle className="text-base">Problems</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{problems.length}</Badge>
             </div>
             <div className="flex items-center">
@@ -249,12 +250,12 @@ export default function DashboardPage(): JSX.Element {
               </Button>
             </div>
           </ShadcnCardHeader>
-          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar"> 
+          <CardContent className="p-0 max-h-32 overflow-y-auto no-scrollbar">
             <Table>
               <TableBody>
                 {problems.map((problem, index) => (
                   <TableRow key={problem.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
-                    <TableCell className="px-2 py-1"> 
+                    <TableCell className="px-2 py-1">
                       <div className="font-medium text-xs">{problem.description}</div>
                     </TableCell>
                   </TableRow>
@@ -266,9 +267,9 @@ export default function DashboardPage(): JSX.Element {
             )}
           </CardContent>
         </Card>
-        
+
         <Card className="lg:col-span-5 shadow-lg h-full">
-          <CardContent className="pt-2 px-2 pb-2"> 
+          <CardContent className="pt-2 px-2 pb-2">
             <Tabs value={activeChartTab} onValueChange={setActiveChartTab} className="w-full">
               <TabsList className="hidden">
                 <TabsTrigger value="heart-rate">Heart Rate</TabsTrigger>
@@ -276,12 +277,12 @@ export default function DashboardPage(): JSX.Element {
                 <TabsTrigger value="blood-pressure">Blood Pressure</TabsTrigger>
                 <TabsTrigger value="body-temperature">Body Temperature</TabsTrigger>
                 <TabsTrigger value="weight">Weight</TabsTrigger>
-                <TabsTrigger value="detail-view">Detail</TabsTrigger> 
+                <TabsTrigger value="detail-view">Detail</TabsTrigger>
               </TabsList>
               <TabsContent value="heart-rate">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[140px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={heartRateMonitorChartConfig} className="h-[140px] w-full">
                       <RechartsLineChart data={heartRateMonitorData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -295,8 +296,8 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-glucose">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={glucoseChartConfig} className="h-[140px] w-full">
                       <RechartsLineChart data={glucoseData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -310,8 +311,8 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="blood-pressure">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={bloodPressureChartConfig} className="h-[140px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={bloodPressureChartConfig} className="h-[140px] w-full">
                       <RechartsLineChart data={bloodPressureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -326,8 +327,8 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="body-temperature">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={bodyTemperatureChartConfig} className="h-[140px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={bodyTemperatureChartConfig} className="h-[140px] w-full">
                       <RechartsLineChart data={bodyTemperatureData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -341,8 +342,8 @@ export default function DashboardPage(): JSX.Element {
               </TabsContent>
               <TabsContent value="weight">
                 <Card className="border-0 shadow-none">
-                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar"> 
-                    <ChartContainer config={weightChartConfig} className="h-[140px] w-full"> 
+                  <CardContent className="p-1.5 max-h-[150px] overflow-y-auto no-scrollbar">
+                    <ChartContainer config={weightChartConfig} className="h-[140px] w-full">
                       <RechartsLineChart data={weightData} margin={{ left: 0, right: 5, top: 5, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={4} fontSize={9} />
@@ -371,26 +372,41 @@ export default function DashboardPage(): JSX.Element {
         </Card>
 
         <Card className="lg:col-span-4 shadow-lg h-full">
-          <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar"> 
-            {keyIndicators.map((indicator) => (
-              <div 
-                key={indicator.name} 
-                className="flex items-center justify-between p-1.5 rounded-lg bg-muted/70 hover:bg-muted/90 cursor-pointer"
-                onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
-              >
-                <div className="flex items-center">
-                  {indicator.icon && <indicator.icon className="h-4 w-4 text-primary mr-1.5" />}
-                  <span className="text-xs font-medium text-foreground">{indicator.name}</span>
+          <CardContent className="space-y-1.5 p-2 max-h-44 overflow-y-auto no-scrollbar">
+            {keyIndicators.map((indicator) => {
+              const isActive = indicator.tabValue === activeChartTab;
+              return (
+                <div
+                  key={indicator.name}
+                  className={`flex items-center justify-between p-1.5 rounded-lg cursor-pointer
+                              ${isActive ? 'bg-primary/10 ring-1 ring-primary' : 'bg-muted/70 hover:bg-muted/90'}`}
+                  onClick={() => indicator.tabValue && setActiveChartTab(indicator.tabValue)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);}}
+                >
+                  <div className="flex items-center">
+                    {indicator.icon && (
+                      <indicator.icon
+                        className="h-4 w-4 mr-1.5"
+                        style={{ color: isActive ? indicator.activeColor : 'hsl(var(--primary))' }}
+                      />
+                    )}
+                    <span className={`text-xs font-medium ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                      {indicator.name}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className={`text-xs font-normal ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                      {indicator.value}
+                    </span>
+                    <span className={`text-xs font-normal ml-0.5 ${isActive ? 'text-primary/80' : 'text-foreground/80'}`}>
+                      {indicator.unit}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-normal text-foreground">{indicator.value}</span>
-                  <span className="text-xs font-normal text-foreground/80 ml-0.5">{indicator.unit}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       </div>
@@ -433,13 +449,14 @@ export default function DashboardPage(): JSX.Element {
             )}
           </CardContent>
         </Card>
-        
+
         {/* Medications History Card */}
         <Card className="md:col-span-3 shadow-lg">
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <PillIcon className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Medications History</CardTitle>
+              <CardTitle className="text-base">Medications </CardTitle>
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{medications.length}</Badge>
             </div>
             <div className="flex items-center">
               <Button variant="ghost" size="icon" className="h-7 w-7 mr-0.5" onClick={openAddMedicationDialog}>
@@ -459,7 +476,9 @@ export default function DashboardPage(): JSX.Element {
                   <TableRow key={med.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
                   <TableCell className="px-2 py-1">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-xs">{med.name}</span>
+ <span className={`font-medium text-xs ${med.status === 'Active' ? 'text-green-600' : med.status === 'Discontinued' ? 'text-red-600' : ''}`}>
+ {med.name}
+                      </span>
                       <span className="text-xs text-muted-foreground">{med.status}</span>
                     </div>
                   </TableCell>
@@ -478,7 +497,7 @@ export default function DashboardPage(): JSX.Element {
           <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
             <div className="flex items-center space-x-1.5">
               <FileText className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Report</CardTitle>
+              <CardTitle className="text-base">Lab Report</CardTitle>
               <Badge variant="secondary" className="text-xs px-1.5 py-0.5">{(dynamicPageCardSampleContent["Report"] || []).length}</Badge>
             </div>
             <div className="flex items-center">
@@ -496,8 +515,8 @@ export default function DashboardPage(): JSX.Element {
             <Table>
               <TableBody>
                 {(dynamicPageCardSampleContent["Report"] || []).map((item, index) => (
-                  <TableRow 
-                    key={index} 
+                  <TableRow
+                    key={index}
                     onClick={() => handleShowItemDetailInChartArea("Report Detail", item)}
                     className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                   >
@@ -537,8 +556,8 @@ export default function DashboardPage(): JSX.Element {
             <Table>
               <TableBody>
                 {(dynamicPageCardSampleContent["Radiology"] || []).map((item, index) => (
-                  <TableRow 
-                    key={index} 
+                  <TableRow
+                    key={index}
                     onClick={() => handleShowItemDetailInChartArea("Radiology Detail", item)}
                     className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                   >
@@ -555,11 +574,11 @@ export default function DashboardPage(): JSX.Element {
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Third Row: Clinical Notes, Encounter Notes, Clinical Reminder */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {thirdRowInformationalCardTitles.map((title) => {
-          const IconComponent = infoCardIcons[title] || FileText; 
+          const IconComponent = infoCardIcons[title] || FileText;
           const items = dynamicPageCardSampleContent[title] || [];
           return (
             <Card key={title.toLowerCase().replace(/\s+/g, '-')} className="shadow-lg">
@@ -602,14 +621,14 @@ export default function DashboardPage(): JSX.Element {
       </div>
 
       {/* Common Dialog for Adding Items to Informational Cards (Excluding Problem and Medications History) */}
-      <Dialog 
-        open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle!)} 
+      <Dialog
+        open={isAddItemDialogOpen && !!editingInfoCardTitle && !["Problem", "Medications History"].includes(editingInfoCardTitle!)}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             setIsAddItemDialogOpen(false);
             setEditingInfoCardTitle(null);
           } else {
-            setIsAddItemDialogOpen(true); 
+            setIsAddItemDialogOpen(true);
           }
         }}
       >
@@ -631,9 +650,9 @@ export default function DashboardPage(): JSX.Element {
       </Dialog>
 
       {/* Dialog for Adding Problem */}
-      <Dialog open={isAddProblemDialogOpen} onOpenChange={(open) => { 
+      <Dialog open={isAddProblemDialogOpen} onOpenChange={(open) => {
         setIsAddProblemDialogOpen(open);
-        if (open) { 
+        if (open) {
           setNewProblemInput('');
           if (problemDialogRef.current) {
             problemDialogRef.current.style.transform = 'translate(-50%, -50%)';
@@ -643,18 +662,18 @@ export default function DashboardPage(): JSX.Element {
         <DialogContent
           ref={problemDialogRef}
           style={{
-            position: 'fixed', 
-            left: '50%', 
-            top: '50%',  
-            transform: 'translate(-50%, -50%)', 
+            position: 'fixed',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
-          className="sm:max-w-[425px]" 
-          onOpenAutoFocus={(e) => e.preventDefault()} 
+          className="sm:max-w-[425px]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <DialogHeader
             ref={problemHeaderRef}
             onMouseDown={handleProblemDialogMouseDown}
-            style={{ cursor: 'grab', userSelect: 'none', paddingBottom: '1rem' }} 
+            style={{ cursor: 'grab', userSelect: 'none', paddingBottom: '1rem' }}
           >
             <DialogUITitle>Add New Problem</DialogUITitle>
           </DialogHeader>
@@ -697,3 +716,5 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
+
