@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -28,6 +29,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 // Chart configurations
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
@@ -67,13 +69,28 @@ interface Allergy {
 }
 
 // Define Dialog types
-type DialogType = 'problem' | 'medication' | 'info-item' | 'allergies';
+type DialogType = 'problem' | 'medication' | 'info-item' | 'allergies' | 'radiology' | 'report';
+
 interface FloatingDialog {
   id: string;
   type: DialogType;
   title: string;
   position: { x: number; y: number };
   data?: any;
+}
+
+// Medication row interface for table
+interface MedicationRow {
+  medicationName: string;
+  dosage: string;
+  route: string;
+  schedule: string;
+  prn: boolean;
+  duration: string;
+  durationUnit: string;
+  priority: string;
+  additionalDoseNow: boolean;
+  comment: string;
 }
 
 export default function DashboardPage(): JSX.Element {
@@ -114,6 +131,11 @@ export default function DashboardPage(): JSX.Element {
   const [activeChartTab, setActiveChartTab] = useState<string>('heart-rate');
   const [detailViewTitle, setDetailViewTitle] = useState<string>('');
   const [detailViewContent, setDetailViewContent] = useState<string>('');
+  const [medSearch, setMedSearch] = useState<string>('');
+  const [quickOrder, setQuickOrder] = useState<string>('');
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [filteredMeds, setFilteredMeds] = useState<string[]>([]);
+  const [selectedRows, setSelectedRows] = useState<MedicationRow[]>([]);
 
   // Dialog input states
   const [problemInputs, setProblemInputs] = useState<
@@ -128,6 +150,12 @@ export default function DashboardPage(): JSX.Element {
   const [allergyInputs, setAllergyInputs] = useState<
     Record<string, { allergen: string; reaction: string; severity: 'Mild' | 'Moderate' | 'Severe' | ''; dateOnset: string; treatment: string; status: 'Active' | 'Inactive' | ''; notes: string }>
   >({});
+  const [radiologyInputs, setRadiologyInputs] = useState<
+    Record<string, { type: string; bodyPart: string; notes: string }>
+  >({});
+  const [reportInputs, setReportInputs] = useState<
+    Record<string, { search: string; quickSearch: string; selected: string[] }>
+  >({});
 
   // Dialog refs for dragging
   const dialogRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -135,30 +163,38 @@ export default function DashboardPage(): JSX.Element {
   const dragStartCoords = useRef<Record<string, { x: number; y: number }>>({});
   const initialDialogOffset = useRef<Record<string, { x: number; y: number }>>({});
 
+  // Medication constants
+  const ROUTES = ['Oral', 'IV', 'IM', 'Subcutaneous'];
+  const SCHEDULES = ['Daily', 'BID', 'TID', 'QID'];
+  const PRIORITIES = ['Routine', 'Urgent', 'STAT'];
+  const MEDICATIONS = ['Aspirin', 'Metformin', 'Ibuprofen', 'Lisinopril'];
+
   // Auto-save functionality for dialog inputs
   useEffect(() => {
     const saveDrafts = () => {
-      // Save allergy inputs to localStorage
       if (Object.keys(allergyInputs).length > 0) {
         localStorage.setItem('allergyInputsDraft', JSON.stringify(allergyInputs));
       }
-      // Save problem inputs to localStorage
       if (Object.keys(problemInputs).length > 0) {
         localStorage.setItem('problemInputsDraft', JSON.stringify(problemInputs));
       }
-      // Save medication inputs to localStorage
       if (Object.keys(medicationInputs).length > 0) {
         localStorage.setItem('medicationInputsDraft', JSON.stringify(medicationInputs));
       }
-      // Save info item inputs to localStorage
       if (Object.keys(infoItemInputs).length > 0) {
         localStorage.setItem('infoItemInputsDraft', JSON.stringify(infoItemInputs));
+      }
+      if (Object.keys(radiologyInputs).length > 0) {
+        localStorage.setItem('radiologyInputsDraft', JSON.stringify(radiologyInputs));
+      }
+      if (Object.keys(reportInputs).length > 0) {
+        localStorage.setItem('reportInputsDraft', JSON.stringify(reportInputs));
       }
     };
 
     const interval = setInterval(saveDrafts, 30 * 1000); // Save every 30 seconds
     return () => clearInterval(interval);
-  }, [allergyInputs, problemInputs, medicationInputs, infoItemInputs]);
+  }, [allergyInputs, problemInputs, medicationInputs, infoItemInputs, radiologyInputs, reportInputs]);
 
   // Load drafts on component mount
   useEffect(() => {
@@ -174,6 +210,12 @@ export default function DashboardPage(): JSX.Element {
 
       const infoItemDraft = localStorage.getItem('infoItemInputsDraft');
       if (infoItemDraft) setInfoItemInputs(JSON.parse(infoItemDraft));
+
+      const radiologyDraft = localStorage.getItem('radiologyInputsDraft');
+      if (radiologyDraft) setRadiologyInputs(JSON.parse(radiologyDraft));
+
+      const reportDraft = localStorage.getItem('reportInputsDraft');
+      if (reportDraft) setReportInputs(JSON.parse(reportDraft));
     };
 
     loadDrafts();
@@ -193,7 +235,7 @@ export default function DashboardPage(): JSX.Element {
         id,
         type,
         title,
-        position: { x: 0 , y: 0  },
+        position: { x: 0, y: 0 },
         data,
       },
     ]);
@@ -228,6 +270,16 @@ export default function DashboardPage(): JSX.Element {
         ...prev,
         [id]: { allergen: '', reaction: '', severity: '', dateOnset: '', treatment: '', status: '', notes: '' },
       }));
+    } else if (type === 'radiology') {
+      setRadiologyInputs((prev) => ({
+        ...prev,
+        [id]: { type: '', bodyPart: '', notes: '' },
+      }));
+    } else if (type === 'report') {
+      setReportInputs((prev) => ({
+        ...prev,
+        [id]: { search: '', quickSearch: '', selected: [] },
+      }));
     }
   }, [floatingDialogs]);
 
@@ -246,6 +298,14 @@ export default function DashboardPage(): JSX.Element {
       return rest;
     });
     setAllergyInputs((prev) => {
+      const { [id]: _, ...rest } = prev;
+      return rest;
+    });
+    setRadiologyInputs((prev) => {
+      const { [id]: _, ...rest } = prev;
+      return rest;
+    });
+    setReportInputs((prev) => {
       const { [id]: _, ...rest } = prev;
       return rest;
     });
@@ -326,6 +386,43 @@ export default function DashboardPage(): JSX.Element {
     };
   }, []);
 
+  // Handle medication search and table
+  const handleSelectMed = (med: string) => {
+    setSelectedRows((prev) => [
+      ...prev,
+      {
+        medicationName: med,
+        dosage: '',
+        route: 'Oral',
+        schedule: 'Daily',
+        prn: false,
+        duration: '1',
+        durationUnit: 'days',
+        priority: 'Routine',
+        additionalDoseNow: false,
+        comment: '',
+      },
+    ]);
+    setMedSearch('');
+    setDropdownOpen(false);
+  };
+
+  const handleRowChange = (
+    idx: number,
+    field: keyof MedicationRow,
+    value: string | boolean
+  ) => {
+    setSelectedRows((prev) =>
+      prev.map((row, i) =>
+        i === idx ? { ...row, [field]: value } : row
+      )
+    );
+  };
+
+  const handleRemoveRow = (idx: number) => {
+    setSelectedRows((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   // Handle adding new entries
   const handleAddProblem = (dialogId: string) => {
     const input = problemInputs[dialogId];
@@ -387,7 +484,7 @@ export default function DashboardPage(): JSX.Element {
       treatment: input.treatment || '',
       status: input.status as 'Active' | 'Inactive',
       notes: input.notes || '',
-      createdBy: 'Dr. User', // Replace with actual user info in a real app
+      createdBy: 'Dr. User',
       createdAt: new Date().toISOString(),
     };
     setAllergies((prev) => [newAllergy, ...prev]);
@@ -672,7 +769,7 @@ export default function DashboardPage(): JSX.Element {
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);
+                    if ((e.key === 'Enter' || e.key === ' ') &&indicator.tabValue) setActiveChartTab(indicator.tabValue);
                   }}
                 >
                   <div className="flex items-center">
@@ -733,6 +830,10 @@ export default function DashboardPage(): JSX.Element {
                       openFloatingDialog('medication', 'Order Medicines');
                     } else if (title === 'Allergies') {
                       openFloatingDialog('allergies', 'Add New Allergy');
+                    } else if (title === 'Radiology') {
+                      openFloatingDialog('radiology', 'Order Radiology Test');
+                    } else if (title === 'Report') {
+                      openFloatingDialog('report', 'Order Report');
                     } else {
                       openFloatingDialog('info-item', `Add New Item to ${title}`, { title });
                     }
@@ -1046,151 +1147,437 @@ export default function DashboardPage(): JSX.Element {
                 </div>
               </div>
             )}
-
-{dialog.type === 'medication' && (
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-sm">
-            <div><span className="font-semibold">Patient ID:</span> 800000035</div>
-            <div><span className="font-semibold">Name:</span> Anonymous Two</div>
-            <div><span className="font-semibold">Age:</span> 69 Years</div>
-            <div><span className="font-semibold">Sex:</span> MALE</div>
-            <div className="md:col-span-2"><span className="font-semibold">Patient Type:</span> In Patient</div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Label htmlFor={`medicationName-${dialog.id}`} className="w-[120px] min-w-[120px]">Medication Name</Label>
-              <Select
-                value={medicationInputs[dialog.id]?.name}
-                onValueChange={(value) => setMedicationInputs((prev) => ({
-                  ...prev,
-                  [dialog.id]: { ...prev[dialog.id], name: value },
-                }))}
-              >
-                <SelectTrigger className="flex-1" id={`medicationName-${dialog.id}`}>
-                  <SelectValue placeholder="Select Medication" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Aspirin 81mg">Aspirin 81mg</SelectItem>
-                  <SelectItem value="Lisinopril 10mg">Lisinopril 10mg</SelectItem>
-                  <SelectItem value="Metformin 500mg">Metformin 500mg</SelectItem>
-                  <SelectItem value="Ibuprofen 200mg">Ibuprofen 200mg</SelectItem>
-                  <SelectItem value="Amoxicillin 500mg">Amoxicillin 500mg</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor={`medicationQuickList-${dialog.id}`} className="w-[120px] min-w-[120px]">Quick List</Label>
-              <Select
-                value={medicationInputs[dialog.id]?.amount}
-                onValueChange={(value) => setMedicationInputs((prev) => ({
-                  ...prev,
-                  [dialog.id]: { ...prev[dialog.id], amount: value },
-                }))}
-              >
-                <SelectTrigger className="flex-1" id={`medicationQuickList-${dialog.id}`}>
-                  <SelectValue placeholder="Select Medication" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Aspirin 81mg">Aspirin 81mg</SelectItem>
-                  <SelectItem value="Lisinopril 10mg">Lisinopril 10mg</SelectItem>
-                  <SelectItem value="Metformin 500mg">Metformin 500mg</SelectItem>
-                  <SelectItem value="Ibuprofen 200mg">Ibuprofen 200mg</SelectItem>
-                  <SelectItem value="Amoxicillin 500mg">Amoxicillin 500mg</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Table for Selected Medications */}
-          {(medicationInputs[dialog.id]?.name || medicationInputs[dialog.id]?.amount) && (
-            <div className="mt-4">
-              <h3 className="text-sm font-semibold mb-2">Selected Medications</h3>
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="bg-muted">
-                    <th className="border p-2 text-left">Medication Name</th>
-                    <th className="border p-2 text-left">Dosage </th>
-                    <th className="border p-2 text-left">Route</th>
-                    <th className="border p-2 text-left">schedule </th>
-                    <th className="border p-2 text-left">PRN</th>
-                    <th className="border p-2 text-left">Duration </th>
-                    <th className="border p-2 text-left">Priority</th>
-                    <th className="border p-2 text-left">Additional</th>
-                    <th className="border p-2 text-left">Dose Now Comment</th>
-                    <th className="border p-2 text-left">Save Quick Order</th>
-                    <th className="border p-2 text-left">Remove</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {medicationInputs[dialog.id]?.name && (
-                    <tr>
-                      <td className="border p-2">{medicationInputs[dialog.id].name}</td>
-                      <td className="border p-2">
-                        {medicationInputs[dialog.id].name === 'Aspirin 81mg' && 'Take 1 tablet'}
-                        {medicationInputs[dialog.id].name === 'Lisinopril 10mg' && 'Take 1 tablet'}
-                        {medicationInputs[dialog.id].name === 'Metformin 500mg' && 'Take 1 tablet'}
-                        {medicationInputs[dialog.id].name === 'Ibuprofen 200mg' && 'Take 1-2 tablets'}
-                        {medicationInputs[dialog.id].name === 'Amoxicillin 500mg' && 'Take 1 capsule'}
-                      </td>
-                      <td className="border p-2">
-                        {medicationInputs[dialog.id].name === 'Aspirin 81mg' && 'Daily'}
-                        {medicationInputs[dialog.id].name === 'Lisinopril 10mg' && 'Daily'}
-                        {medicationInputs[dialog.id].name === 'Metformin 500mg' && 'Twice daily'}
-                        {medicationInputs[dialog.id].name === 'Ibuprofen 200mg' && 'Every 6-8 hours as needed'}
-                        {medicationInputs[dialog.id].name === 'Amoxicillin 500mg' && 'Three times daily'}
-                      </td>
-                    </tr>
+            {dialog.type === 'medication' && (
+              <Dialog open={true} onOpenChange={() => closeFloatingDialog(dialog.id)}>
+                <DialogContent className="sm:max-w-4xl p-0">
+                  <div className="bg-sky-100 p-3 text-xs text-sky-700 flex flex-wrap items-center gap-x-6 gap-y-1">
+                    <span>Patient ID: 80000035</span>
+                    <span>Name: Anonymous Two</span>
+                    <span>Age: 69 Years</span>
+                    <span>Sex: MALE</span>
+                    <span>Patient Type: In Patient</span>
+                  </div>
+                  <div className="p-4 flex gap-4 items-end">
+                    <div className="flex-1 relative">
+                      <label className="block text-sm font-medium">Medication Name</label>
+                      <Input
+                        value={medSearch}
+                        onChange={(e) => {
+                          setMedSearch(e.target.value);
+                          setDropdownOpen(true);
+                          setFilteredMeds(
+                            MEDICATIONS.filter((med) =>
+                              med.toLowerCase().includes(e.target.value.toLowerCase())
+                            )
+                          );
+                        }}
+                        onFocus={() => setDropdownOpen(true)}
+                        onBlur={() => setTimeout(() => setDropdownOpen(false), 120)}
+                        className="w-full"
+                        placeholder="Type to search..."
+                        autoComplete="off"
+                      />
+                      {dropdownOpen && medSearch && (
+                        <div className="border rounded bg-white max-h-48 overflow-y-auto absolute z-20 w-full">
+                          {filteredMeds.length === 0 ? (
+                            <div className="p-2 text-muted-foreground">No medication found.</div>
+                          ) : (
+                            filteredMeds.map((med) => (
+                              <div
+                                key={med}
+                                className="p-2 hover:bg-sky-100 cursor-pointer"
+                                onMouseDown={() => handleSelectMed(med)}
+                              >
+                                {med}
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium">Quick Order</label>
+                      <Input
+                        value={quickOrder}
+                        onChange={(e) => setQuickOrder(e.target.value)}
+                        className="w-full"
+                        placeholder=""
+                      />
+                    </div>
+                    <Button type="button" className="bg-yellow-500 hover:bg-yellow-600 text-white h-9 text-xs">
+                      Edit Quick List
+                    </Button>
+                  </div>
+                  {selectedRows.length > 0 && (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full mt-2 border">
+                        <thead className="bg-sky-100 text-xs font-light " >
+                          <tr>
+                            <th className="px-2 py-1">Medicine Name</th>
+                            <th className="px-2 py-1">Dosage</th>
+                            <th className="px-2 py-1">Route</th>
+                            <th className="px-2 py-1">Schedule</th>
+                            <th className="px-2 py-1">PRN</th>
+                            <th className="px-2 py-1">Duration</th>
+                            <th className="px-2 py-1">Priority</th>
+                            <th className="px-2 py-1">Additional Dose Now</th>
+                            <th className="px-2 py-1">Comment</th>
+                            <th className="px-2 py-1">Remove</th>
+                            <th className="px-2 py-1">Save Quick Order</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedRows.map((row, idx) => (
+                            <tr key={row.medicationName}>
+                              <td className="px-2 py-1">{row.medicationName}</td>
+                              <td className="px-2 py-1">
+                                <Input
+                                  value={row.dosage}
+                                  onChange={(e) => handleRowChange(idx, 'dosage', e.target.value)}
+                                  className="w-20"
+                                />
+                              </td>
+                              <td className="px-2 py-1">
+                                <Select
+                                  value={row.route}
+                                  onValueChange={(val) => handleRowChange(idx, 'route', val)}
+                                >
+                                  <SelectTrigger className="w-24 h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ROUTES.map((route) => (
+                                      <SelectItem value={route} key={route}>
+                                        {route}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="px-2 py-1">
+                                <Select
+                                  value={row.schedule}
+                                  onValueChange={(val) => handleRowChange(idx, 'schedule', val)}
+                                >
+                                  <SelectTrigger className="w-24 h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {SCHEDULES.map((schedule) => (
+                                      <SelectItem value={schedule} key={schedule}>
+                                        {schedule}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="px-2 py-1 text-center">
+                                <Checkbox
+                                  checked={row.prn}
+                                  onCheckedChange={(val) => handleRowChange(idx, 'prn', val)}
+                                />
+                              </td>
+                              <td className="px-2 py-1 flex items-center">
+                                <Input
+                                  type="number"
+                                  value={row.duration}
+                                  onChange={(e) => handleRowChange(idx, 'duration', e.target.value)}
+                                  className="w-12"
+                                />
+                                <Select
+                                  value={row.durationUnit}
+                                  onValueChange={(val) => handleRowChange(idx, 'durationUnit', val)}
+                                >
+                                  <SelectTrigger className="w-16 h-8 ml-1">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="days">days</SelectItem>
+                                    <SelectItem value="weeks">weeks</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="px-2 py-1">
+                                <Select
+                                  value={row.priority}
+                                  onValueChange={(val) => handleRowChange(idx, 'priority', val)}
+                                >
+                                  <SelectTrigger className="w-24 h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {PRIORITIES.map((priority) => (
+                                      <SelectItem value={priority} key={priority}>
+                                        {priority}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="px-2 py-1 text-center">
+                                <Checkbox
+                                  checked={row.additionalDoseNow}
+                                  onCheckedChange={(val) => handleRowChange(idx, 'additionalDoseNow', val)}
+                                />
+                              </td>
+                              <td className="px-2 py-1">
+                                <Input
+                                  value={row.comment}
+                                  onChange={(e) => handleRowChange(idx, 'comment', e.target.value)}
+                                  className="w-28"
+                                />
+                              </td>
+                              <td className="px-2 py-1 text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveRow(idx)}
+                                >
+                                  ❌
+                                </Button>
+                              </td>
+                              <td className="px-2 py-1 text-center">
+                                <Button variant="ghost" size="icon">
+                                  💾
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
-                  {medicationInputs[dialog.id]?.amount && medicationInputs[dialog.id].amount !== medicationInputs[dialog.id].name && (
-                    <tr>
-                      <td className="border p-2">{medicationInputs[dialog.id].amount}</td>
-                      <td className="border p-2">
-                        {medicationInputs[dialog.id].amount === 'Aspirin 81mg' && 'Take 1 tablet'}
-                        {medicationInputs[dialog.id].amount === 'Lisinopril 10mg' && 'Take 1 tablet'}
-                        {medicationInputs[dialog.id].amount === 'Metformin 500mg' && 'Take 1 tablet'}
-                        {medicationInputs[dialog.id].amount === 'Ibuprofen 200mg' && 'Take 1-2 tablets'}
-                        {medicationInputs[dialog.id].amount === 'Amoxicillin 500mg' && 'Take 1 capsule'}
-                      </td>
-                      <td className="border p-2">
-                        {medicationInputs[dialog.id].amount === 'Aspirin 81mg' && 'Daily'}
-                        {medicationInputs[dialog.id].amount === 'Lisinopril 10mg' && 'Daily'}
-                        {medicationInputs[dialog.id].amount === 'Metformin 500mg' && 'Twice daily'}
-                        {medicationInputs[dialog.id].amount === 'Ibuprofen 200mg' && 'Every 6-8 hours as needed'}
-                        {medicationInputs[dialog.id].amount === 'Amoxicillin 500mg' && 'Three times daily'}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <div className="flex justify-center gap-2 mt-4">
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => handleAddMedication(dialog.id)}>
-              Confirm Order
-            </Button>
-            <Button
-              variant="secondary"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              onClick={() => setMedicationInputs((prev) => ({
-                ...prev,
-                [dialog.id]: { name: '', amount: '' },
-              }))}
-            >
-              Reset
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              onClick={() => closeFloatingDialog(dialog.id)}
-            >
-              Close
-            </Button>
-          </div>
-        </div>
-      )}
-
-
+                  <div className="flex justify-end gap-2 p-4">
+                    <Button
+                      onClick={() => {
+                        selectedRows.forEach((row) => {
+                          const newMed: Medication = {
+                            id: Date.now().toString(),
+                            name: row.medicationName,
+                            reason: row.comment || 'General',
+                            amount: row.dosage || 'N/A',
+                            timing: row.schedule || 'N/A',
+                            status: 'Active',
+                          };
+                          setMedications((prev) => [newMed, ...prev]);
+                        });
+                        toast.success('Medications added successfully!');
+                        closeFloatingDialog(dialog.id);
+                      }}
+                    >
+                      Confirm Order
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setSelectedRows([])}
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => closeFloatingDialog(dialog.id)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+            {dialog.type === 'radiology' && (
+              <div className="flex flex-col gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-sm">
+                  <div><span className="font-semibold">Patient ID:</span> 800000035</div>
+                  <div><span className="font-semibold">Name:</span> Anonymous Two</div>
+                  <div><span className="font-semibold">Age:</span> 69 Years</div>
+                  <div><span className="font-semibold">Sex:</span> MALE</div>
+                  <div className="md:col-span-2"><span className="font-semibold">Patient Type:</span> In Patient</div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <Label className="w-[120px] min-w-[120px]">Imaging Type</Label>
+                    <Select
+                      value={radiologyInputs[dialog.id]?.type || ''}
+                      onValueChange={(value) =>
+                        setRadiologyInputs((prev) => ({
+                          ...prev,
+                          [dialog.id]: { ...prev[dialog.id], type: value },
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select test" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="X-Ray">X-Ray</SelectItem>
+                        <SelectItem value="MRI">MRI</SelectItem>
+                        <SelectItem value="CT Scan">CT Scan</SelectItem>
+                        <SelectItem value="Ultrasound">Ultrasound</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label className="w-[120px] min-w-[120px]">Body Part</Label>
+                    <Input
+                      value={radiologyInputs[dialog.id]?.bodyPart || ''}
+                      onChange={(e) =>
+                        setRadiologyInputs((prev) => ({
+                          ...prev,
+                          [dialog.id]: { ...prev[dialog.id], bodyPart: e.target.value },
+                        }))
+                      }
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>Notes</Label>
+                  <Textarea
+                    value={radiologyInputs[dialog.id]?.notes || ''}
+                    onChange={(e) =>
+                      setRadiologyInputs((prev) => ({
+                        ...prev,
+                        [dialog.id]: { ...prev[dialog.id], notes: e.target.value },
+                      }))
+                    }
+                    className="flex-1 min-h-[80px]"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    onClick={() => {
+                      toast.success('Radiology order placed!');
+                      closeFloatingDialog(dialog.id);
+                    }}
+                  >
+                    Confirm Order
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      setRadiologyInputs((prev) => ({
+                        ...prev,
+                        [dialog.id]: { type: '', bodyPart: '', notes: '' },
+                      }))
+                    }
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => closeFloatingDialog(dialog.id)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+            {dialog.type === 'report' && (
+              <div className="flex flex-col gap-4 text-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Report Search</Label>
+                    <Input
+                      value={reportInputs[dialog.id]?.search || ''}
+                      onChange={(e) =>
+                        setReportInputs((prev) => ({
+                          ...prev,
+                          [dialog.id]: { ...prev[dialog.id], search: e.target.value },
+                        }))
+                      }
+                    />
+                    <div className="mt-2 border p-2 h-32 overflow-y-auto text-sm">
+                      {['LIVER FUNCTION TEST', 'DSDNA AB', 'THYROID PANEL']
+                        .filter((test) => test.toLowerCase().includes((reportInputs[dialog.id]?.search || '').toLowerCase()))
+                        .map((test, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Checkbox
+                              checked={reportInputs[dialog.id]?.selected.includes(test)}
+                              onCheckedChange={(checked) => {
+                                setReportInputs((prev) => {
+                                  const current = prev[dialog.id]?.selected || [];
+                                  return {
+                                    ...prev,
+                                    [dialog.id]: {
+                                      ...prev[dialog.id],
+                                      selected: checked
+                                        ? [...current, test]
+                                        : current.filter((item) => item !== test),
+                                    },
+                                  };
+                                });
+                              }}
+                            />
+                            <span>{test}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Quick Orders</Label>
+                    <Input
+                      value={reportInputs[dialog.id]?.quickSearch || ''}
+                      onChange={(e) =>
+                        setReportInputs((prev) => ({
+                          ...prev,
+                          [dialog.id]: { ...prev[dialog.id], quickSearch: e.target.value },
+                        }))
+                      }
+                    />
+                    <div className="mt-2 border p-2 h-32 overflow-y-auto text-sm">
+                      {['BLOOD SUGAR', 'CBC', 'ESR']
+                        .filter((q) => q.toLowerCase().includes((reportInputs[dialog.id]?.quickSearch || '').toLowerCase()))
+                        .map((q, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Checkbox
+                              checked={reportInputs[dialog.id]?.selected.includes(q)}
+                              onCheckedChange={(checked) => {
+                                setReportInputs((prev) => {
+                                  const current = prev[dialog.id]?.selected || [];
+                                  return {
+                                    ...prev,
+                                    [dialog.id]: {
+                                      ...prev[dialog.id],
+                                      selected: checked
+                                        ? [...current, q]
+                                        : current.filter((item) => item !== q),
+                                    },
+                                  };
+                                });
+                              }}
+                            />
+                            <span>{q}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    onClick={() => {
+                      toast.success('Report order confirmed');
+                      closeFloatingDialog(dialog.id);
+                    }}
+                  >
+                    Confirm Order
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() =>
+                      setReportInputs((prev) => ({
+                        ...prev,
+                        [dialog.id]: { search: '', quickSearch: '', selected: [] },
+                      }))
+                    }
+                  >
+                    Reset
+                  </Button>
+                  <Button variant="outline" onClick={() => closeFloatingDialog(dialog.id)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
             {dialog.type === 'allergies' && (
               <div className="flex flex-col gap-4 text-sm">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1207,7 +1594,7 @@ export default function DashboardPage(): JSX.Element {
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <Label htmlFor={`reaction-${dialog.id}`} className="w-[120px] min-w-[120px]">Reaction</Label>
+                  <Label htmlFor={`type-${dialog.id}`} className="w-[120px] min-w-[120px]">Imaging Type</Label>
                     <Input
                       id={`reaction-${dialog.id}`}
                       value={allergyInputs[dialog.id]?.reaction}
@@ -1308,7 +1695,6 @@ export default function DashboardPage(): JSX.Element {
                 </div>
               </div>
             )}
-
             {dialog.type === 'info-item' && (
               <div className="grid gap-4">
                 <div className="grid grid-cols-4 items-center gap-4 text-sm">
@@ -1335,3 +1721,5 @@ export default function DashboardPage(): JSX.Element {
     </div>
   );
 }
+
+    

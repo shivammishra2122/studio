@@ -877,6 +877,8 @@ const ChiefComplaintsView = () => {
   const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
   const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
   const [searchValue, setSearchValueState] = useState<string>("");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
 
   const tableHeaders = ["S.No", "Complaints", "Complaints Type", "Date", "Status", "Remark"];
 
@@ -885,9 +887,15 @@ const ChiefComplaintsView = () => {
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">Chief-Complaints</CardTitle>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
-            <Edit3 className="h-4 w-4" />
-          </Button>
+          <Button
+  variant="ghost"
+  size="icon"
+  className="h-7 w-7 text-primary hover:bg-muted/50"
+  onClick={() => setIsPopupOpen(true)}
+>
+  <Edit3 className="h-4 w-4" />
+</Button>
+
         </div>
       </CardHeader>
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
@@ -963,6 +971,49 @@ const ChiefComplaintsView = () => {
       <div className="flex items-center justify-center p-2.5 border-t">
         <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Chief Complaints</Button>
       </div>
+      {isPopupOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="bg-white rounded-lg shadow-xl w-[500px] p-5 relative">
+      <button
+        className="absolute top-2 right-2 text-gray-500 hover:text-black"
+        onClick={() => setIsPopupOpen(false)}
+      >
+        ✖
+      </button>
+      <h2 className="text-base font-semibold mb-4">Edit Chief Complaint</h2>
+      <form className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Complaint</label>
+          <input
+            type="text"
+            placeholder="E.g. Headache"
+            className="mt-1 block w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Type</label>
+          <select className="mt-1 block w-full px-3 py-2 border rounded text-sm">
+            <option>New</option>
+            <option>Follow-up</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Remark</label>
+          <textarea
+            placeholder="Optional remarks"
+            className="mt-1 block w-full px-3 py-2 border rounded text-sm"
+            rows={3}
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button type="button" variant="outline" onClick={() => setIsPopupOpen(false)}>Cancel</Button>
+          <Button type="submit">Save</Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
     </Card>
   );
 };

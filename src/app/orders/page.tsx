@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, Dial
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'; 
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'; 
 import { cn } from '@/lib/utils'; 
+import IpMedicationOrderDialog from './IpMedicationOrderDialog';
 
 // Navigation items
 const orderSubNavItems = [
