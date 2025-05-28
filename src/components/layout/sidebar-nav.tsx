@@ -104,7 +104,8 @@ export function SidebarNav() {
                 key={action.label}
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded"
+                
+                className="h-4 w-8 rounded"
                 style={{
                   color: twHsl('--sidebar-foreground'),
                 }}
@@ -137,7 +138,7 @@ export function SidebarNav() {
  >{patientNameDisplay}</span>
             </p>
             <p className="text-xs leading-tight opacity-80">
-              UID: {patient.uid || 'N/A'}
+              UHID: {patient.uid || '900752869578'}
             </p>
           </div>
 
