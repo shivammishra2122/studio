@@ -120,7 +120,7 @@ export function SidebarNav() {
         </div>
           <div className="mb-2 flex flex-col items-center text-center"> {/* Reduced mb for tighter spacing before buttons */}
             <Avatar
-              className="h-14 w-14 border-2 mb-1.5"
+              className="h-14 w-14 border-1 border-solid mb-1.5"
               style={{ borderColor: twHsl('--sidebar-accent') }}
             >
               <AvatarImage src={patient.avatarUrl} alt={patient.name || 'Patient Avatar'} />
@@ -157,7 +157,7 @@ export function SidebarNav() {
             <div key={section.title || `section-${sectionIndex}`}>
               {section.title && ( // Only render title if it exists
                 <h3
-                  className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide px-0.5 opacity-70"
+                  className="mb-1.5 text-[11px]  uppercase tracking-wide px-0.5 opacity-100"
                 >
                   {section.title}
                 </h3>
