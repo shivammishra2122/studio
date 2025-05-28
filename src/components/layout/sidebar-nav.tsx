@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SidebarContent } from '@/components/ui/sidebar'; // Your custom styled Sidebar
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import PatientDetailsProps from '@/components/layout/patient-details-sidebar';
 import {
   Phone,
   CalendarDays,

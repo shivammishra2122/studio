@@ -16,8 +16,7 @@ import { Switch } from "@/components/ui/switch";
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
-  "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
-];
+  "Chief-Complaints", "Allergies", "OPD/IPD Details"]
 
 const vitalTypes = [
   "B/P (mmHg)", "Temp (F)", "Resp (/min)", "Pulse (/min)",
@@ -480,6 +479,20 @@ const VitalsView = () => {
 const IntakeOutputView = () => {
   const [fromDateValue, setFromDateValue] = useState<string>("05/16/2025 14:5");
   const [toDateValueState, setToDateValueState] = useState<string>("05/17/2025 14:5");
+  const [isIntakeOutputEntryMode, setIsIntakeOutputEntryMode] = useState<boolean>(false);
+  const [intakeOutputEntryData, setIntakeOutputEntryData] = useState({
+    ivFluids: '',
+    bloodProduct: '',
+    po: '',
+    tubeFeeding: '',
+    infusion: '',
+    other: '',
+    urine: '',
+    ng: '',
+    emesis: '',
+    drainage: '',
+    faeces: ''
+  });
 
   const mockIntakeOutputChartData = [
     { name: '08:00', series1: 400, series2: 240 }, { name: '10:00', series1: 300, series2: 139 },
@@ -491,6 +504,10 @@ const IntakeOutputView = () => {
   const inputHeaders = ["IV FLUID", "BLOOD PRODUCT", "PO", "TUBE FEEDING", "INFUSION", "OTHER"];
   const outputHeaders = ["URINE", "N/G", "EMESIS", "DRAINAGE", "FAECES"];
 
+  const handleIntakeOutputEntryChange = (field: keyof typeof intakeOutputEntryData, value: string) => {
+    setIntakeOutputEntryData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="flex-1 w-[95%] flex justify-between gap-3 overflow-auto">
       <div className="flex-[6] flex flex-col border rounded-md bg-card shadow overflow-hidden">
@@ -500,71 +517,162 @@ const IntakeOutputView = () => {
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
               <RefreshCw className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-primary hover:bg-muted/50"
+              onClick={() => setIsIntakeOutputEntryMode(!isIntakeOutputEntryMode)}
+            >
               <Edit3 className="h-4 w-4" />
             </Button>
           </div>
         </div>
-        <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
-          <Label htmlFor="intakeFromDate" className="shrink-0">From Date</Label>
-          <div className="relative">
-            <Input id="intakeFromDate" type="text" value={fromDateValue} onChange={(e) => setFromDateValue(e.target.value)} className="h-8 w-36 text-xs pr-8" />
-            <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
-              <CalendarDays className="h-4 w-4" />
-            </Button>
-          </div>
-          <Label htmlFor="intakeToDate" className="shrink-0">To Date</Label>
-          <div className="relative">
-            <Input id="intakeToDate" type="text" value={toDateValueState} onChange={(e) => setToDateValueState(e.target.value)} className="h-8 w-36 text-xs pr-8" />
-            <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
-              <CalendarDays className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-xs border-collapse min-w-[60rem]">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-accent text-foreground">
-                <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
-                <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
-              </tr>
-              <tr className="bg-accent text-foreground">
-                {inputHeaders.map(header => (
-                  <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent">
-                    {header.split(" ")[0]}<br />{header.split(" ")[1] || ""}
-                  </th>
-                ))}
-                {outputHeaders.map(header => (
-                  <th key={header} className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent">{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-card">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rowNum, index) => (
-                <TableRow key={`data-row-${rowNum}`} className={`${index % 2 === 0 ? 'bg-muted/30' : ''} hover:bg-muted/50`}>
-                  {inputHeaders.map(header => <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
-                  {outputHeaders.map(header => <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>)}
-                </TableRow>
-              ))}
-              <TableRow className="bg-muted/30 sticky bottom-0 z-10">
-                <TableCell colSpan={inputHeaders.length} className="p-1.5 border text-left">Total:</TableCell>
-                <TableCell colSpan={outputHeaders.length} className="p-1.5 border text-left"></TableCell>
-              </TableRow>
-            </tbody>
-          </table>
-        </div>
-        <div className="p-2 border-t text-xs space-y-1">
-          <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
-          <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
-          <div className="flex justify-between"><span>Total Balanced Measured:</span><span> ml</span></div>
-          <div className="text-primary text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
-        </div>
-        <div className="flex items-center justify-center space-x-2 p-2 border-t">
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Intake</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Output</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Intake</Button>
-          <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Output</Button>
-        </div>
+        {isIntakeOutputEntryMode ? (
+          <>
+            <ScrollArea className="flex-1 min-h-0">
+              <Table className="text-xs">
+                <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+                  <TableRow>
+                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Category</TableHead>
+                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Value (ml)</TableHead>
+                  </TableRow>
+                </ShadcnTableHeader>
+                <TableBody>
+                  {inputHeaders.map((header, index) => (
+                    <TableRow key={header} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                      <TableCell className="py-1.5 px-3">{header}</TableCell>
+                      <TableCell className="py-1.5 px-3">
+                        <Input
+                          type="text"
+                          className="h-7 text-xs w-20"
+                          value={intakeOutputEntryData[inputHeaders[index].toLowerCase().replace(' ', '') as keyof typeof intakeOutputEntryData]}
+                          onChange={e => handleIntakeOutputEntryChange(inputHeaders[index].toLowerCase().replace(' ', '') as keyof typeof intakeOutputEntryData, e.target.value)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {outputHeaders.map((header, index) => (
+                    <TableRow key={header} className={(index + inputHeaders.length) % 2 === 0 ? 'bg-muted/30' : ''}>
+                      <TableCell className="py-1.5 px-3">{header}</TableCell>
+                      <TableCell className="py-1.5 px-3">
+                        <Input
+                          type="text"
+                          className="h-7 text-xs w-20"
+                          value={intakeOutputEntryData[outputHeaders[index].toLowerCase().replace('/', '') as keyof typeof intakeOutputEntryData]}
+                          onChange={e => handleIntakeOutputEntryChange(outputHeaders[index].toLowerCase().replace('/', '') as keyof typeof intakeOutputEntryData, e.target.value)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+            <div className="flex justify-end space-x-2 mt-auto p-2 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8"
+                onClick={() => setIsIntakeOutputEntryMode(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => {
+                  setIsIntakeOutputEntryMode(false);
+                  // TODO: Save logic
+                }}
+              >
+                Save
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
+              <Label htmlFor="intakeFromDate" className="shrink-0">From Date</Label>
+              <div className="relative">
+                <Input
+                  id="intakeFromDate"
+                  type="text"
+                  value={fromDateValue}
+                  onChange={(e) => setFromDateValue(e.target.value)}
+                  className="h-8 w-36 text-xs pr-8"
+                />
+                <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+                  <CalendarDays className="h-4 w-4" />
+                </Button>
+              </div>
+              <Label htmlFor="intakeToDate" className="shrink-0">To Date</Label>
+              <div className="relative">
+                <Input
+                  id="intakeToDate"
+                  type="text"
+                  value={toDateValueState}
+                  onChange={(e) => setToDateValueState(e.target.value)}
+                  className="h-8 w-36 text-xs pr-8"
+                />
+                <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+                  <CalendarDays className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-xs border-collapse min-w-[60rem]">
+                <thead className="sticky top-0 z-10">
+                  <tr className="bg-accent text-foreground">
+                    <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
+                    <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
+                  </tr>
+                  <tr className="bg-accent text-foreground">
+                    {inputHeaders.map(header => (
+                      <th
+                        key={header}
+                        className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
+                      >
+                        {header.split(" ")[0]}<br />{header.split(" ")[1] || ""}
+                      </th>
+                    ))}
+                    {outputHeaders.map(header => (
+                      <th
+                        key={header}
+                        className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
+                      >
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-card">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rowNum, index) => (
+                    <TableRow key={`data-row-${rowNum}`} className={`${index % 2 === 0 ? 'bg-muted/30' : ''} hover:bg-muted/50`}>
+                      {inputHeaders.map(header => (
+                        <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>
+                      ))}
+                      {outputHeaders.map(header => (
+                        <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                
+                </tbody>
+              </table>
+            </div>
+            <div className="p-2 border-t text-xs space-y-1">
+              <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
+              <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
+              <div className="flex justify-between"><span>Total Balanced Measured:</span><span> ml</span></div>
+              <div className="text-primary text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
+            </div>
+            <div className="flex items-center justify-center space-x-2 p-2 border-t">
+              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Intake</Button>
+              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Output</Button>
+              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Intake</Button>
+              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Output</Button>
+            </div>
+          </>
+        )}
       </div>
       <div className="flex-[4] flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
@@ -1079,7 +1187,7 @@ const VitalsDashboardPage: NextPage = () => {
         {activeVerticalTab === "OPD/IPD Details" && <OpdIpdDetailsView />}
         {![
           "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
-          "Chief-Complaints", "Allergies", "OPD/IPD Details", "Orders", "Clinical Notes"
+          "Chief-Complaints", "Allergies", "OPD/IPD Details"
         ].includes(activeVerticalTab) && (
           <Card className="flex-1 flex items-center justify-center">
             <CardContent className="text-center">
