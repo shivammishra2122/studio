@@ -193,7 +193,7 @@ export default function DashboardPage(): JSX.Element {
         id,
         type,
         title,
-        position: { x: -50 + prev.length * 20, y: -50 + prev.length * 20 },
+        position: { x: 0 , y: 0  },
         data,
       },
     ]);
@@ -847,11 +847,11 @@ export default function DashboardPage(): JSX.Element {
         <div
           key={dialog.id}
           ref={(el) => { dialogRefs.current[dialog.id] = el; }}
-          className="fixed bg-background border rounded-lg shadow-xl max-h-[90vh] overflow-y-auto sm:w-[90%] sm:max-w-[1000px] z-50"
+          className="fixed bg-background border rounded-lg shadow-xl max-h-[90vh] overflow-y-auto sm:w-[45%] sm:max-w-[1000px] z-50"
           style={{
             left: '50%',
             top: '50%',
-            transform: `translate(${dialog.position.x}px, ${dialog.position.y}px)`,
+            transform: `translate(-50%, -50%) translate(${dialog.position.x}px, ${dialog.position.y}px)`,
           }}
           onKeyDown={(e) => handleKeyDown(dialog.id, e)}
           tabIndex={0}
@@ -1047,89 +1047,149 @@ export default function DashboardPage(): JSX.Element {
               </div>
             )}
 
-            {dialog.type === 'medication' && (
-              <div className="flex flex-col gap-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-sm">
-                  <div><span className="font-semibold">Patient ID:</span> 800000035</div>
-                  <div><span className="font-semibold">Name:</span> Anonymous Two</div>
-                  <div><span className="font-semibold">Age:</span> 69 Years</div>
-                  <div><span className="font-semibold">Sex:</span> MALE</div>
-                  <div className="md:col-span-2"><span className="font-semibold">Patient Type:</span> In Patient</div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`medicationName-${dialog.id}`} className="w-[120px] min-w-[120px]">Medication Name</Label>
-                    <Input
-                      id={`medicationName-${dialog.id}`}
-                      value={medicationInputs[dialog.id]?.name}
-                      onChange={(e) => setMedicationInputs((prev) => ({
-                        ...prev,
-                        [dialog.id]: { ...prev[dialog.id], name: e.target.value },
-                      }))}
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`medicationReason-${dialog.id}`} className="w-[120px] min-w-[120px]">Reason</Label>
-                    <Input
-                      id={`medicationReason-${dialog.id}`}
-                      value={medicationInputs[dialog.id]?.reason}
-                      onChange={(e) => setMedicationInputs((prev) => ({
-                        ...prev,
-                        [dialog.id]: { ...prev[dialog.id], reason: e.target.value },
-                      }))}
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`medicationAmount-${dialog.id}`} className="w-[120px] min-w-[120px]">Amount</Label>
-                    <Input
-                      id={`medicationAmount-${dialog.id}`}
-                      value={medicationInputs[dialog.id]?.amount}
-                      onChange={(e) => setMedicationInputs((prev) => ({
-                        ...prev,
-                        [dialog.id]: { ...prev[dialog.id], amount: e.target.value },
-                      }))}
-                      className="flex-1"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`medicationTiming-${dialog.id}`} className="w-[120px] min-w-[120px]">Timing</Label>
-                    <Input
-                      id={`medicationTiming-${dialog.id}`}
-                      value={medicationInputs[dialog.id]?.timing}
-                      onChange={(e) => setMedicationInputs((prev) => ({
-                        ...prev,
-                        [dialog.id]: { ...prev[dialog.id], timing: e.target.value },
-                      }))}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-center gap-2 mt-4">
-                  <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => handleAddMedication(dialog.id)}>
-                    Confirm Order
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                    onClick={() => setMedicationInputs((prev) => ({
-                      ...prev,
-                      [dialog.id]: { name: '', reason: '', amount: '', timing: '' },
-                    }))}
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                    onClick={() => closeFloatingDialog(dialog.id)}
-                  >
-                    Close
-                  </Button>
-                </div>
-              </div>
-            )}
+{dialog.type === 'medication' && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 text-sm">
+            <div><span className="font-semibold">Patient ID:</span> 800000035</div>
+            <div><span className="font-semibold">Name:</span> Anonymous Two</div>
+            <div><span className="font-semibold">Age:</span> 69 Years</div>
+            <div><span className="font-semibold">Sex:</span> MALE</div>
+            <div className="md:col-span-2"><span className="font-semibold">Patient Type:</span> In Patient</div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Label htmlFor={`medicationName-${dialog.id}`} className="w-[120px] min-w-[120px]">Medication Name</Label>
+              <Select
+                value={medicationInputs[dialog.id]?.name}
+                onValueChange={(value) => setMedicationInputs((prev) => ({
+                  ...prev,
+                  [dialog.id]: { ...prev[dialog.id], name: value },
+                }))}
+              >
+                <SelectTrigger className="flex-1" id={`medicationName-${dialog.id}`}>
+                  <SelectValue placeholder="Select Medication" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aspirin 81mg">Aspirin 81mg</SelectItem>
+                  <SelectItem value="Lisinopril 10mg">Lisinopril 10mg</SelectItem>
+                  <SelectItem value="Metformin 500mg">Metformin 500mg</SelectItem>
+                  <SelectItem value="Ibuprofen 200mg">Ibuprofen 200mg</SelectItem>
+                  <SelectItem value="Amoxicillin 500mg">Amoxicillin 500mg</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor={`medicationQuickList-${dialog.id}`} className="w-[120px] min-w-[120px]">Quick List</Label>
+              <Select
+                value={medicationInputs[dialog.id]?.amount}
+                onValueChange={(value) => setMedicationInputs((prev) => ({
+                  ...prev,
+                  [dialog.id]: { ...prev[dialog.id], amount: value },
+                }))}
+              >
+                <SelectTrigger className="flex-1" id={`medicationQuickList-${dialog.id}`}>
+                  <SelectValue placeholder="Select Medication" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aspirin 81mg">Aspirin 81mg</SelectItem>
+                  <SelectItem value="Lisinopril 10mg">Lisinopril 10mg</SelectItem>
+                  <SelectItem value="Metformin 500mg">Metformin 500mg</SelectItem>
+                  <SelectItem value="Ibuprofen 200mg">Ibuprofen 200mg</SelectItem>
+                  <SelectItem value="Amoxicillin 500mg">Amoxicillin 500mg</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Table for Selected Medications */}
+          {(medicationInputs[dialog.id]?.name || medicationInputs[dialog.id]?.amount) && (
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold mb-2">Selected Medications</h3>
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="border p-2 text-left">Medication Name</th>
+                    <th className="border p-2 text-left">Dosage </th>
+                    <th className="border p-2 text-left">Route</th>
+                    <th className="border p-2 text-left">schedule </th>
+                    <th className="border p-2 text-left">PRN</th>
+                    <th className="border p-2 text-left">Duration </th>
+                    <th className="border p-2 text-left">Priority</th>
+                    <th className="border p-2 text-left">Additional</th>
+                    <th className="border p-2 text-left">Dose Now Comment</th>
+                    <th className="border p-2 text-left">Save Quick Order</th>
+                    <th className="border p-2 text-left">Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {medicationInputs[dialog.id]?.name && (
+                    <tr>
+                      <td className="border p-2">{medicationInputs[dialog.id].name}</td>
+                      <td className="border p-2">
+                        {medicationInputs[dialog.id].name === 'Aspirin 81mg' && 'Take 1 tablet'}
+                        {medicationInputs[dialog.id].name === 'Lisinopril 10mg' && 'Take 1 tablet'}
+                        {medicationInputs[dialog.id].name === 'Metformin 500mg' && 'Take 1 tablet'}
+                        {medicationInputs[dialog.id].name === 'Ibuprofen 200mg' && 'Take 1-2 tablets'}
+                        {medicationInputs[dialog.id].name === 'Amoxicillin 500mg' && 'Take 1 capsule'}
+                      </td>
+                      <td className="border p-2">
+                        {medicationInputs[dialog.id].name === 'Aspirin 81mg' && 'Daily'}
+                        {medicationInputs[dialog.id].name === 'Lisinopril 10mg' && 'Daily'}
+                        {medicationInputs[dialog.id].name === 'Metformin 500mg' && 'Twice daily'}
+                        {medicationInputs[dialog.id].name === 'Ibuprofen 200mg' && 'Every 6-8 hours as needed'}
+                        {medicationInputs[dialog.id].name === 'Amoxicillin 500mg' && 'Three times daily'}
+                      </td>
+                    </tr>
+                  )}
+                  {medicationInputs[dialog.id]?.amount && medicationInputs[dialog.id].amount !== medicationInputs[dialog.id].name && (
+                    <tr>
+                      <td className="border p-2">{medicationInputs[dialog.id].amount}</td>
+                      <td className="border p-2">
+                        {medicationInputs[dialog.id].amount === 'Aspirin 81mg' && 'Take 1 tablet'}
+                        {medicationInputs[dialog.id].amount === 'Lisinopril 10mg' && 'Take 1 tablet'}
+                        {medicationInputs[dialog.id].amount === 'Metformin 500mg' && 'Take 1 tablet'}
+                        {medicationInputs[dialog.id].amount === 'Ibuprofen 200mg' && 'Take 1-2 tablets'}
+                        {medicationInputs[dialog.id].amount === 'Amoxicillin 500mg' && 'Take 1 capsule'}
+                      </td>
+                      <td className="border p-2">
+                        {medicationInputs[dialog.id].amount === 'Aspirin 81mg' && 'Daily'}
+                        {medicationInputs[dialog.id].amount === 'Lisinopril 10mg' && 'Daily'}
+                        {medicationInputs[dialog.id].amount === 'Metformin 500mg' && 'Twice daily'}
+                        {medicationInputs[dialog.id].amount === 'Ibuprofen 200mg' && 'Every 6-8 hours as needed'}
+                        {medicationInputs[dialog.id].amount === 'Amoxicillin 500mg' && 'Three times daily'}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="flex justify-center gap-2 mt-4">
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => handleAddMedication(dialog.id)}>
+              Confirm Order
+            </Button>
+            <Button
+              variant="secondary"
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+              onClick={() => setMedicationInputs((prev) => ({
+                ...prev,
+                [dialog.id]: { name: '', amount: '' },
+              }))}
+            >
+              Reset
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+              onClick={() => closeFloatingDialog(dialog.id)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
+
 
             {dialog.type === 'allergies' && (
               <div className="flex flex-col gap-4 text-sm">
