@@ -472,14 +472,32 @@ const VitalsView = () => {
 };
 
 const IntakeOutputView = () => {
-  const [fromDateValue, setFromDateValue] = useState<string>("05/16/2025 14:5");
-  const [toDateValueState, setToDateValueState] = useState<string>("05/17/2025 14:5");
+  const [fromDateValue, setFromDateValue] = useState<string>("05/16/2025 14:05");
+  const [toDateValueState, setToDateValueState] = useState<string>("05/17/2025 14:05");
   const [isIntakeOutputEntryMode, setIsIntakeOutputEntryMode] = useState<boolean>(false);
-  const [intakeOutputEntryData, setIntakeOutputEntryData] = useState({
-    ivFluids: '',
-    bloodProduct: '',
+  const [currentView, setCurrentView] = useState<string>('summary');
+
+  // Define a type for the intake/output data
+  type IntakeOutputData = {
+    ivfluid: string;
+    bloodproduct: string;
+    po: string;
+    tubefeeding: string;
+    infusion: string;
+    other: string;
+    urine: string;
+    ng: string;
+    emesis: string;
+    drainage: string;
+    faeces: string;
+    [key: string]: string; // Index signature to allow string indexing
+  };
+
+  const [intakeOutputEntryData, setIntakeOutputEntryData] = useState<IntakeOutputData>({
+    ivfluid: '',
+    bloodproduct: '',
     po: '',
-    tubeFeeding: '',
+    tubefeeding: '',
     infusion: '',
     other: '',
     urine: '',
@@ -489,185 +507,468 @@ const IntakeOutputView = () => {
     faeces: ''
   });
 
-  const mockIntakeOutputChartData = [
-    { name: '08:00', series1: 400, series2: 240 }, { name: '10:00', series1: 300, series2: 139 },
-    { name: '12:00', series1: 200, series2: 980 }, { name: '14:00', series1: 278, series2: 390 },
-    { name: '16:00', series1: 189, series2: 480 }, { name: '18:00', series1: 239, series2: 380 },
-    { name: '20:00', series1: 349, series2: 430 },
-  ];
-
   const inputHeaders = ["IV FLUID", "BLOOD PRODUCT", "PO", "TUBE FEEDING", "INFUSION", "OTHER"];
   const outputHeaders = ["URINE", "N/G", "EMESIS", "DRAINAGE", "FAECES"];
 
-  const handleIntakeOutputEntryChange = (field: keyof typeof intakeOutputEntryData, value: string) => {
-    setIntakeOutputEntryData(prev => ({ ...prev, [field]: value }));
+  const mockIntakeOutputChartData = [
+    { name: '08:00', series1: 400, series2: 240 },
+    { name: '10:00', series1: 300, series2: 139 },
+    { name: '12:00', series1: 200, series2: 980 },
+    { name: '14:00', series1: 278, series2: 390 },
+    { name: '16:00', series1: 189, series2: 480 },
+    { name: '18:00', series1: 239, series2: 380 },
+    { name: '20:00', series1: 349, series2: 430 },
+  ];
+
+  const handleIntakeOutputEntryChange = (key: keyof IntakeOutputData, value: string) => {
+    setIntakeOutputEntryData(prev => ({ ...prev, [key]: value }));
+  };
+
+  const IntakeOutputForm = ({ title, isIntake, isUpdate }: { title: string; isIntake: boolean; isUpdate: boolean }) => {
+    const [date, setDate] = useState('05/29/2025');
+    const [hour, setHour] = useState('10');
+    const [minute, setMinute] = useState('32');
+    const [second, setSecond] = useState('00');
+    const [type, setType] = useState('');
+    const [amount, setAmount] = useState('');
+
+    const handleSubmit = () => {
+      console.log(`${isUpdate ? 'Update' : 'Add'} ${isIntake ? 'Intake' : 'Output'}`, { date, time: `${hour}:${minute}:${second}`, type, amount });
+      setCurrentView('summary');
+    };
+
+    const handleReset = () => {
+      setDate('05/29/2025');
+      setHour('10');
+      setMinute('32');
+      setSecond('00');
+      setType('');
+      setAmount('');
+    };
+
+    return (
+      <div className="flex-1 flex flex-col">
+        <div className="p-2 border-b bg-card text-foreground">
+          <h2 className="text-base font-semibold">{title}</h2>
+        </div>
+        <div className="p-4 flex-1 flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <Label className="text-sm w-24">
+              {isIntake ? 'Intake Date' : 'Output Date'} <span className="text-red-500">*</span>
+            </Label>
+            <div className="relative flex-1">
+              <Input
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="h-8 text-sm"
+                placeholder="MM/DD/YYYY"
+              />
+              <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+                <CalendarDays className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Label className="text-sm w-24">
+              {isIntake ? 'Intake Time' : 'Output Time'}
+            </Label>
+            <div className="flex gap-2">
+              <Select value={hour} onValueChange={setHour}>
+                <SelectTrigger className="w-16 h-8 text-sm">
+                  <SelectValue placeholder="HH" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...Array(24)].map((_, i) => (
+                    <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                      {i.toString().padStart(2, '0')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={minute} onValueChange={setMinute}>
+                <SelectTrigger className="w-16 h-8 text-sm">
+                  <SelectValue placeholder="MM" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...Array(60)].map((_, i) => (
+                    <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                      {i.toString().padStart(2, '0')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={second} onValueChange={setSecond}>
+                <SelectTrigger className="w-16 h-8 text-sm">
+                  <SelectValue placeholder="SS" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[...Array(60)].map((_, i) => (
+                    <SelectItem key={i} value={i.toString().padStart(2, '0')}>
+                      {i.toString().padStart(2, '0')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Label className="text-sm w-24">
+              {isIntake ? 'Intake Type' : 'Output Type'} <span className="text-red-500">*</span>
+            </Label>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger className="h-8 text-sm flex-1">
+                <SelectValue placeholder="SELECT" />
+              </SelectTrigger>
+              <SelectContent>
+                {(isIntake ? inputHeaders : outputHeaders).map((header) => (
+                  <SelectItem key={header} value={header.toLowerCase().replace(' ', '')}>
+                    {header}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-4">
+            <Label className="text-sm w-24">
+              Amount <span className="text-red-500">*</span>
+            </Label>
+            <div className="flex items-center gap-2 flex-1">
+              <Input
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="h-8 text-sm"
+                placeholder="Enter amount"
+              />
+              <span className="text-sm">ml</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center gap-2 p-2 border-t">
+          <Button
+            size="sm"
+            className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
+            onClick={handleSubmit}
+          >
+            {isIntake ? (isUpdate ? 'Update Intake' : 'Add Intake') : (isUpdate ? 'Update Output' : 'Output Add')}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs h-8"
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs h-8"
+            onClick={() => setCurrentView('summary')}
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const IntakeOutputList = ({ title, isIntake }: { title: string; isIntake: boolean }) => {
+    return (
+      <div className="flex-1 flex flex-col">
+        <div className="p-2 border-b bg-card text-foreground">
+          <h2 className="text-base font-semibold">{title}</h2>
+        </div>
+        <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
+          <div className="flex items-center gap-2">
+            <input type="range" min="1" max="12" value="1" className="w-20" />
+            <span>1 Month</span>
+          </div>
+          <Label htmlFor="listFromDate" className="shrink-0 text-xs">From Date</Label>
+          <div className="relative">
+            <Input
+              id="listFromDate"
+              type="text"
+              value={fromDateValue}
+              onChange={(e) => setFromDateValue(e.target.value)}
+              className="h-8 w-36 text-xs pr-8"
+            />
+            <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+              <CalendarDays className="h-4 w-4" />
+            </Button>
+          </div>
+          <Label htmlFor="listToDate" className="shrink-0 text-xs">To Date</Label>
+          <div className="relative">
+            <Input
+              id="listToDate"
+              type="text"
+              value={toDateValueState}
+              onChange={(e) => setToDateValueState(e.target.value)}
+              className="h-8 w-36 text-xs pr-8"
+            />
+            <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+              <CalendarDays className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-xs">Show</Label>
+            <Select defaultValue="10">
+              <SelectTrigger className="w-16 h-8 text-xs">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-xs">entries</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-xs">Search:</Label>
+            <Input className="h-8 w-36 text-xs" placeholder="Search..." />
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto">
+          <table className="w-full text-xs border-collapse">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-accent text-foreground">
+                <th className="p-1.5 border font-xs text-center">UPDATE</th>
+                <th className="p-1.5 border font-xs text-center">{isIntake ? 'INTAKE DATE/TIME' : 'OUTPUT DATE/TIME'}</th>
+                <th className="p-1.5 border font-xs text-center">{isIntake ? 'INTAKE TYPE' : 'OUTPUT TYPE'}</th>
+                <th className="p-1.5 border font-xs text-center">HOSPITAL LOCATION</th>
+                <th className="p-1.5 border font-xs text-center">AMOUNT</th>
+                <th className="p-1.5 border font-xs text-center">ENTER BY</th>
+              </tr>
+            </thead>
+            <tbody className="bg-card">
+              <tr>
+                <td colSpan={6} className="p-4 text-center">No Data Found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="flex items-center justify-between p-2 border-t text-xs">
+          <span>Showing 0 to 0 of 0 entries</span>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="text-xs h-8">Previous</Button>
+            <Button size="sm" variant="outline" className="text-xs h-8">Next</Button>
+          </div>
+        </div>
+        <div className="flex justify-center p-2 border-t">
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs h-8"
+            onClick={() => setCurrentView('summary')}
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="flex-1 w-[95%] flex justify-between gap-3 overflow-auto">
       <div className="flex-[6] flex flex-col border rounded-md bg-card shadow overflow-hidden">
-        <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
-          <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
-          <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-primary hover:bg-muted/50"
-              onClick={() => setIsIntakeOutputEntryMode(!isIntakeOutputEntryMode)}
-            >
-              <Edit3 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        {isIntakeOutputEntryMode ? (
+        {currentView === 'summary' ? (
           <>
-            <ScrollArea className="flex-1 min-h-0">
-              <Table className="text-xs">
-                <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
-                  <TableRow>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Category</TableHead>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Value (ml)</TableHead>
-                  </TableRow>
-                </ShadcnTableHeader>
-                <TableBody>
-                  {inputHeaders.map((header, index) => (
-                    <TableRow key={header} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
-                      <TableCell className="py-1.5 px-3">{header}</TableCell>
-                      <TableCell className="py-1.5 px-3">
-                        <Input
-                          type="text"
-                          className="h-7 text-xs w-20"
-                          value={intakeOutputEntryData[inputHeaders[index].toLowerCase().replace(' ', '') as keyof typeof intakeOutputEntryData]}
-                          onChange={e => handleIntakeOutputEntryChange(inputHeaders[index].toLowerCase().replace(' ', '') as keyof typeof intakeOutputEntryData, e.target.value)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {outputHeaders.map((header, index) => (
-                    <TableRow key={header} className={(index + inputHeaders.length) % 2 === 0 ? 'bg-muted/30' : ''}>
-                      <TableCell className="py-1.5 px-3">{header}</TableCell>
-                      <TableCell className="py-1.5 px-3">
-                        <Input
-                          type="text"
-                          className="h-7 text-xs w-20"
-                          value={intakeOutputEntryData[outputHeaders[index].toLowerCase().replace('/', '') as keyof typeof intakeOutputEntryData]}
-                          onChange={e => handleIntakeOutputEntryChange(outputHeaders[index].toLowerCase().replace('/', '') as keyof typeof intakeOutputEntryData, e.target.value)}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-            <div className="flex justify-end space-x-2 mt-auto p-2 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                onClick={() => setIsIntakeOutputEntryMode(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={() => {
-                  setIsIntakeOutputEntryMode(false);
-                  // TODO: Save logic
-                }}
-              >
-                Save
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
-              <Label htmlFor="intakeFromDate" className="shrink-0 text-xs">From Date</Label>
-              <div className="relative">
-                <Input
-                  id="intakeFromDate"
-                  type="text"
-                  value={fromDateValue}
-                  onChange={(e) => setFromDateValue(e.target.value)}
-                  className="h-8 w-36 text-xs pr-8"
-                />
-                <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
-                  <CalendarDays className="h-4 w-4" />
+            <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
+              <h2 className="text-base font-semibold">Patient Intake/Output Summary</h2>
+              <div className="flex items-center space-x-1">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
+                  <RefreshCw className="h-4 w-4" />
                 </Button>
-              </div>
-              <Label htmlFor="intakeToDate" className="shrink-0 text-xs">To Date</Label>
-              <div className="relative">
-                <Input
-                  id="intakeToDate"
-                  type="text"
-                  value={toDateValueState}
-                  onChange={(e) => setToDateValueState(e.target.value)}
-                  className="h-8 w-36 text-xs pr-8"
-                />
-                <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
-                  <CalendarDays className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-primary hover:bg-muted/50"
+                  onClick={() => setIsIntakeOutputEntryMode(!isIntakeOutputEntryMode)}
+                >
+                  <Edit3 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            <div className="flex-1 overflow-auto">
-              <table className="w-full text-xs border-collapse min-w-[60rem]">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-accent text-foreground">
-                    <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
-                    <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
-                  </tr>
-                  <tr className="bg-accent text-foreground">
-                    {inputHeaders.map(header => (
-                      <th
-                        key={header}
-                        className="p-1.5 border font-xs text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
-                      >
-                        {header.split(" ")[0]}<br />{header.split(" ")[1] || ""}
-                      </th>
-                    ))}
-                    {outputHeaders.map(header => (
-                      <th
-                        key={header}
-                        className="p-1.5 border font-xs text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
-                      >
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="bg-card">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rowNum, index) => (
-                    <TableRow key={`data-row-${rowNum}`} className={`${index % 2 === 0 ? 'bg-muted/30' : ''} hover:bg-muted/50`}>
-                      {inputHeaders.map(header => (
-                        <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>
+            {isIntakeOutputEntryMode ? (
+              <>
+                <ScrollArea className="flex-1 min-h-0">
+                  <Table className="text-xs">
+                    <thead className="bg-accent sticky top-0 z-10">
+                      <tr>
+                        <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Category</TableHead>
+                        <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Value (ml)</TableHead>
+                      </tr>
+                    </thead>
+                    <TableBody>
+                      {inputHeaders.map((header, index) => (
+                        <TableRow key={header} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
+                          <TableCell className="py-1.5 px-3">{header}</TableCell>
+                          <TableCell className="py-1.5 px-3">
+                            <Input
+                              type="text"
+                              className="h-7 text-xs w-20"
+                              value={intakeOutputEntryData[header.toLowerCase().replace(' ', '') as keyof IntakeOutputData]}
+                              onChange={e => handleIntakeOutputEntryChange(header.toLowerCase().replace(' ', '') as keyof IntakeOutputData, e.target.value)}
+                            />
+                          </TableCell>
+                        </TableRow>
                       ))}
-                      {outputHeaders.map(header => (
-                        <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>
+                      {outputHeaders.map((header, index) => (
+                        <TableRow key={header} className={(index + inputHeaders.length) % 2 === 0 ? 'bg-muted/30' : ''}>
+                          <TableCell className="py-1.5 px-3">{header}</TableCell>
+                          <TableCell className="py-1.5 px-3">
+                            <Input
+                              type="text"
+                              className="h-7 text-xs w-20"
+                              value={intakeOutputEntryData[header.toLowerCase().replace('/', '') as keyof IntakeOutputData]}
+                              onChange={e => handleIntakeOutputEntryChange(header.toLowerCase().replace('/', '') as keyof IntakeOutputData, e.target.value)}
+                            />
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  ))}
-                
-                </tbody>
-              </table>
-            </div>
-            <div className="p-2 border-t text-xs space-y-1">
-              <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
-              <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
-              <div className="flex justify-between"><span>Total Balanced Measured:</span><span> ml</span></div>
-              <div className="text-primary text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
-            </div>
-            <div className="flex items-center justify-center space-x-2 p-2 border-t">
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Intake</Button>
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Add Output</Button>
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Intake</Button>
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Update Output</Button>
-            </div>
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+                <div className="flex justify-end space-x-2 mt-auto p-2 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8"
+                    onClick={() => setIsIntakeOutputEntryMode(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
+                    onClick={() => {
+                      setIsIntakeOutputEntryMode(false);
+                      // TODO: Save logic
+                    }}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
+                  <Label htmlFor="intakeFromDate" className="shrink-0 text-xs">From Date</Label>
+                  <div className="relative">
+                    <Input
+                      id="intakeFromDate"
+                      type="text"
+                      value={fromDateValue}
+                      onChange={(e) => setFromDateValue(e.target.value)}
+                      className="h-8 w-36 text-xs pr-8"
+                    />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+                      <CalendarDays className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Label htmlFor="intakeToDate" className="shrink-0 text-xs">To Date</Label>
+                  <div className="relative">
+                    <Input
+                      id="intakeToDate"
+                      type="text"
+                      value={toDateValueState}
+                      onChange={(e) => setToDateValueState(e.target.value)}
+                      className="h-8 w-36 text-xs pr-8"
+                    />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+                      <CalendarDays className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-auto">
+                  <table className="w-full text-xs border-collapse min-w-[60rem]">
+                    <thead className="sticky top-0 z-10">
+                      <tr className="bg-accent text-foreground">
+                        <th colSpan={inputHeaders.length} className="p-2 border text-center font-semibold">Input</th>
+                        <th colSpan={outputHeaders.length} className="p-2 border text-center font-semibold">Output</th>
+                      </tr>
+                      <tr className="bg-accent text-foreground">
+                        {inputHeaders.map(header => (
+                          <th
+                            key={header}
+                            className="p-1.5 border font-xs text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
+                          >
+                            {header.split(" ")[0]}<br />{header.split(" ")[1] || ""}
+                          </th>
+                        ))}
+                        {outputHeaders.map(header => (
+                          <th
+                            key={header}
+                            className="p-1.5 border font-xs text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
+                          >
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="bg-card">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rowNum, index) => (
+                        <TableRow key={`data-row-${rowNum}`} className={`${index % 2 === 0 ? 'bg-muted/30' : ''} hover:bg-muted/50`}>
+                          {inputHeaders.map(header => (
+                            <TableCell key={`input-data-${header}-${rowNum}`} className="p-1.5 border text-center font-xs h-8">-</TableCell>
+                          ))}
+                          {outputHeaders.map(header => (
+                            <TableCell key={`output-data-${header}-${rowNum}`} className="p-1.5 border text-center h-8">-</TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="p-2 border-t text-xs space-y-1">
+                  <div className="flex justify-between"><span>Total Intake Measured:</span><span> ml</span></div>
+                  <div className="flex justify-between"><span>Total Output Measured:</span><span> ml</span></div>
+                  <div className="flex justify-between"><span>Total Balanced Measured:</span><span> ml</span></div>
+                  <div className="text-primary text-center mt-1">M-Morning(08:00-13:59) E-Evening(14:00-19:59) N-Night(20:00-07:59)</div>
+                </div>
+                <div className="flex items-center justify-center space-x-2 p-2 border-t">
+                  <Button
+                    size="sm"
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8"
+                    onClick={() => setCurrentView('addIntake')}
+                  >
+                    Add Intake
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8"
+                    onClick={() => setCurrentView('addOutput')}
+                  >
+                    Add Output
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8"
+                    onClick={() => setCurrentView('updateIntake')}
+                  >
+                    Update Intake
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8"
+                    onClick={() => setCurrentView('updateOutput')}
+                  >
+                    Update Output
+                  </Button>
+                </div>
+              </>
+            )}
           </>
-        )}
+        ) : currentView === 'addIntake' ? (
+          <IntakeOutputForm title="Add Intake" isIntake={true} isUpdate={false} />
+        ) : currentView === 'addOutput' ? (
+          <IntakeOutputForm title="Add Output" isIntake={false} isUpdate={false} />
+        ) : currentView === 'updateIntake' ? (
+          <IntakeOutputList title="Intake List" isIntake={true} />
+        ) : currentView === 'updateOutput' ? (
+          <IntakeOutputList title="Output List" isIntake={false} />
+        ) : null}
       </div>
       <div className="flex-[4] flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
@@ -695,35 +996,39 @@ const IntakeOutputView = () => {
 };
 
 const ProblemsView = () => {
-  const [showEntriesValue, setShowEntriesValueState] = useState<string>("all");
-  const [problemVisitDateValue, setProblemVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
+  const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
+  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
   const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
   const [searchValue, setSearchValueState] = useState<string>("");
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false); // State for popup visibility
 
-  const tableHeaders = ["Problems", "Immediacy", "Status", "Date of OnSet", "Edit", "Remove", "Restore", "Co-Morbidity"];
+  const tableHeaders = ["S.No", "Problem", "Type", "Date", "Remark", "Status", "Edit", "Remove"];
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
-        <div className="flex flex-wrap items-center justify-between gap-y-2">
+        <CardTitle className="text-xs">Diagnosis</CardTitle>
+      </CardHeader>
+      <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesProblem" className="text-xs">Show</Label>
             <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesProblem" className="h-7 w-20 text-xs">
-                <SelectValue placeholder="All" />
+                <SelectValue placeholder="10" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-xs">All</SelectItem>
                 <SelectItem value="10" className="text-xs">10</SelectItem>
                 <SelectItem value="25" className="text-xs">25</SelectItem>
                 <SelectItem value="50" className="text-xs">50</SelectItem>
+                <SelectItem value="all" className="text-xs">All</SelectItem>
               </SelectContent>
             </Select>
             <Label htmlFor="showEntriesProblem" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="visitDateProblem" className="text-xs">Visit Date</Label>
-            <Select value={problemVisitDateValue} onValueChange={setProblemVisitDateValueState}>
+            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
               <SelectTrigger id="visitDateProblem" className="h-7 w-40 text-xs">
                 <SelectValue placeholder="Select Date" />
               </SelectTrigger>
@@ -731,52 +1036,123 @@ const ProblemsView = () => {
                 <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
               </SelectContent>
             </Select>
-            <Label htmlFor="statusToggleProblem" className="text-xs">Status</Label>
-            <Switch id="statusToggleProblem" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9" />
-            <Label htmlFor="statusToggleProblem" className="text-xs ml-1">{statusSwitchChecked ? 'ACTIVE' : 'INACTIVE'}</Label>
+            <Label htmlFor="statusSwitchProblem" className="text-xs">Status</Label>
+            <Switch id="statusSwitchProblem" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9" />
+            <Label htmlFor="statusSwitchProblem" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchProblem" className="text-xs">Search:</Label>
-            <Input id="searchProblem" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-32 text-xs" />
+            <Input id="searchProblem" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-hidden min-h-0">
-        <div className="flex-1 overflow-auto">
-          <Table className="text-xs min-h-0">
-            <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
-              <TableRow>
-                {tableHeaders.map(header => (
-                  <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
-                    <div className="flex items-center justify-between">
-                      {header}
-                      <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </ShadcnTableHeader>
-            <TableBody>
-              <TableRow className="even:bg-muted/30">
-                <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                  No Data Found
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+        <div className="flex-1 overflow-hidden min-h-0">
+          <div className="flex-1 overflow-auto">
+            <Table className="text-xs min-h-0">
+              <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
+                <TableRow>
+                  {tableHeaders.map(header => (
+                    <TableHead key={header} className="py-2 px-3 h-8 whitespace-nowrap text-foreground">
+                      <div className="flex items-center justify-between">
+                        {header}
+                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </ShadcnTableHeader>
+              <TableBody>
+                <TableRow className="even:bg-muted/30">
+                  <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                    No Data Found
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>Showing 0 to 0 of 0 entries</div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
+          </div>
         </div>
       </CardContent>
-      <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground">
-        <div>Showing 0 to 0 of 0 entries</div>
-        <div className="flex items-center space-x-1">
-          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
-          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
-          <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
-        </div>
-      </div>
       <div className="flex items-center justify-center p-2.5 border-t">
-        <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Problem</Button>
+        <Button
+          size="sm"
+          className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
+          onClick={() => setIsPopupOpen(true)}
+        >
+          New Problem
+        </Button>
       </div>
+
+      {isPopupOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-card rounded-lg shadow-lg p-4 w-[32rem] max-h-[90vh] overflow-auto">
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h3 className="text-xs">Add New Problem</h3>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsPopupOpen(false)}>
+                <Ban className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Label className="text-xs w-24">Problem <span className="text-red-500">*</span></Label>
+                <Input className="h-8 text-xs flex-1" placeholder="Enter problem" />
+              </div>
+              <div className="flex items-center gap-4">
+                <Label className="text-xs w-24">Type <span className="text-red-500">*</span></Label>
+                <Select>
+                  <SelectTrigger className="h-8 text-xs flex-1">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="acute">Acute</SelectItem>
+                    <SelectItem value="chronic">Chronic</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-4">
+                <Label className="text-xs w-24">Date <span className="text-red-500">*</span></Label>
+                <div className="relative flex-1">
+                  <Input className="h-8 text-xs pr-8" placeholder="MM/DD/YYYY" defaultValue="05/29/2025" />
+                  <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
+                    <CalendarDays className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Label className="text-xs w-24">Remark</Label>
+                <Input className="h-8 text-xs flex-1" placeholder="Enter remark" />
+              </div>
+              <div className="flex items-center gap-4">
+                <Label className="text-xs w-24">Status</Label>
+                <Switch defaultChecked className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9" />
+                <span className="text-xs">ACTIVE</span>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8"
+                onClick={() => setIsPopupOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };
