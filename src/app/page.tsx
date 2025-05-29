@@ -136,6 +136,10 @@ export default function DashboardPage(): JSX.Element {
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [filteredMeds, setFilteredMeds] = useState<string[]>([]);
   const [selectedRows, setSelectedRows] = useState<MedicationRow[]>([]);
+  const [showProblemDialog, setShowProblemDialog] = useState(false);
+  const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
+  const [showAllergyDialog, setShowAllergyDialog] = useState(false);
+  const [selectedAllergy, setSelectedAllergy] = useState<Allergy | null>(null);
 
   // Dialog input states
   const [problemInputs, setProblemInputs] = useState<
@@ -507,7 +511,7 @@ export default function DashboardPage(): JSX.Element {
     closeFloatingDialog(dialogId);
   };
 
-  // Handle detail views
+/*  
   const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
     setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
     let contentToShow = itemText;
@@ -524,7 +528,7 @@ export default function DashboardPage(): JSX.Element {
     const contentToShow = `Allergen: ${allergy.allergen}\nReaction: ${allergy.reaction}\nSeverity: ${allergy.severity}\nDate of Onset: ${allergy.dateOnset || 'Not specified'}\nTreatment: ${allergy.treatment || 'None'}\nStatus: ${allergy.status}\nNotes: ${allergy.notes || 'None'}\nCreated By: ${allergy.createdBy}\nCreated At: ${new Date(allergy.createdAt).toLocaleString()}`;
     setDetailViewContent(contentToShow);
     setActiveChartTab('detail-view');
-  };
+  };*/
 
   return (
     <div className="flex flex-1 flex-col p-3 bg-background relative">
@@ -553,7 +557,13 @@ export default function DashboardPage(): JSX.Element {
                 {problems.map((problem, index) => (
                   <TableRow key={problem.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
                     <TableCell className="px-2 py-1">
-                      <div className="font-medium text-xs">{problem.description}</div>
+                      <div
+                        className="font-medium text-xs cursor-pointer"
+                        onClick={() => {
+                          setSelectedProblem(problem);
+                          setShowProblemDialog(true);
+                        }}
+                      >{problem.description}</div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -850,8 +860,12 @@ export default function DashboardPage(): JSX.Element {
                       (items as Allergy[]).map((allergy: Allergy, index) => (
                         <TableRow
                           key={allergy.id}
-                          onClick={() => handleShowAllergyDetailInChartArea(allergy)}
-                          className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
+                          
+                          className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`} // Keep existing styling
+                          onClick={() => {
+ setSelectedAllergy(allergy);
+                            setShowAllergyDialog(true);
+                          }}
                         >
                           <TableCell className="px-2 py-1">
                             <div className="font-medium text-xs">{`${allergy.allergen} - ${allergy.reaction} (${allergy.severity})`}</div>
@@ -862,11 +876,14 @@ export default function DashboardPage(): JSX.Element {
                       medications.map((med, index) => (
                         <TableRow key={med.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
                           <TableCell className="px-2 py-1">
-                            <div className="flex justify-between items-center">
-                              <span className={`font-medium text-xs ${med.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
-                                {med.name}
+ <div className="font-medium text-xs">{med.name}</div>
+                          </TableCell>
+                          <TableCell className="px-2 py-1 text-right">
+                            <div className="text-xs">
+                              <span className={`font-medium ${med.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
+
+                                {med.status}
                               </span>
-                              <span className="text-xs text-muted-foreground">{med.status}</span>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -875,7 +892,7 @@ export default function DashboardPage(): JSX.Element {
                       (items as string[]).map((item, index) => (
                         <TableRow
                           key={index}
-                          onClick={() => handleShowItemDetailInChartArea(`${title} Detail`, item)}
+                          
                           className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                         >
                           <TableCell className="px-2 py-1">
@@ -924,7 +941,7 @@ export default function DashboardPage(): JSX.Element {
                     {items.map((item, index) => (
                       <TableRow
                         key={index}
-                        onClick={() => handleShowItemDetailInChartArea(`${title} Detail`, item)}
+                        
                         className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                       >
                         <TableCell className="px-2 py-1">
@@ -1579,7 +1596,7 @@ export default function DashboardPage(): JSX.Element {
               </div>
             )}
             {dialog.type === 'allergies' && (
-              <div className="flex flex-col gap-4 text-sm">
+              <div className="flex flex-col gap-4 text-sm"> {/* Keep existing container class */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
                     <Label htmlFor={`allergen-${dialog.id}`} className="w-[120px] min-w-[120px]">Allergen</Label>
@@ -1594,7 +1611,7 @@ export default function DashboardPage(): JSX.Element {
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                  <Label htmlFor={`type-${dialog.id}`} className="w-[120px] min-w-[120px]">Imaging Type</Label>
+                  <Label htmlFor={`reaction-${dialog.id}`} className="w-[120px] min-w-[120px]">Reaction</Label>
                     <Input
                       id={`reaction-${dialog.id}`}
                       value={allergyInputs[dialog.id]?.reaction}
@@ -1718,8 +1735,60 @@ export default function DashboardPage(): JSX.Element {
           </div>
         </div>
       ))}
+
+      {/* Problem Detail Dialog */}
+      <Dialog open={showProblemDialog} onOpenChange={setShowProblemDialog}>
+        <DialogContent className="sm:max-w-[425px] p-0 rounded-lg overflow-hidden" style={{ padding: 0 }}>
+          <div className="bg-sky-200 px-3 py-2 text-sm font-semibold text-sky-800">Problem View</div> {/* Keep existing header class */}
+          <div className="p-4 text-sm">
+            <div className="mb-3 font-bold">{selectedProblem?.description || 'Anemia (D64.9)'}</div>
+            <div className="grid grid-cols-1 gap-1">
+              <div><span className="font-medium">Onset:</span> {selectedProblem?.dateOnset}</div> {/* Use actual data */}
+              <div><span className="font-medium">Status:</span> {selectedProblem?.status}</div> {/* Use actual data */}
+              <div><span className="font-medium">SC Cond:</span> NO</div>
+              <div><span className="font-medium">Exposure:</span> None</div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-1">
+              <div><span className="font-medium">Provider:</span> DOCTOR,SANSYS</div>
+              <div><span className="font-medium">Clinic:</span> ICU ONE</div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-1 text-muted-foreground text-xs">
+              <div>Recorded: , by DOCTOR,SANSYS</div>
+              <div>Entered: 1/10/24, by DOCTOR,SANSYS</div>
+              <div>Updated: 1/10/24</div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Allergy Detail Dialog */}
+      <Dialog open={showAllergyDialog} onOpenChange={setShowAllergyDialog}>
+        <DialogContent className="sm:max-w-[425px] p-0 rounded-lg overflow-hidden" style={{ padding: 0 }}>
+          <div className="bg-sky-200 px-3 py-2 text-sm font-semibold text-sky-800">Allergy View</div>
+          <div className="p-4 text-sm">
+            <div className="mb-3 font-bold">{`${selectedAllergy?.allergen} - ${selectedAllergy?.reaction}`}</div>
+            <div className="grid grid-cols-1 gap-1">
+              <div><span className="font-medium">Severity:</span> {selectedAllergy?.severity}</div>
+              <div><span className="font-medium">Onset:</span> {selectedAllergy?.dateOnset || 'Not specified'}</div>
+              <div><span className="font-medium">Status:</span> {selectedAllergy?.status}</div>
+              <div><span className="font-medium">Treatment:</span> {selectedAllergy?.treatment || 'None'}</div>
+              <div><span className="font-medium">Notes:</span> {selectedAllergy?.notes || 'None'}</div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-1">
+              <div><span className="font-medium">Created By:</span> {selectedAllergy?.createdBy}</div>
+              <div><span className="font-medium">Created At:</span> {selectedAllergy?.createdAt ? new Date(selectedAllergy.createdAt).toLocaleString() : 'Not specified'}</div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
+
+
     </div>
   );
 }
+
+
 
     
