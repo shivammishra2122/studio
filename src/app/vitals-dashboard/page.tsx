@@ -143,12 +143,6 @@ const VitalsView = () => {
         <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">{isVitalsEntryMode ? "Vitals Entry" : "Vitals"}</h2>
           <div className="flex items-center space-x-2">
-            {!isVitalsEntryMode && (
-              <>
-                <Checkbox id="enteredInError" checked={isEnteredInError} onCheckedChange={(checkedState) => setIsEnteredInError(Boolean(checkedState))} className="h-3.5 w-3.5" />
-                <Label htmlFor="enteredInError" className="font-normal text-xs">Entered in Error</Label>
-              </>
-            )}
             <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50" onClick={() => setIsVitalsEntryMode(!isVitalsEntryMode)}>
               <Edit3 className="h-4 w-4" />
             </Button>
@@ -385,7 +379,7 @@ const VitalsView = () => {
         ) : (
           <>
             <div className="flex flex-wrap items-center space-x-2 p-2 border-b text-xs gap-y-2">
-              <Label htmlFor="visitDateVitals" className="shrink-0">Visit Date</Label>
+              <Label htmlFor="visitDateVitals " className="shrink-0 text-xs">Visit Date</Label>
               <Select value={visitDateState} onValueChange={setVisitDateState}>
                 <SelectTrigger id="visitDateVitals" className="h-8 w-28 text-xs">
                   <SelectValue placeholder="Select" />
@@ -397,18 +391,18 @@ const VitalsView = () => {
                 </SelectContent>
               </Select>
               <div className="flex items-center space-x-1">
-                <Label htmlFor="fromDateVitals" className="shrink-0">From</Label>
+                <Label htmlFor="fromDateVitals" className="shrink-0 text-xs">From</Label>
                 <div className="relative">
-                  <Input id="fromDateVitals" type="text" value={fromDateValue} onChange={(e) => setFromDateValue(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
+                  <Input id="fromDateVitals" type="text" value={fromDateValue} onChange={(e) => setFromDateValue(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-32 text-xs pr-8 text-xs" />
                   <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                     <CalendarDays className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
               <div className="flex items-center space-x-1">
-                <Label htmlFor="toDateVitals" className="shrink-0">To</Label>
+                <Label htmlFor="toDateVitals" className="shrink-0 text-xs">To</Label>
                 <div className="relative">
-                  <Input id="toDateVitals" type="text" value={toDateValueState} onChange={(e) => setToDateValueState(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-28 text-xs pr-8" />
+                  <Input id="toDateVitals" type="text" value={toDateValueState} onChange={(e) => setToDateValueState(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-32 text-xs pr-8" />
                   <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
                     <CalendarDays className="h-4 w-4" />
                   </Button>
@@ -591,7 +585,7 @@ const IntakeOutputView = () => {
         ) : (
           <>
             <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
-              <Label htmlFor="intakeFromDate" className="shrink-0">From Date</Label>
+              <Label htmlFor="intakeFromDate" className="shrink-0 text-xs">From Date</Label>
               <div className="relative">
                 <Input
                   id="intakeFromDate"
@@ -604,7 +598,7 @@ const IntakeOutputView = () => {
                   <CalendarDays className="h-4 w-4" />
                 </Button>
               </div>
-              <Label htmlFor="intakeToDate" className="shrink-0">To Date</Label>
+              <Label htmlFor="intakeToDate" className="shrink-0 text-xs">To Date</Label>
               <div className="relative">
                 <Input
                   id="intakeToDate"
@@ -629,7 +623,7 @@ const IntakeOutputView = () => {
                     {inputHeaders.map(header => (
                       <th
                         key={header}
-                        className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
+                        className="p-1.5 border font-xs text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
                       >
                         {header.split(" ")[0]}<br />{header.split(" ")[1] || ""}
                       </th>
@@ -637,7 +631,7 @@ const IntakeOutputView = () => {
                     {outputHeaders.map(header => (
                       <th
                         key={header}
-                        className="p-1.5 border font-medium text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
+                        className="p-1.5 border font-xs text-center whitespace-nowrap sticky top-8 z-10 bg-accent"
                       >
                         {header}
                       </th>
@@ -798,9 +792,9 @@ const FinalDiagnosisView = () => {
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <CardTitle className="text-base font-semibold">Diagnosis</CardTitle>
       </CardHeader>
-      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+      <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             <Label htmlFor="showEntriesDiagnosis" className="text-xs">Show</Label>
             <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
               <SelectTrigger id="showEntriesDiagnosis" className="h-7 w-20 text-xs">
@@ -898,7 +892,7 @@ const ChiefComplaintsView = () => {
 
         </div>
       </CardHeader>
-      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+      <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesComplaint" className="text-xs">Show</Label>
@@ -1036,7 +1030,7 @@ const AllergiesView = () => {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+      <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesAllergy" className="text-xs">Show</Label>
@@ -1131,7 +1125,7 @@ const OpdIpdDetailsView = () => {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+      <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
             <Label htmlFor="showEntriesOpdIpd" className="text-xs">Show</Label>
