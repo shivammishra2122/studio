@@ -681,7 +681,15 @@ const IntakeOutputView = () => {
         </div>
         <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
           <div className="flex items-center gap-2">
-            <input type="range" min="1" max="12" value="1" className="w-20" />
+            <input 
+              type="range" 
+              min="1" 
+              max="12" 
+              value="1" 
+              className="w-20"
+              title="Select number of months"
+              aria-label="Select number of months" 
+            />
             <span>1 Month</span>
           </div>
           <Label htmlFor="listFromDate" className="shrink-0 text-xs">From Date</Label>

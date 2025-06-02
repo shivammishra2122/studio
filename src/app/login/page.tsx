@@ -11,8 +11,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ShieldCheck } from "lucide-react";
+import { Stethoscope } from "lucide-react";
 import Cookies from 'js-cookie';
+import { api } from "@/services/api";
 
 const loginSchema = z.object({
     email: z.string().email({ message: "Invalid email address." }),
@@ -40,12 +41,15 @@ export default function LoginPage() {
         }
     }, [router]);
 
-    const onSubmit = (data: LoginFormValues) => {
+    const onSubmit = async (data: LoginFormValues) => {
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Replace with actual API call when available
+            // const response = await api.login(data.email, data.password);
+
+            // For now, using the mock login
             if (data.email === "user@example.com" && data.password === "password123") {
-                Cookies.set('isAuthenticated', 'true', { expires: 7 }); // Cookie expires in 7 days
+                Cookies.set('isAuthenticated', 'true', { expires: 7 });
                 toast({
                     title: "Login Successful",
                     description: "Welcome back!",
@@ -58,19 +62,34 @@ export default function LoginPage() {
                     variant: "destructive",
                 });
             }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "An error occurred during login. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
             setIsLoading(false);
-        }, 1000);
+        }
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-secondary/30 p-4">
-            <Card className="w-full max-w-md shadow-2xl">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-4 relative overflow-hidden">
+            {/* Animated background elements */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            </div>
+
+            <Card className="w-full max-w-md shadow-2xl border border-white/20 backdrop-blur-xl bg-white/10 relative z-10 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
                 <CardHeader className="text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <ShieldCheck size={36} />
+                    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg transform transition-all duration-300 hover:scale-110 hover:rotate-3">
+                        <Stethoscope size={40} className="animate-pulse" />
                     </div>
-                    <CardTitle className="text-3xl font-bold">MediTrack Lite</CardTitle>
-                    <CardDescription>Access your patient dashboard</CardDescription>
+                    <CardTitle className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
+                        Sansys EHR
+                    </CardTitle>
+                    <CardDescription className="text-gray-200 text-lg mt-2">Access your patient dashboard</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -80,11 +99,16 @@ export default function LoginPage() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel className="text-gray-200 text-lg">Email</FormLabel>
                                         <FormControl>
-                                            <Input type="email" placeholder="user@example.com" {...field} />
+                                            <Input
+                                                type="email"
+                                                placeholder="user@example.com"
+                                                {...field}
+                                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-blue-400 focus:ring-blue-400 transition-all duration-300 backdrop-blur-sm"
+                                            />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-red-300" />
                                     </FormItem>
                                 )}
                             />
@@ -93,16 +117,33 @@ export default function LoginPage() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel className="text-gray-200 text-lg">Password</FormLabel>
                                         <FormControl>
-                                            <Input type="password" placeholder="••••••••" {...field} />
+                                            <Input
+                                                type="password"
+                                                placeholder="••••••••"
+                                                {...field}
+                                                className="bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:border-blue-400 focus:ring-blue-400 transition-all duration-300 backdrop-blur-sm"
+                                            />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-red-300" />
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit" className="w-full" disabled={isLoading}>
-                                {isLoading ? "Logging in..." : "Login"}
+                            <Button
+                                type="submit"
+                                className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl font-semibold text-lg py-6"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <span className="flex items-center justify-center">
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Logging in...
+                                    </span>
+                                ) : "Login"}
                             </Button>
                         </form>
                     </Form>

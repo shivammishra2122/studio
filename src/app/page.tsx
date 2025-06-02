@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardTitle, CardHeader as ShadcnCardHeader } from '@/components/ui/card';
@@ -44,14 +43,14 @@ const weightChartConfig: ChartConfig = { weight: { label: 'Weight (kg)', color: 
 const infoCardIcons: Record<string, React.ElementType> = {
   Allergies: Ban,
   Radiology: ScanLine,
-  Report: FileText,
+  'Lab Report': FileText,
   'Clinical notes': FileText,
   'Encounter notes': ClipboardList,
   'Clinical reminder': BellRing,
 };
 
 // Card titles for dashboard rows
-const secondRowInformationalCardTitles: string[] = ['Allergies', 'Medications History', 'Report', 'Radiology'];
+const secondRowInformationalCardTitles: string[] = ['Allergies', 'Medications History', 'Lab Report', 'Radiology'];
 const thirdRowInformationalCardTitles: string[] = ['Clinical notes', 'Encounter notes', 'Clinical reminder'];
 
 // Define Allergy interface
@@ -93,36 +92,20 @@ interface MedicationRow {
   comment: string;
 }
 
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage({
+  patient,
+  problems,
+  medications,
+  allergies,
+  vitals,
+}: {
+  patient: Patient;
+  problems: Problem[];
+  medications: Medication[];
+  allergies: Allergy[];
+  vitals: any; // Replace with your vitals type if available
+}): JSX.Element {
   // State management
-  const [problems, setProblems] = useState<Problem[]>(MOCK_PROBLEMS);
-  const [medications, setMedications] = useState<Medication[]>(MOCK_MEDICATIONS);
-  const [allergies, setAllergies] = useState<Allergy[]>([
-    {
-      id: '1',
-      allergen: 'Peanuts',
-      reaction: 'Rash',
-      severity: 'Moderate',
-      dateOnset: '2023-01-15',
-      treatment: 'Antihistamine',
-      status: 'Active',
-      notes: 'Avoid all peanut products',
-      createdBy: 'Dr. Smith',
-      createdAt: '2023-01-15T10:00:00Z',
-    },
-    {
-      id: '2',
-      allergen: 'Shellfish',
-      reaction: 'Anaphylaxis',
-      severity: 'Severe',
-      dateOnset: '2022-06-10',
-      treatment: 'Epinephrine',
-      status: 'Active',
-      notes: 'Carry epinephrine',
-      createdBy: 'Dr. Jones',
-      createdAt: '2022-06-10T14:30:00Z',
-    },
-  ]);
   const [dynamicPageCardContent, setDynamicPageCardContent] = useState<Record<string, string[]>>(() => {
     const parsedContent = JSON.parse(JSON.stringify(pageCardSampleContent)) as Record<string, string[]>;
     return Object.fromEntries(Object.entries(parsedContent).filter(([key]) => key !== 'Allergies'));
@@ -447,7 +430,6 @@ export default function DashboardPage(): JSX.Element {
       id: Date.now().toString(),
       description: input.input,
     };
-    setProblems((prev) => [newProb, ...prev]);
     toast.success('Problem added successfully!');
     closeFloatingDialog(dialogId);
   };
@@ -467,7 +449,6 @@ export default function DashboardPage(): JSX.Element {
       timing: input.timing || 'N/A',
       status: 'Active',
     };
-    setMedications((prev) => [newMed, ...prev]);
     toast.success('Medication added successfully!');
     closeFloatingDialog(dialogId);
   };
@@ -491,7 +472,6 @@ export default function DashboardPage(): JSX.Element {
       createdBy: 'Dr. User',
       createdAt: new Date().toISOString(),
     };
-    setAllergies((prev) => [newAllergy, ...prev]);
     toast.success('Allergy added successfully!');
     closeFloatingDialog(dialogId);
   };
@@ -510,25 +490,6 @@ export default function DashboardPage(): JSX.Element {
     toast.success('Item added successfully!');
     closeFloatingDialog(dialogId);
   };
-
-/*  
-  const handleShowItemDetailInChartArea = (titlePrefix: string, itemText: string) => {
-    setDetailViewTitle(`${titlePrefix}: ${itemText.substring(0, 40)}${itemText.length > 40 ? '...' : ''}`);
-    let contentToShow = itemText;
-    if (titlePrefix === 'Radiology Detail' && itemText === 'Chest X-Ray: Clear') {
-      contentToShow = `Normal lung expansion without fluid or masses.\nHeart size within normal limits.\nClear airways and no structural abnormalities in the bones or diaphragm.`;
-    }
-    setDetailViewContent(contentToShow);
-    setActiveChartTab('detail-view');
-  };
-
-  const handleShowAllergyDetailInChartArea = (allergy: Allergy) => {
-    const summary = `${allergy.allergen} - ${allergy.reaction} (${allergy.severity})`;
-    setDetailViewTitle(`Allergy Detail: ${summary.substring(0, 40)}${summary.length > 40 ? '...' : ''}`);
-    const contentToShow = `Allergen: ${allergy.allergen}\nReaction: ${allergy.reaction}\nSeverity: ${allergy.severity}\nDate of Onset: ${allergy.dateOnset || 'Not specified'}\nTreatment: ${allergy.treatment || 'None'}\nStatus: ${allergy.status}\nNotes: ${allergy.notes || 'None'}\nCreated By: ${allergy.createdBy}\nCreated At: ${new Date(allergy.createdAt).toLocaleString()}`;
-    setDetailViewContent(contentToShow);
-    setActiveChartTab('detail-view');
-  };*/
 
   return (
     <div className="flex flex-1 flex-col p-3 bg-background relative">
@@ -779,7 +740,7 @@ export default function DashboardPage(): JSX.Element {
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if ((e.key === 'Enter' || e.key === ' ') &&indicator.tabValue) setActiveChartTab(indicator.tabValue);
+                    if ((e.key === 'Enter' || e.key === ' ') && indicator.tabValue) setActiveChartTab(indicator.tabValue);
                   }}
                 >
                   <div className="flex items-center">
@@ -818,7 +779,7 @@ export default function DashboardPage(): JSX.Element {
               key={title.toLowerCase().replace(/\s+/g, '-')}
               className={cn('shadow-lg', {
                 'md:col-span-2': title === 'Allergies' || title === 'Radiology',
-                'md:col-span-3': title === 'Medications History' || title === 'Report',
+                'md:col-span-3': title === 'Medications History' || title === 'Lab Report',
               })}
             >
               <ShadcnCardHeader className="flex flex-row items-center justify-between pt-2 pb-0 px-3">
@@ -842,7 +803,7 @@ export default function DashboardPage(): JSX.Element {
                       openFloatingDialog('allergies', 'Add New Allergy');
                     } else if (title === 'Radiology') {
                       openFloatingDialog('radiology', 'Order Radiology Test');
-                    } else if (title === 'Report') {
+                    } else if (title === 'Lab Report') {
                       openFloatingDialog('report', 'Order Report');
                     } else {
                       openFloatingDialog('info-item', `Add New Item to ${title}`, { title });
@@ -860,10 +821,10 @@ export default function DashboardPage(): JSX.Element {
                       (items as Allergy[]).map((allergy: Allergy, index) => (
                         <TableRow
                           key={allergy.id}
-                          
+
                           className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`} // Keep existing styling
                           onClick={() => {
- setSelectedAllergy(allergy);
+                            setSelectedAllergy(allergy);
                             setShowAllergyDialog(true);
                           }}
                         >
@@ -876,7 +837,7 @@ export default function DashboardPage(): JSX.Element {
                       medications.map((med, index) => (
                         <TableRow key={med.id} className={index % 2 === 0 ? 'bg-muted/30' : ''}>
                           <TableCell className="px-2 py-1">
- <div className="font-medium text-xs">{med.name}</div>
+                            <div className="font-medium text-xs">{med.name}</div>
                           </TableCell>
                           <TableCell className="px-2 py-1 text-right">
                             <div className="text-xs">
@@ -892,7 +853,7 @@ export default function DashboardPage(): JSX.Element {
                       (items as string[]).map((item, index) => (
                         <TableRow
                           key={index}
-                          
+
                           className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                         >
                           <TableCell className="px-2 py-1">
@@ -941,7 +902,7 @@ export default function DashboardPage(): JSX.Element {
                     {items.map((item, index) => (
                       <TableRow
                         key={index}
-                        
+
                         className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
                       >
                         <TableCell className="px-2 py-1">
@@ -1611,7 +1572,7 @@ export default function DashboardPage(): JSX.Element {
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                  <Label htmlFor={`reaction-${dialog.id}`} className="w-[120px] min-w-[120px]">Reaction</Label>
+                    <Label htmlFor={`reaction-${dialog.id}`} className="w-[120px] min-w-[120px]">Reaction</Label>
                     <Input
                       id={`reaction-${dialog.id}`}
                       value={allergyInputs[dialog.id]?.reaction}
@@ -1791,4 +1752,3 @@ export default function DashboardPage(): JSX.Element {
 
 
 
-    
