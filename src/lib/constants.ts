@@ -79,6 +79,22 @@ export interface Patient {
   finalDiagnosis: string
   posting: string
   reasonForVisit: string
+  ssn: string
+  "Admission Date": string
+  Age: string | number
+  Bed: string
+  DFN: number
+  DOB: string
+  Gender: string
+  "IP No": number
+  LOS: string
+  "Mobile No": number
+  Name: string
+  "Primary Consultant": string
+  "Secondary Consultant": string
+  Specialty: string
+  "Treating Consultant": string
+  Ward: string
 }
 
 export const MOCK_PROBLEMS: Problem[] = [
@@ -186,4 +202,20 @@ export const MOCK_PATIENT: Patient = {
   finalDiagnosis: 'Acute Bronchitis',
   posting: 'General Medicine',
   reasonForVisit: 'Routine Check-up & Consultation',
+  ssn: '123-45-6789',
+  "Admission Date": '2024-07-15',
+  Age: '42',
+  Bed: 'A',
+  DFN: 123456789,
+  DOB: '1982-03-15',
+  Gender: 'Female',
+  "IP No": 123456789,
+  LOS: '5 days',
+  "Mobile No": 5550102,
+  Name: 'Sarah Miller',
+  "Primary Consultant": 'Dr. Emily Carter',
+  "Secondary Consultant": '',
+  Specialty: 'Cardiology',
+  "Treating Consultant": 'Dr. Emily Carter',
+  Ward: 'C-305',
 }

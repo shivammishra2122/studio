@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -9,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarDays } from 'lucide-react';
+import { Patient } from '@/services/api';
 
 const biSubNavItems = ["BI Dashboard", "Key Performance Indicators", "Custom BI Reports"];
 
-const BiPage: NextPage = () => {
+const BiPage: NextPage<{ patient?: Patient }> = ({ patient }) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(biSubNavItems[0]);
 
   // State for form fields
@@ -74,7 +74,7 @@ const BiPage: NextPage = () => {
                       <CalendarDays className="h-4 w-4 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     </div>
                   </div>
-                  
+
                   {[
                     { label: "Title", id: "title", value: title, setter: setTitle, options: ["All", "Option B", "Option C"] },
                     { label: "Attending Physician", id: "attendingPhysician", value: attendingPhysician, setter: setAttendingPhysician, options: ["All", "Dr. Smith", "Dr. Jones"] },
@@ -168,4 +168,3 @@ const BiPage: NextPage = () => {
 
 export default BiPage;
 
-    

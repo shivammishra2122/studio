@@ -115,7 +115,7 @@ const IpMedicationOrderDialog: React.FC<IpMedicationOrderDialogProps> = ({ open,
                 ) : (
                   filteredMeds.map(med => (
                     <div
-                      key={med}
+                      key={`medication-${med}`}
                       className="p-2 hover:bg-sky-100 cursor-pointer"
                       onMouseDown={() => handleSelectMed(med)}
                     >
@@ -158,7 +158,7 @@ const IpMedicationOrderDialog: React.FC<IpMedicationOrderDialogProps> = ({ open,
               </thead>
               <tbody>
                 {selectedRows.map((row, idx) => (
-                  <tr key={row.medicationName}>
+                  <tr key={`medication-${row.medicationName}-${idx}`}>
                     <td className="px-2 py-1">{row.medicationName}</td>
                     <td className="px-2 py-1">
                       <Input
@@ -174,7 +174,7 @@ const IpMedicationOrderDialog: React.FC<IpMedicationOrderDialogProps> = ({ open,
                         </SelectTrigger>
                         <SelectContent>
                           {ROUTES.map(route => (
-                            <SelectItem value={route} key={route}>{route}</SelectItem>
+                            <SelectItem key={`route-${route}`} value={route}>{route}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -186,7 +186,7 @@ const IpMedicationOrderDialog: React.FC<IpMedicationOrderDialogProps> = ({ open,
                         </SelectTrigger>
                         <SelectContent>
                           {SCHEDULES.map(schedule => (
-                            <SelectItem value={schedule} key={schedule}>{schedule}</SelectItem>
+                            <SelectItem key={`schedule-${schedule}`} value={schedule}>{schedule}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

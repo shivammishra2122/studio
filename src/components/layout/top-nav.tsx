@@ -17,14 +17,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 const navButtonLabels = [
   "Cover Sheet", "Dashboard", "Orders", "Clinical Notes", "Discharge Summary",
   "Emergency Care", "Postmortem", "Nursing", "Referral", "Lab", "Radiology",
-  "Blood Center", "Report" 
+  "Report"
 ];
 
 // Custom SVG Icon Components for the dropdown header
 const HeadsetIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" {...props}>
     <circle cx="12" cy="12" r="10" fill="#4472C4" stroke="none" />
-    <path d="M12 1a9 9 0 0 0-9 9v4a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2V9a2 2 0 0 0-1.6-1.9M21 14h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-4a9 9 0 0 0-9-9" stroke="#FFF" strokeWidth="1.5" fill="none"/>
+    <path d="M12 1a9 9 0 0 0-9 9v4a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2V9a2 2 0 0 0-1.6-1.9M21 14h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-4a9 9 0 0 0-9-9" stroke="#FFF" strokeWidth="1.5" fill="none" />
     <circle cx="8" cy="14" r="3" fill="#FFF" stroke="none" />
     <circle cx="16" cy="14" r="3" fill="#FFF" stroke="none" />
   </svg>
@@ -32,16 +32,16 @@ const HeadsetIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const AlertIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <circle cx="12" cy="12" r="10" fill="#FF0000" stroke="none"/>
-    <path d="M12 16h.01" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 8v4" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="12" r="10" fill="#FF0000" stroke="none" />
+    <path d="M12 16h.01" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M12 8v4" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const PowerIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
-    <circle cx="12" cy="12" r="10" fill="#FF0000" stroke="none"/>
-    <path d="M12 2.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm0 3.25V12" stroke="#FFF" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="12" cy="12" r="10" fill="#FF0000" stroke="none" />
+    <path d="M12 2.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm0 3.25V12" stroke="#FFF" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
@@ -49,8 +49,12 @@ const PowerIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export function TopNav() {
   const pathname = usePathname();
 
+  // Detect if on a patient-specific route: /patients/[id] or /patients/[id]/something
+  const patientMatch = pathname.match(/^\/patients\/(\w+)(?:\/|$)/);
+  const patientId = patientMatch ? patientMatch[1] : null;
+
   return (
-    <div className="bg-card border-b border-border px-1 py-1 sticky top-0 z-30 flex items-center space-x-0.5">
+    <div className="bg-card border-b border-border px-1 py-1 flex items-center space-x-0.5 h-9">
       <div className="md:hidden">
         <SidebarTrigger asChild>
           <Button variant="ghost" size="icon" className="h-7 w-7">
@@ -59,37 +63,51 @@ export function TopNav() {
         </SidebarTrigger>
       </div>
 
-      <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar">
+      <div className="flex-grow flex items-center space-x-0.5 overflow-x-auto no-scrollbar w-[1040px]">
         {navButtonLabels.map((label) => {
-          let href = "#"; 
-          if (label === "Cover Sheet") href = "/";
-          else if (label === "Dashboard") href = "/vitals-dashboard";
-          else if (label === "Orders") href = "/orders";
-          else if (label === "Clinical Notes") href = "/clinical-notes";
-          else if (label === "Discharge Summary") href = "/discharge-summary";
-          else if (label === "Emergency Care") href = "/emergency-care";
-          else if (label === "Postmortem") href = "/postmortem";
-          else if (label === "Nursing") href = "/nursing";
-          else if (label === "Referral") href = "/referral";
-          else if (label === "Lab") href = "/lab";
-          else if (label === "Radiology") href = "/radiology";
-          else if (label === "Blood Center") href = "/blood-center"; // Assuming this path
-          else if (label === "BI") href = "/bi"; 
-          else if (label === "Report") href = "/report";
-          
+          let href = "#";
+          if (patientId) {
+            // Patient-specific links
+            if (label === "Cover Sheet") href = `/patients/${patientId}`;
+            else if (label === "Dashboard") href = `/patients/${patientId}/vitals-dashboard`;
+            else if (label === "Orders") href = `/patients/${patientId}/orders`;
+            else if (label === "Clinical Notes") href = `/patients/${patientId}/clinical-notes`;
+            else if (label === "Discharge Summary") href = `/patients/${patientId}/discharge-summary`;
+            else if (label === "Emergency Care") href = `/patients/${patientId}/emergency-care`;
+            else if (label === "Postmortem") href = `/patients/${patientId}/postmortem`;
+            else if (label === "Nursing") href = `/patients/${patientId}/nursing`;
+            else if (label === "Referral") href = `/patients/${patientId}/referral`;
+            else if (label === "Lab") href = `/patients/${patientId}/lab`;
+            else if (label === "Radiology") href = `/patients/${patientId}/radiology`;
+            else if (label === "Report") href = `/patients/${patientId}/report`;
+          } else {
+            // Global links
+            if (label === "Cover Sheet") href = "/";
+            else if (label === "Dashboard") href = "/vitals-dashboard";
+            else if (label === "Orders") href = "/orders";
+            else if (label === "Clinical Notes") href = "/clinical-notes";
+            else if (label === "Discharge Summary") href = "/discharge-summary";
+            else if (label === "Emergency Care") href = "/emergency-care";
+            else if (label === "Postmortem") href = "/postmortem";
+            else if (label === "Nursing") href = "/nursing";
+            else if (label === "Referral") href = "/referral";
+            else if (label === "Lab") href = "/lab";
+            else if (label === "Radiology") href = "/radiology";
+            else if (label === "Report") href = "/report";
+          }
 
           const isActive = pathname === href && href !== "#";
-          
-          if (href === "#") { 
-             return (
-                <Button
+
+          if (href === "#") {
+            return (
+              <Button
                 key={label}
                 variant="ghost"
                 size="sm"
                 className="text-xs px-2 py-1 h-7 whitespace-nowrap hover:bg-accent hover:text-foreground"
-                >
+              >
                 {label}
-                </Button>
+              </Button>
             );
           }
 
@@ -107,7 +125,7 @@ export function TopNav() {
           );
         })}
       </div>
-      
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-7 w-7">
@@ -125,7 +143,7 @@ export function TopNav() {
             <Avatar className="h-5 w-5 mr-2.5">
               <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="person user" />
               <AvatarFallback className="text-xs">
-                <User className="h-3 w-3" /> 
+                <User className="h-3 w-3" />
               </AvatarFallback>
             </Avatar>
             SANSYS DOCTOR

@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -14,6 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Edit3, CalendarDays, RefreshCw, ArrowUpDown, ChevronDown, ChevronUp, Settings, FileEdit, Printer, Download, Filter, Ban, FileText, PenLine } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
+import { fetchClinicalNotes, Patient } from '@/services/api';
+
 
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
@@ -127,20 +128,98 @@ const VitalsView = () => {
     pulseOximetryValue: '',
     pulseOximetryQualifier: undefined as string | undefined,
   });
+  const [vitalsData, setVitalsData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showEntries, setShowEntries] = useState<string>("10");
+
+  const yAxisConfig = getYAxisConfig(selectedVitalForGraph);
 
   const handleVitalsEntryChange = (field: keyof typeof vitalsEntryData, value: string | boolean | undefined) => {
     setVitalsEntryData(prev => ({ ...prev, [field]: value }));
   };
 
   useEffect(() => {
-    setChartData(getMockDataForVital(selectedVitalForGraph));
-  }, [selectedVitalForGraph]);
+    const fetchVitalsData = async () => {
+      setLoading(true);
+      setError(null);
 
-  const yAxisConfig = getYAxisConfig(selectedVitalForGraph);
+      // Patient data comes from the wrapper component
+      // We need to access the patient prop passed to VitalsDashboardPage
+      // However, VitalsView doesn't directly receive it.
+      // We need to modify VitalsDashboardPage to pass the patient prop to VitalsView.
+      // For now, we will use a placeholder SSN for testing.
+      const testSSN = "671106286"; // Use the provided test SSN
+
+      const requestBody = {
+        UserName: "CPRS-UAT",
+        Password: "UAT@123",
+        PatientSSN: testSSN,
+        DUZ: "115"
+      };
+
+      try {
+        const response = await fetch('http://3.6.230.54:4003/api/apiVitalView.sh', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Vitals API response:', data);
+
+        if (!data || Object.keys(data).length === 0 || data.errors) {
+          setVitalsData([]);
+          setError('No vitals data found');
+        } else {
+          // Assuming data is an object where values are the vital entries
+          const vitalsArray = Object.values(data).map((item: any) => ({
+            // Map API response fields to a consistent structure
+            id: item['Vital IEN']?.toString() || Date.now().toString() + Math.random().toString(36).slice(2, 9), // Unique ID
+            date: item['Date'] || 'N/A',
+            time: item['Time'] || 'N/A',
+            bloodPressure: item['Blood Pressure'] || '',
+            temperature: item['Temperature'] || '',
+            respiration: item['Respiration'] || '',
+            pulse: item['Pulse'] || '',
+            height: item['Height'] || '',
+            weight: item['Weight'] || '',
+            cvp: item['CVP'] || '',
+            cg: item['C/G'] || '',
+            pulseOximetry: item['Pulse Oximetry'] || '',
+            pain: item['Pain'] || '',
+            earlyWarningSign: item['Early Warning Sign'] || '',
+            location: item['Location'] || 'N/A',
+            enteredBy: item['Entered By'] || 'N/A',
+            // Add other relevant fields as needed
+          }));
+          setVitalsData(vitalsArray);
+          // Update chart data based on the fetched vitals
+          // This part needs refinement based on how vital types map to data fields
+          // For now, we'll keep the mock data for the chart until mapping is clear.
+          setChartData(getMockDataForVital(selectedVitalForGraph));
+        }
+      } catch (err: any) {
+        console.error('Error fetching vitals data:', err);
+        setError('Failed to fetch vitals data: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVitalsData();
+  }, [selectedVitalForGraph]); // Depend on selected vital for graph for now
 
   return (
     <div className="flex-1 flex gap-3 overflow-auto">
-      <div className="flex-1 flex flex-col border rounded-md bg-card shadow">
+      <div className="basis-1/2 flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">{isVitalsEntryMode ? "Vitals Entry" : "Vitals"}</h2>
           <div className="flex items-center space-x-2">
@@ -287,72 +366,39 @@ const VitalsView = () => {
                       <Select value={vitalsEntryData.weightQualifier} onValueChange={val => handleVitalsEntryChange('weightQualifier', val)}>
                         <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="with_clothes" className="text-xs">With Clothes</SelectItem>
-                          <SelectItem value="without_clothes" className="text-xs">Without Clothes</SelectItem>
+                          <SelectItem value="actual" className="text-xs">Actual</SelectItem>
+                          <SelectItem value="estimated" className="text-xs">Estimated</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
                   </TableRow>
                   <TableRow className="bg-muted/30">
-                    <TableCell className="py-1.5 px-3">Resp</TableCell>
-                    <TableCell className="py-1.5 px-3"></TableCell>
-                    <TableCell className="py-1.5 px-3">
-                      <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.respirationValue} onChange={e => handleVitalsEntryChange('respirationValue', e.target.value)} />
-                    </TableCell>
-                    <TableCell className="py-1.5 px-3">/min</TableCell>
-                    <TableCell className="py-1.5 px-3">
-                      <Select value={vitalsEntryData.respirationQualifier} onValueChange={val => handleVitalsEntryChange('respirationQualifier', val)}>
-                        <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="normal" className="text-xs">Normal</SelectItem>
-                          <SelectItem value="labored" className="text-xs">Labored</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
                     <TableCell className="py-1.5 px-3">CVP</TableCell>
                     <TableCell className="py-1.5 px-3"></TableCell>
                     <TableCell className="py-1.5 px-3">
                       <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.cvpValue} onChange={e => handleVitalsEntryChange('cvpValue', e.target.value)} />
                     </TableCell>
-                    <TableCell className="py-1.5 px-3">
-                      <Select value={vitalsEntryData.cvpUnit} onValueChange={val => handleVitalsEntryChange('cvpUnit', val)}>
-                        <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="mmHg" className="text-xs">mmHg</SelectItem>
-                          <SelectItem value="cmH2O" className="text-xs">cmH2O</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+                    <TableCell className="py-1.5 px-3">cmH2O</TableCell>
                     <TableCell className="py-1.5 px-3"></TableCell>
                   </TableRow>
-                  <TableRow className="bg-muted/30">
+                  <TableRow>
                     <TableCell className="py-1.5 px-3">C/G</TableCell>
                     <TableCell className="py-1.5 px-3"></TableCell>
                     <TableCell className="py-1.5 px-3">
                       <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.cgValue} onChange={e => handleVitalsEntryChange('cgValue', e.target.value)} />
                     </TableCell>
-                    <TableCell className="py-1.5 px-3">
-                      <Select value={vitalsEntryData.cgUnit} onValueChange={val => handleVitalsEntryChange('cgUnit', val)}>
-                        <SelectTrigger className="h-7 text-xs w-20"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cm" className="text-xs">cm</SelectItem>
-                          <SelectItem value="in" className="text-xs">in</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+                    <TableCell className="py-1.5 px-3">cm</TableCell>
                     <TableCell className="py-1.5 px-3">
                       <Select value={vitalsEntryData.cgQualifier} onValueChange={val => handleVitalsEntryChange('cgQualifier', val)}>
                         <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="option_x" className="text-xs">Option X</SelectItem>
-                          <SelectItem value="option_y" className="text-xs">Option Y</SelectItem>
+                          <SelectItem value="head" className="text-xs">Head</SelectItem>
+                          <SelectItem value="chest" className="text-xs">Chest</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
                   </TableRow>
-                  <TableRow>
+                  <TableRow className="bg-muted/30">
                     <TableCell className="py-1.5 px-3">Pulse Oximetry</TableCell>
                     <TableCell className="py-1.5 px-3"></TableCell>
                     <TableCell className="py-1.5 px-3">
@@ -363,107 +409,205 @@ const VitalsView = () => {
                       <Select value={vitalsEntryData.pulseOximetryQualifier} onValueChange={val => handleVitalsEntryChange('pulseOximetryQualifier', val)}>
                         <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="room_air" className="text-xs">Room Air</SelectItem>
-                          <SelectItem value="on_oxygen" className="text-xs">On Oxygen</SelectItem>
+                          <SelectItem value="room-air" className="text-xs">Room Air</SelectItem>
+                          <SelectItem value="oxygen" className="text-xs">Oxygen</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell className="py-1.5 px-3">Respiration</TableCell>
+                    <TableCell className="py-1.5 px-3"></TableCell>
+                    <TableCell className="py-1.5 px-3">
+                      <Input type="text" className="h-7 text-xs w-20" value={vitalsEntryData.respirationValue} onChange={e => handleVitalsEntryChange('respirationValue', e.target.value)} />
+                    </TableCell>
+                    <TableCell className="py-1.5 px-3">/min</TableCell>
+                    <TableCell className="py-1.5 px-3">
+                      <Select value={vitalsEntryData.respirationQualifier} onValueChange={val => handleVitalsEntryChange('respirationQualifier', val)}>
+                        <SelectTrigger className="h-7 text-xs w-28"><SelectValue placeholder="Select" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="regular" className="text-xs">Regular</SelectItem>
+                          <SelectItem value="irregular" className="text-xs">Irregular</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow className="bg-muted/30">
+                    <TableCell className="py-1.5 px-3">Entered in Error</TableCell>
+                    <TableCell className="py-1.5 px-3">
+                      <Switch checked={isEnteredInError} onCheckedChange={setIsEnteredInError} />
+                    </TableCell>
+                    <TableCell className="py-1.5 px-3" colSpan={3}>Mark this vital as entered in error.</TableCell>
+                  </TableRow>
+
                 </TableBody>
               </Table>
             </ScrollArea>
-            <div className="flex justify-end space-x-2 mt-auto p-2 border-t">
-              <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setIsVitalsEntryMode(false)}>Cancel</Button>
-              <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => { setIsVitalsEntryMode(false); /* TODO: Save logic */ }}>Save</Button>
+            <div className="p-3 border-t flex justify-end space-x-2">
+              <Button variant="secondary" className="text-xs">Cancel</Button>
+              <Button className="text-xs">Save Vitals</Button>
             </div>
           </>
         ) : (
           <>
-            <div className="flex flex-wrap items-center space-x-2 p-2 border-b text-xs gap-y-2">
-              <Label htmlFor="visitDateVitals " className="shrink-0 text-xs">Visit Date</Label>
-              <Select value={visitDateState} onValueChange={setVisitDateState}>
-                <SelectTrigger id="visitDateVitals" className="h-8 w-28 text-xs">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today" className="text-xs">Today</SelectItem>
-                  <SelectItem value="yesterday" className="text-xs">Yesterday</SelectItem>
-                  <SelectItem value="custom" className="text-xs">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex items-center space-x-1">
-                <Label htmlFor="fromDateVitals" className="shrink-0 text-xs">From</Label>
-                <div className="relative">
-                  <Input id="fromDateVitals" type="text" value={fromDateValue} onChange={(e) => setFromDateValue(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-32 text-xs pr-8 text-xs" />
-                  <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
-                    <CalendarDays className="h-4 w-4" />
-                  </Button>
+            <div className="flex-1 flex flex-col overflow-hidden p-3 pt-0">
+              <div className="mb-2 text-xs">
+                <div className="flex flex-wrap items-center justify-between w-full gap-3">
+                  <div className="flex items-center gap-3">
+                    <Label htmlFor="visitDate" className="text-xs whitespace-nowrap">Visit Date</Label>
+                    <Select value={visitDateState} onValueChange={setVisitDateState}>
+                      <SelectTrigger id="visitDate" className="h-7 w-40 text-xs">
+                        <SelectValue placeholder="Select Date" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="today">Today</SelectItem>
+                        <SelectItem value="last24">Last 24 Hours</SelectItem>
+                        <SelectItem value="last48">Last 48 Hours</SelectItem>
+                        <SelectItem value="range">Date Range</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {visitDateState === "range" && (
+                      <>
+                        <Label htmlFor="fromDate" className="text-xs whitespace-nowrap">From</Label>
+                        <div className="relative">
+                          <Input
+                            id="fromDate"
+                            type="text"
+                            className="h-7 w-28 text-xs pr-6"
+                            value={fromDateValue}
+                            onChange={(e) => setFromDateValue(e.target.value)}
+                            aria-label="From Date"
+                            placeholder="DD/MM/YYYY"
+                          />
+                          <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        </div>
+                        <Label htmlFor="toDate" className="text-xs whitespace-nowrap">To</Label>
+                        <div className="relative">
+                          <Input
+                            id="toDate"
+                            type="text"
+                            className="h-7 w-28 text-xs pr-6"
+                            value={toDateValueState}
+                            onChange={(e) => setToDateValueState(e.target.value)}
+                            aria-label="To Date"
+                            placeholder="DD/MM/YYYY"
+                          />
+                          <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="showEntries" className="text-xs whitespace-nowrap">Show</Label>
+                    <Select value={showEntries} onValueChange={setShowEntries}>
+                      <SelectTrigger id="showEntries" className="h-7 w-16 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Label htmlFor="showEntries" className="text-xs whitespace-nowrap">entries</Label>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-1">
-                <Label htmlFor="toDateVitals" className="shrink-0 text-xs">To</Label>
-                <div className="relative">
-                  <Input id="toDateVitals" type="text" value={toDateValueState} onChange={(e) => setToDateValueState(e.target.value)} placeholder="DD/MM/YYYY" className="h-8 w-32 text-xs pr-8" />
-                  <Button variant="ghost" size="icon" className="h-7 w-7 absolute right-0.5 top-0.5 text-muted-foreground">
-                    <CalendarDays className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-end p-2 bg-accent text-foreground border-b text-xs font-medium">
-              <div className="w-20 text-center">Date</div>
-              <div className="w-20 text-center">Time</div>
-            </div>
-            <ScrollArea className="flex-1 min-h-0">
-              <Table className="text-xs">
-                <TableBody>
-                  {vitalTypes.map((vital, index) => (
-                    <TableRow
-                      key={vital}
-                      className={`hover:bg-muted/30 cursor-pointer ${selectedVitalForGraph === vital ? 'bg-secondary text-primary hover:bg-secondary hover:text-primary' : ''} ${index % 2 === 0 ? 'bg-muted/30' : ''}`}
-                      onClick={() => setSelectedVitalForGraph(vital)}
-                    >
-                      <TableCell className="font-medium py-1.5 px-3 border-r w-48 whitespace-nowrap">{vital}</TableCell>
-                      <TableCell className="py-1.5 px-3 border-r w-20 text-center whitespace-nowrap">-</TableCell>
-                      <TableCell className="py-1.5 px-3 w-20 text-center whitespace-nowrap">-</TableCell>
+
+              {/* Vitals Chart */}
+              {/* Vitals Chart */}
+
+
+              {/* Vitals Table */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <Table className="text-xs w-full">
+                  <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
+                    <TableRow>
+                      <TableHead className="py-1 px-3 text-xs h-auto w-1/3">Vital Type</TableHead>
+                      <TableHead className="py-1 px-3 text-xs h-auto w-1/3">Date</TableHead>
+                      <TableHead className="py-1 px-3 text-xs h-auto w-1/3">Time</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-            <div className="flex items-center justify-center space-x-2 p-2 border-t">
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8" onClick={() => setIsVitalsEntryMode(true)}>Vitals Entry</Button>
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Multiple Vitals Graph</Button>
-              <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">ICU Flow Sheet</Button>
+                  </ShadcnTableHeader>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center py-4">
+                          <p className="text-muted-foreground">Loading vitals...</p>
+                        </TableCell>
+                      </TableRow>
+                    ) : error ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center py-4">
+                          <p className="text-destructive">{error}</p>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      vitalTypes.map((vitalType, index) => (
+                        <TableRow 
+                          key={vitalType} 
+                          className={`${index % 2 === 0 ? 'bg-muted/30' : ''} cursor-pointer hover:bg-accent/50 transition-colors ${selectedVitalForGraph === vitalType ? 'ring-2 ring-primary' : ''}`}
+                          onClick={() => setSelectedVitalForGraph(vitalType)}
+                        >
+                          <TableCell className="py-1.5 px-3">{vitalType}</TableCell>
+                          <TableCell className="py-1.5 px-3">-</TableCell>
+                          <TableCell className="py-1.5 px-3">-</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex justify-end space-x-2 mt-auto p-2 border-t">
+                <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8" onClick={() => setIsVitalsEntryMode(true)}>Vitals Entry</Button>
+                <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">Multiple Vitals Graph</Button>
+                <Button size="sm" className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground h-8">ICU Flow Sheet</Button>
+              </div>
             </div>
           </>
         )}
       </div>
-      <div className="flex-1 flex flex-col border rounded-md bg-card shadow">
-        <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
+      <div className="basis-1/2 flex flex-col border rounded-md bg-card shadow min-h-0">
+        <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md flex-shrink-0">
           <h2 className="text-base font-semibold">{selectedVitalForGraph} Graph</h2>
         </div>
         <div className="flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 20, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} label={{ value: "Time/Sequence", position: 'insideBottom', offset: -10, fontSize: 10 }} />
-              <YAxis
-                tick={{ fontSize: 10 }}
-                domain={yAxisConfig.domain as [number | string, number | string]}
-                label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', offset: 10, fontSize: 10, dy: 40 }}
-              />
-              <Tooltip contentStyle={{ fontSize: 10, padding: '2px 5px' }} />
-              <Legend wrapperStyle={{ fontSize: "10px" }} />
-              {selectedVitalForGraph === "B/P (mmHg)" ? (
-                <>
-                  <Line type="monotone" dataKey="systolic" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name="Systolic" />
-                  <Line type="monotone" dataKey="diastolic" stroke="hsl(var(--chart-3))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name="Diastolic" />
-                </>
-              ) : (
-                <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} name={selectedVitalForGraph} />
-              )}
-            </LineChart>
+            {selectedVitalForGraph === "B/P (mmHg)" ? (
+              <LineChart
+                data={chartData}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: 10 } }} domain={yAxisConfig.domain} tick={{ fontSize: 10 }} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="systolic" stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="diastolic" stroke="#82ca9d" />
+              </LineChart>
+            ) : (
+              <LineChart
+                data={chartData}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis label={{ value: yAxisConfig.label, angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: 10 } }} domain={yAxisConfig.domain} tick={{ fontSize: 10 }} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="value" stroke="#8884d8" activeDot={{ r: 8 }} />
+              </LineChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>
@@ -681,14 +825,14 @@ const IntakeOutputView = () => {
         </div>
         <div className="flex flex-wrap items-center space-x-3 p-2 border-b text-xs gap-y-2">
           <div className="flex items-center gap-2">
-            <input 
-              type="range" 
-              min="1" 
-              max="12" 
-              value="1" 
+            <input
+              type="range"
+              min="1"
+              max="12"
+              value="1"
               className="w-20"
               title="Select number of months"
-              aria-label="Select number of months" 
+              aria-label="Select number of months"
             />
             <span>1 Month</span>
           </div>
@@ -779,7 +923,7 @@ const IntakeOutputView = () => {
 
   return (
     <div className="flex-1 w-[95%] flex justify-between gap-3 overflow-auto">
-      <div className="flex-[6] flex flex-col border rounded-md bg-card shadow overflow-hidden">
+      <div className="basis-1/2 flex flex-col border rounded-md bg-card shadow overflow-hidden">
         {currentView === 'summary' ? (
           <>
             <div className="flex items-center justify-between p-2 border-b bg-card text-foreground rounded-t-md">
@@ -978,7 +1122,7 @@ const IntakeOutputView = () => {
           <IntakeOutputList title="Output List" isIntake={false} />
         ) : null}
       </div>
-      <div className="flex-[4] flex flex-col border rounded-md bg-card shadow">
+      <div className="basis-1/2 flex flex-col border rounded-md bg-card shadow">
         <div className="flex items-center p-2 border-b bg-card text-foreground rounded-t-md">
           <h2 className="text-base font-semibold">Intake/Output Graph</h2>
         </div>
@@ -1267,13 +1411,13 @@ const ChiefComplaintsView = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">Chief-Complaints</CardTitle>
           <Button
-  variant="ghost"
-  size="icon"
-  className="h-7 w-7 text-primary hover:bg-muted/50"
-  onClick={() => setIsPopupOpen(true)}
->
-  <Edit3 className="h-4 w-4" />
-</Button>
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-primary hover:bg-muted/50"
+            onClick={() => setIsPopupOpen(true)}
+          >
+            <Edit3 className="h-4 w-4" />
+          </Button>
 
         </div>
       </CardHeader>
@@ -1351,47 +1495,47 @@ const ChiefComplaintsView = () => {
         <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Chief Complaints</Button>
       </div>
       {isPopupOpen && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-    <div className="bg-white rounded-lg shadow-xl w-[500px] p-5 relative">
-      <button
-        className="absolute top-2 right-2 text-gray-500 hover:text-black"
-        onClick={() => setIsPopupOpen(false)}
-      >
-        ✖
-      </button>
-      <h2 className="text-base font-semibold mb-4">Edit Chief Complaint</h2>
-      <form className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Complaint</label>
-          <input
-            type="text"
-            placeholder="E.g. Headache"
-            className="mt-1 block w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring focus:border-blue-300"
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-[500px] p-5 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              onClick={() => setIsPopupOpen(false)}
+            >
+              ✖
+            </button>
+            <h2 className="text-base font-semibold mb-4">Edit Chief Complaint</h2>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Complaint</label>
+                <input
+                  type="text"
+                  placeholder="E.g. Headache"
+                  className="mt-1 block w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring focus:border-blue-300"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700" htmlFor="complaintType">Type</label>
+                <select id="complaintType" className="mt-1 block w-full px-3 py-2 border rounded text-sm">
+                  <option>New</option>
+                  <option>Follow-up</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Remark</label>
+                <textarea
+                  placeholder="Optional remarks"
+                  className="mt-1 block w-full px-3 py-2 border rounded text-sm"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setIsPopupOpen(false)}>Cancel</Button>
+                <Button type="submit">Save</Button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Type</label>
-          <select className="mt-1 block w-full px-3 py-2 border rounded text-sm">
-            <option>New</option>
-            <option>Follow-up</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Remark</label>
-          <textarea
-            placeholder="Optional remarks"
-            className="mt-1 block w-full px-3 py-2 border rounded text-sm"
-            rows={3}
-          />
-        </div>
-        <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={() => setIsPopupOpen(false)}>Cancel</Button>
-          <Button type="submit">Save</Button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
 
     </Card>
   );
@@ -1587,7 +1731,7 @@ const OpdIpdDetailsView = () => {
   );
 };
 
-const VitalsDashboardPage: NextPage = () => {
+const VitalsDashboardPage: NextPage<{ patient?: Patient }> = ({ patient }) => {
   const [activeVerticalTab, setActiveVerticalTab] = useState<string>(verticalNavItems[0]);
 
   return (
@@ -1619,15 +1763,15 @@ const VitalsDashboardPage: NextPage = () => {
           "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
           "Chief-Complaints", "Allergies", "OPD/IPD Details"
         ].includes(activeVerticalTab) && (
-          <Card className="flex-1 flex items-center justify-center">
-            <CardContent className="text-center">
-              <CardTitle className="text-xl text-muted-foreground">
-                {activeVerticalTab} View
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
-            </CardContent>
-          </Card>
-        )}
+            <Card className="flex-1 flex items-center justify-center">
+              <CardContent className="text-center">
+                <CardTitle className="text-xl text-muted-foreground">
+                  {activeVerticalTab} View
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
+              </CardContent>
+            </Card>
+          )}
       </main>
     </div>
   );

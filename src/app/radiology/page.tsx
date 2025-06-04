@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 // ScrollArea removed
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarDays, ArrowUpDown, FileSearch2 } from 'lucide-react';
+import type { Patient } from '@/services/api';
 
 const radiologySubNavItems = ["Radiology Test", "Pending Results", "Archived Scans"];
 
@@ -23,35 +24,57 @@ type RadiologyEntryDataType = {
   provider: string;
 };
 
-const mockRadiologyEntries: RadiologyEntryDataType[] = [
-  { id: '1', sNo: '1', imagingProcedure: 'USG RENAL DOPPLER', imagingType: 'US', orderDateTime: '31 AUG, 2022 10:43', status: 'ACTIVE', provider: 'Sansys Doctor' },
-  { id: '2', sNo: '2', imagingProcedure: 'X-RAY CHEST PA/AP VIEW', imagingType: 'RAD', orderDateTime: '31 AUG, 2022 10:43', status: 'COMPLETE', provider: 'Sansys Doctor' },
-  { id: '3', sNo: '3', imagingProcedure: 'USG ABDOMINAL DOPPLER (PORTO CAVAL)', imagingType: 'US', orderDateTime: '31 AUG, 2022 11:25', status: 'COMPLETE', provider: 'Sansys Doctor' },
-];
+// Mock data for different patients
+const mockRadiologyData: Record<string, RadiologyEntryDataType[]> = {
+  '900752869578': [
+    { id: '1', sNo: '1', imagingProcedure: 'USG RENAL DOPPLER', imagingType: 'US', orderDateTime: '31 AUG, 2022 10:43', status: 'ACTIVE', provider: 'Dr. Emily Carter' },
+    { id: '2', sNo: '2', imagingProcedure: 'X-RAY CHEST PA/AP VIEW', imagingType: 'RAD', orderDateTime: '31 AUG, 2022 10:43', status: 'COMPLETE', provider: 'Dr. Emily Carter' },
+  ],
+  '900752869579': [
+    { id: '1', sNo: '1', imagingProcedure: 'CT SCAN BRAIN', imagingType: 'CT', orderDateTime: '15 MAY, 2024 09:30', status: 'ACTIVE', provider: 'Dr. Alex Smith' },
+    { id: '2', sNo: '2', imagingProcedure: 'MRI SPINE', imagingType: 'MRI', orderDateTime: '15 MAY, 2024 11:15', status: 'COMPLETE', provider: 'Dr. Alex Smith' },
+  ],
+  '900752869580': [
+    { id: '1', sNo: '1', imagingProcedure: 'USG ABDOMINAL', imagingType: 'US', orderDateTime: '14 MAY, 2024 14:20', status: 'ACTIVE', provider: 'Dr. Emily Carter' },
+    { id: '2', sNo: '2', imagingProcedure: 'X-RAY KUB', imagingType: 'RAD', orderDateTime: '14 MAY, 2024 15:45', status: 'COMPLETE', provider: 'Dr. Emily Carter' },
+  ],
+};
 
-const RadiologyPage: NextPage = () => {
+interface RadiologyPageProps {
+  patient: Patient;
+}
+
+const RadiologyPage: NextPage<RadiologyPageProps> = ({ patient }) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(radiologySubNavItems[0]);
 
   // State for filters
   const [visitDate, setVisitDate] = useState<string>("18 DEC, 2022 23:36 - ICU ONE");
   const [orderFrom, setOrderFrom] = useState<string>("");
-  const [orderTo, setToDate] = useState<string>(""); // Renamed to avoid conflict with potential date-fns import
+  const [orderTo, setToDate] = useState<string>("");
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
 
-  const filteredEntries = mockRadiologyEntries; 
+  // Get patient-specific radiology entries
+  const patientEntries = mockRadiologyData[patient.id] || [];
+
+  // Filter entries based on search text
+  const filteredEntries = patientEntries.filter(entry =>
+    entry.imagingProcedure.toLowerCase().includes(searchText.toLowerCase()) ||
+    entry.imagingType.toLowerCase().includes(searchText.toLowerCase()) ||
+    entry.provider.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-2">
       {/* Horizontal Sub-Navigation Bar */}
       <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {radiologySubNavItems.map((item) => (
-           <Button
+          <Button
             key={item}
             onClick={() => setActiveSubNav(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeSubNav === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary'
                 : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >
@@ -95,20 +118,20 @@ const RadiologyPage: NextPage = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                   <Label htmlFor="showEntries" className="shrink-0">Show</Label>
-                    <Select value={showEntries} onValueChange={setShowEntries}>
-                        <SelectTrigger id="showEntries" className="h-7 w-20 text-xs">
-                        <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectItem value="All">All</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="25">25</SelectItem>
-                        <SelectItem value="50">50</SelectItem>
-                        </SelectContent>
-                    </Select>
+                  <Label htmlFor="showEntries" className="shrink-0">Show</Label>
+                  <Select value={showEntries} onValueChange={setShowEntries}>
+                    <SelectTrigger id="showEntries" className="h-7 w-20 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Label className="shrink-0">entries</Label>
-                  <div className="flex-grow"></div> 
+                  <div className="flex-grow"></div>
                   <Label htmlFor="radiologySearch" className="shrink-0">Search:</Label>
                   <Input id="radiologySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
                 </div>
@@ -116,16 +139,23 @@ const RadiologyPage: NextPage = () => {
 
               {/* Table */}
               <div className="flex-1 overflow-hidden min-h-0">
-                <Table className="text-xs min-w-[80rem] flex-1 min-h-0">
+                <Table className="text-xs flex-1 min-h-0 table-fixed">
                   <TableHeader className="bg-accent sticky top-0 z-10">
                     <TableRow>
                       {[
-                        "S No.", "Imaging Procedure", "Imaging Type", "Order Date and Time", 
-                        "Status", "Provider", "Result View", "Imaging Pacs", "Order View"
+                        { label: "S No.", width: "w-[5%]" },
+                        { label: "Imaging Procedure", width: "w-[18%]" },
+                        { label: "Imaging Type", width: "w-[10%]" },
+                        { label: "Order Date and Time", width: "w-[15%]" },
+                        { label: "Status", width: "w-[10%]" },
+                        { label: "Provider", width: "w-[15%]" },
+                        { label: "Result View", width: "w-[10%]" },
+                        { label: "Imaging Pacs", width: "w-[8%]" },
+                        { label: "Order View", width: "w-[9%]" },
                       ].map(header => (
-                        <TableHead key={header} className="py-2 px-3 text-foreground font-semibold h-8 whitespace-nowrap">
+                        <TableHead key={header.label} className={`py-2 px-3 text-foreground font-semibold h-8 break-words ${header.width}`}>
                           <div className="flex items-center justify-between">
-                            {header}
+                            {header.label}
                             <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
                           </div>
                         </TableHead>
@@ -135,19 +165,19 @@ const RadiologyPage: NextPage = () => {
                   <TableBody>
                     {filteredEntries.length > 0 ? filteredEntries.map((entry, index) => (
                       <TableRow key={entry.id} className={`hover:bg-muted/30 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.sNo}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.imagingProcedure}</TableCell> {/* Keep this nowrap */}
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.imagingType}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.orderDateTime}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.status}</TableCell>
-                        <TableCell className="py-1.5 px-3 whitespace-nowrap">{entry.provider}</TableCell>
-                        <TableCell className="py-1.5 px-3 text-center">
+                        <TableCell className="py-1.5 px-3 break-words w-[5%]">{entry.sNo}</TableCell>
+                        <TableCell className="py-1.5 px-3 break-words w-[18%]">{entry.imagingProcedure}</TableCell>
+                        <TableCell className="py-1.5 px-3 break-words w-[10%]">{entry.imagingType}</TableCell>
+                        <TableCell className="py-1.5 px-3 break-words w-[15%]">{entry.orderDateTime}</TableCell>
+                        <TableCell className="py-1.5 px-3 break-words w-[10%]">{entry.status}</TableCell>
+                        <TableCell className="py-1.5 px-3 break-words w-[15%]">{entry.provider}</TableCell>
+                        <TableCell className="py-1.5 px-3 text-center break-words w-[10%]">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3 text-center">
+                        <TableCell className="py-1.5 px-3 text-center break-words w-[8%]">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
                         </TableCell>
-                        <TableCell className="py-1.5 px-3 text-center">
+                        <TableCell className="py-1.5 px-3 text-center break-words w-[9%]">
                           <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
                         </TableCell>
                       </TableRow>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { NextPage } from 'next';
@@ -6,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Patient } from '@/services/api';
 
 const reportNavItems = ["Patient Report", "Graph Report"];
 
@@ -59,7 +59,7 @@ const patientReportCategories: ReportCategory[] = [
 ];
 
 
-const ReportPage: NextPage = () => {
+const ReportPage: NextPage<{ patient?: Patient }> = ({ patient }) => {
   const [activeReportTab, setActiveReportTab] = useState<string>(reportNavItems[0]);
 
   return (

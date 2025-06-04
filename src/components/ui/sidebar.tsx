@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -74,7 +73,7 @@ const SidebarProvider = React.forwardRef<
 
     const [_open, _setOpen] = React.useState(defaultOpen)
     const open = openProp ?? _open
-    
+
     const setOpen = React.useCallback(
       (value: boolean | ((currentOpen: boolean) => boolean)) => {
         const newOpenState = typeof value === "function" ? value(open) : value;
@@ -87,14 +86,14 @@ const SidebarProvider = React.forwardRef<
 
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${newOpenState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
-      [setOpenProp, open] 
+      [setOpenProp, open]
     );
 
     const toggleSidebar = React.useCallback(() => {
       if (isMobile) {
         setOpenMobile((currentOpenMobile) => !currentOpenMobile);
       } else {
-        setOpen((currentOpen) => !currentOpen); 
+        setOpen((currentOpen) => !currentOpen);
       }
     }, [isMobile, setOpen, setOpenMobile]);
 
@@ -175,7 +174,7 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
 
     if (collapsible === "none") {
       return (
@@ -216,7 +215,7 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className="group peer hidden md:block text-sidebar-foreground"
-        data-state={state} 
+        data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
@@ -238,7 +237,7 @@ const Sidebar = React.forwardRef<
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]" 
+              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
             className
           )}
@@ -250,6 +249,21 @@ const Sidebar = React.forwardRef<
           >
             {children}
           </div>
+          {/* Collapse/Expand Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 h-6 w-6 z-20 transition-transform duration-200",
+              side === "left" ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2 rotate-180",
+              state === "collapsed" && (side === "left" ? "rotate-180" : "rotate-0"),
+              // Adjust position slightly for floating/inset variant due to padding
+              variant === "floating" || variant === "inset" ? (side === "left" ? "right-2 translate-x-0" : "left-2 translate-x-0") : ""
+            )}
+            onClick={toggleSidebar}
+          >
+            <PanelLeft className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     )
@@ -587,7 +601,7 @@ const SidebarMenuButton = React.forwardRef<
         <TooltipContent
           side="right"
           align="center"
-          hidden={state !== "collapsed" || isMobile} 
+          hidden={state !== "collapsed" || isMobile}
           {...tooltip}
         />
       </Tooltip>
@@ -618,7 +632,7 @@ const SidebarMenuAction = React.forwardRef<
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+        "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
         className
       )}
       {...props}

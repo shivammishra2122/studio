@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -10,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { Card, CardContent, CardFooter, CardHeader as ShadcnCardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpDown, RefreshCw, CalendarDays } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Patient } from '@/services/api';
 
 // MLC/Non-MLC Note Data Type
 type MLCNonMLCNoteDataType = {
@@ -160,20 +160,20 @@ const PatientCOPDListView = () => {
   const [copdSearchText, setCopdSearchText] = useState<string>("");
 
   const copdTableHeaders = [
-    "Visit Date/Time", "Type", "MLC", "MLC/Progress Id", "Treating Facility", 
-    "Injury", "Criticality", "Consultant Name", "Attended By", 
+    "Visit Date/Time", "Type", "MLC", "MLC/Progress Id", "Treating Facility",
+    "Injury", "Criticality", "Consultant Name", "Attended By",
     "Referred From", "Brought By", "Brought By Name"
   ];
 
   return (
     <Card className="flex-1 flex flex-col shadow overflow-hidden">
-      
+
 
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
         {/* Filter Bars */}
         <div className="space-y-2 mb-2 text-xs">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            
+
             <Label htmlFor="copdFromDate" className="shrink-0 text-xs">From Date</Label>
             <div className="relative">
               <Input id="copdFromDate" type="text" value={copdFromDate} onChange={e => setCopdFromDate(e.target.value)} className="h-7 w-24 text-xs pr-7" />
@@ -208,26 +208,26 @@ const PatientCOPDListView = () => {
               </SelectContent>
             </Select>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <Label htmlFor="copdShowEntries" className="text-xs shrink-0">Show</Label>
-            <Select value={copdShowEntries} onValueChange={setCopdShowEntries}>
-              <SelectTrigger id="copdShowEntries" className="h-7 w-16 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label htmlFor="copdShowEntries" className="text-xs shrink-0">entries</Label>
-            <div className="flex-grow"></div>
-            <Label htmlFor="copdSearch" className="text-xs shrink-0">Search:</Label>
-            <Input id="copdSearch" type="text" value={copdSearchText} onChange={e => setCopdSearchText(e.target.value)} className="h-7 w-32 text-xs" />
+              <Label htmlFor="copdShowEntries" className="text-xs shrink-0">Show</Label>
+              <Select value={copdShowEntries} onValueChange={setCopdShowEntries}>
+                <SelectTrigger id="copdShowEntries" className="h-7 w-16 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="copdShowEntries" className="text-xs shrink-0">entries</Label>
+              <div className="flex-grow"></div>
+              <Label htmlFor="copdSearch" className="text-xs shrink-0">Search:</Label>
+              <Input id="copdSearch" type="text" value={copdSearchText} onChange={e => setCopdSearchText(e.target.value)} className="h-7 w-32 text-xs" />
+            </div>
           </div>
-          </div>
-          
+
         </div>
-        
+
         <div className="flex-1 overflow-auto min-h-0">
           <Table className="text-xs w-full">
             <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
@@ -254,14 +254,14 @@ const PatientCOPDListView = () => {
 
         <div className="mt-auto pt-2 border-t">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1 px-1">
-              <span>Showing 0 to 0 of 0 entries</span>
-              <div className="flex items-center space-x-1">
-                  <Button variant="outline" size="sm" className="h-6 text-xs px-1.5 py-0.5">Previous</Button>
-                   <Button variant="outline" size="sm" className="h-6 text-xs px-1.5 py-0.5 bg-accent text-foreground border-border">1</Button>
-                  <Button variant="outline" size="sm" className="h-6 text-xs px-1.5 py-0.5">Next</Button>
-              </div>
+            <span>Showing 0 to 0 of 0 entries</span>
+            <div className="flex items-center space-x-1">
+              <Button variant="outline" size="sm" className="h-6 text-xs px-1.5 py-0.5">Previous</Button>
+              <Button variant="outline" size="sm" className="h-6 text-xs px-1.5 py-0.5 bg-accent text-foreground border-border">1</Button>
+              <Button variant="outline" size="sm" className="h-6 text-xs px-1.5 py-0.5">Next</Button>
+            </div>
           </div>
-          <Progress value={0} className="h-1.5 w-full bg-muted" /> 
+          <Progress value={0} className="h-1.5 w-full bg-muted" />
         </div>
       </CardContent>
       <CardFooter className="p-2.5 border-t flex justify-center space-x-2">
@@ -276,9 +276,9 @@ const PatientCOPDListView = () => {
 
 const subNavItems = ["COPD List", "MLC/Non-MLC Note"];
 
-const EmergencyCarePage = () => {
+const EmergencyCarePage = ({ patient }: { patient?: Patient }) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(subNavItems[0]);
-  
+
   return (
     <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
       {/* Horizontal Navigation Bar */}
@@ -289,7 +289,7 @@ const EmergencyCarePage = () => {
             onClick={() => setActiveSubNav(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeSubNav === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary'
                 : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >
@@ -307,4 +307,4 @@ const EmergencyCarePage = () => {
 };
 
 export default EmergencyCarePage;
-    
+

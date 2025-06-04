@@ -131,7 +131,7 @@ export default function PatientsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 p-8">
+        <div className="min-h-screen bg-blue-600 p-8">
             <div className="max-w-7xl mx-auto bg-white/90 rounded-lg shadow-lg overflow-x-auto p-4">
                 <h1 className="text-xl font-semibold text-gray-800 mb-4">Patient List</h1>
                 <div className="mb-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">

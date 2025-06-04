@@ -1,10 +1,10 @@
-
 'use client';
 
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Patient } from '@/services/api';
 
 const nursingSubNavItems = ["Nurse Order", "Nurse Chart List", "Pharmacy"];
 
@@ -15,7 +15,7 @@ const nurseOrderOptions = [
   "Nursing Care"
 ];
 
-const NursingPage: NextPage = () => {
+const NursingPage: NextPage<{ patient?: Patient }> = ({ patient }) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(nursingSubNavItems[0]);
 
   return (
@@ -28,7 +28,7 @@ const NursingPage: NextPage = () => {
             onClick={() => setActiveSubNav(item)}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeSubNav === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary'
                 : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >

@@ -1,14 +1,14 @@
-
 'use client';
 
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Patient } from '@/services/api';
 
 const referralSubNavItems = ["New Referral", "Referral Status", "Referral History"];
 
-const ReferralPage: NextPage = () => {
+const ReferralPage: NextPage<{ patient?: Patient }> = ({ patient }) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(referralSubNavItems[0]);
 
   return (

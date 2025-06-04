@@ -1,7 +1,7 @@
 'use client';
 
 import type { NextPage } from 'next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,8 @@ import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Settings, RefreshCw, CalendarDays, ArrowUpDown, MessageSquare, Edit2, CheckCircle2, ImageUp, X, FileSignature } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Patient } from '@/lib/constants';
+import { fetchClinicalNotes } from '@/services/api';
 
 const clinicalNotesSubNavItems = [
   "Notes View", "New Notes", "Scanned Notes",
@@ -18,108 +20,152 @@ const clinicalNotesSubNavItems = [
   "Clinical Reminder Analysis", "Clinical Template"
 ];
 
-type NoteEntryDataType = {
+type PatientClinicalNoteType = {
   id: string;
-  notesTitle: string; 
+  patientId: string;
+  patientName: string;
+  notesTitle: string;
   dateOfEntry: string;
   status: "COMPLETED" | "UNSIGNED" | "DRAFT" | "PENDING";
   author: string;
   location: string;
   cosigner?: string;
+  department: string;
+  visitType: string;
 };
 
-const mockNoteEntries: NoteEntryDataType[] = [
+const mockPatientClinicalNotes: PatientClinicalNoteType[] = [
   {
     id: '1',
-    notesTitle: 'Physiotherapy Progress Note - Patient making good progress with range of motion exercises. Strength improving. Continue current plan. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    dateOfEntry: '21 MAY, 2025 12:19',
-    status: 'UNSIGNED',
-    author: 'Sansys Dr.',
-    location: 'ICU 1',
-    cosigner: '', 
+    patientId: 'P001',
+    patientName: 'John Smith',
+    notesTitle: 'Initial Assessment - Orthopedics',
+    dateOfEntry: '15 MAY, 2025 20:05',
+    status: 'COMPLETED',
+    author: 'Dr. J. Doe',
+    location: 'Gen Ward',
+    cosigner: 'Dr. S. Ray',
+    department: 'Orthopedics',
+    visitType: 'OPD'
   },
   {
     id: '2',
-    notesTitle: 'Psychologist Activity Sheet - Patient reports feeling less anxious this week. Coping mechanisms discussed and practiced. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    dateOfEntry: '21 MAY, 2025 12:18',
-    status: 'UNSIGNED',
-    author: 'Sansys Dr.',
-    location: 'ICU 1',
-    cosigner: '', 
+    patientId: 'P001',
+    patientName: 'John Smith',
+    notesTitle: 'Follow-up Assessment',
+    dateOfEntry: '18 MAY, 2025 09:00',
+    status: 'COMPLETED',
+    author: 'Dr. J. Doe',
+    location: 'Gen Ward',
+    cosigner: 'Dr. S. Ray',
+    department: 'Orthopedics',
+    visitType: 'OPD'
   },
   {
     id: '3',
-    notesTitle: 'Initial Assessment - Orthopedics and subsequent follow-up notes regarding patient recovery progress. Patient reported moderate pain relief after medication adjustment. Discussed further physical therapy options. Scheduled follow-up in 2 weeks. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
-    dateOfEntry: '15 MAY, 2025 20:05',
-    status: 'COMPLETED',
-    author: 'Dr. J. Doe', 
-    location: 'Gen Ward', 
-    cosigner: 'Dr. S. Ray'
-  },
-  {
-    id: '4',
-    notesTitle: 'Routine Checkup - General Medicine. Patient reports feeling well overall. Discussed annual vaccinations and preventative care. No acute complaints. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.',
+    patientId: 'P002',
+    patientName: 'Sarah Johnson',
+    notesTitle: 'Routine Checkup - General Medicine',
     dateOfEntry: '18 MAY, 2025 09:00',
     status: 'COMPLETED',
     author: 'Dr. Lisa Ray',
     location: 'Clinic A',
-    cosigner: 'Dr. John Davis'
+    cosigner: 'Dr. John Davis',
+    department: 'General Medicine',
+    visitType: 'OPD'
   },
   {
-    id: '5',
-    notesTitle: 'Pre-operative Assessment - Surgery. Patient cleared for upcoming procedure. Anesthesia plan reviewed. Consent forms signed. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.',
+    id: '4',
+    patientId: 'P003',
+    patientName: 'Michael Brown',
+    notesTitle: 'Pre-operative Assessment',
     dateOfEntry: '19 MAY, 2025 11:45',
     status: 'COMPLETED',
     author: 'Dr. M. Chen',
     location: 'Surg Pre-Op',
-    cosigner: 'Dr. S. Bell'
+    cosigner: 'Dr. S. Bell',
+    department: 'Surgery',
+    visitType: 'IPD'
   },
-  {
-    id: '6',
-    notesTitle: 'Discharge Summary - Pediatrics. Patient discharged in stable condition. Follow-up appointment scheduled. Instructions provided. Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.',
-    dateOfEntry: '20 MAY, 2025 16:30',
-    status: 'PENDING',
-    author: 'Dr. K. Young',
-    location: 'Peds Ward',
-    cosigner: 'Dr. M. Garcia'
-  },
-  {
-    id: '7',
-    notesTitle: 'Mental Health Consultation - Psychiatry. Patient reports improvement in mood and anxiety levels. Medication adherence discussed. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.',
-    dateOfEntry: '21 MAY, 2025 13:00',
-    status: 'DRAFT',
-    author: 'Dr. O. Green',
-    location: 'Behavioral H.',
-    cosigner: undefined
-  },
-  {
-    id: '8',
-    notesTitle: 'Physical Therapy Session - Rehabilitation. Patient completed all prescribed exercises. Range of motion improved. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus.',
-    dateOfEntry: '22 MAY, 2025 15:00',
-    status: 'COMPLETED',
-    author: 'Laura White, PT',
-    location: 'Rehab Center',
-    cosigner: 'Dr. R. Brown'
-  }
 ];
 
-const ClinicalNotesPage = () => { 
+interface ClinicalNotesPageProps {
+  patient?: Patient;
+}
+
+const DEFAULT_SSN = '670768354';
+
+const ClinicalNotesPage = ({ patient }: ClinicalNotesPageProps) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(clinicalNotesSubNavItems[0]);
   const [viewMode, setViewMode] = useState<'table' | 'detail'>('table');
-  const [groupBy, setGroupBy] = useState<string>("visitDate");
-  const [selectedDate, setSelectedDate] = useState<string>("15 MAY, 2025 19:45"); 
-  const [statusFilter, setStatusFilter] = useState<string>("ALL"); 
+  const [selectedPatient, setSelectedPatient] = useState<string>(patient?.id || "");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [fromDate, setFromDate] = useState<string>("");
-  const [toDateValue, setToDateValue] = useState<string>(""); 
+  const [toDateValue, setToDateValue] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
-  const [selectedNoteContent, setSelectedNoteContent] = useState<string>(mockNoteEntries[0].notesTitle);
+  const [selectedNoteContent, setSelectedNoteContent] = useState<string>("");
   const [isNoteDetailDialogOpen, setIsNoteDetailDialogOpen] = useState(false);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filteredNotes = mockNoteEntries;
+  useEffect(() => {
+    const ssn = patient?.ssn || DEFAULT_SSN;
+    setLoading(true);
+    fetchClinicalNotes({
+      patientSSN: ssn,
+      fromDate: fromDate,
+      toDate: toDateValue,
+      status: statusFilter !== "ALL" ? statusFilter : "5",
+      ewd_sessid: "36608394",
+    })
+      .then(data => {
+        console.log("API Data:", data);
+
+        // Convert object with numeric keys into array and normalize
+        const notesArray = Array.isArray(data) ? data : Object.values(data || {});
+
+        const normalizedNotes = notesArray.map((note: any, index) => ({
+          id: note.NoteIEN || `${note["Notes Title"]}-${index}`, // Use NoteIEN as id or fallback
+          notesTitle: note["Notes Title"] || note.notesTitle || "No Title",
+          dateOfEntry: note["Date of Entry"] || note.dateOfEntry || "No Date",
+          status: note["Status"] || note.status || "UNKNOWN",
+          author: note.Author || note.author || "Unknown Author",
+          location: note.Location || note.location || "Unknown Location",
+          // Include other fields from API response if needed, e.g., cosigner, etc.
+          cosigner: note.Cosigner || note.cosigner || "-",
+          // Assuming 'department' and 'visitType' are not in this API response, keeping mock data structure for now
+          department: note.department || "Unknown Department",
+          visitType: note.visitType || "Unknown Visit Type",
+        }));
+
+        setNotes(normalizedNotes);
+      })
+      .catch(error => {
+        console.error("Error fetching clinical notes:", error);
+        setNotes([]); // fallback to empty array
+      })
+      .finally(() => setLoading(false));
+  }, [patient?.ssn, fromDate, toDateValue, statusFilter]);
+
+  // Filter notes based on search and status
+  const filteredNotes = (notes || []).filter(note => {
+    if (statusFilter !== "ALL" && note.status !== statusFilter) return false;
+    if (searchText && !note.notesTitle?.toLowerCase().includes(searchText.toLowerCase())) return false;
+    return true;
+  });
+  // Get unique patients from mock data
+  const uniquePatients = Array.from(new Set(mockPatientClinicalNotes.map(note => note.patientId)))
+    .map(id => {
+      const note = mockPatientClinicalNotes.find(n => n.patientId === id);
+      return {
+        id: note?.patientId || '',
+        name: note?.patientName || ''
+      };
+    });
 
   const handleNoteClick = (fullNoteContent: string) => {
     setSelectedNoteContent(fullNoteContent);
-    setViewMode('detail');
+    setIsNoteDetailDialogOpen(true);
   };
 
   const truncateText = (text: string, maxLength: number = 40) => {
@@ -128,18 +174,18 @@ const ClinicalNotesPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
-      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
+    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-1">
+      <div className="flex items-end space-x-1 px-1 pb-0 mb-1 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
         {clinicalNotesSubNavItems.map((item) => (
           <Button
             key={item}
             onClick={() => {
               setActiveSubNav(item);
-              setViewMode('table'); 
+              setViewMode('table');
             }}
             className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
               ${activeSubNav === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary' 
+                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary'
                 : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
               }`}
           >
@@ -150,78 +196,81 @@ const ClinicalNotesPage = () => {
 
       <main className="flex-1 flex flex-col gap-3 overflow-hidden">
         {activeSubNav === "Notes View" && (
-           <Card className="flex-1 flex flex-col shadow overflow-hidden">
-            <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
+          <Card className="flex-1 flex flex-col shadow overflow-hidden">
+            <CardContent className="p-2.5 flex-grow flex flex-col overflow-hidden">
               {viewMode === 'table' ? (
                 <>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
-                      <Label htmlFor="groupBy" className="shrink-0 text-xs">Group By</Label>
-                      <Select value={groupBy} onValueChange={setGroupBy}>
-                        <SelectTrigger id="groupBy" className="h-6 w-28 text-xs">
-                          <SelectValue placeholder="Visit Date" className="text-xs" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="visitDate" className="text-xs">Visit Date</SelectItem>
-                          <SelectItem value="patient" className="text-xs">Patient</SelectItem>
-                          <SelectItem value="author" className="text-xs">Author</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    {!patient && (
+                      <>
+                        <Label htmlFor="patientSelect" className="shrink-0 text-xs">Patient</Label>
+                        <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+                          <SelectTrigger id="patientSelect" className="h-6 w-40 text-xs">
+                            <SelectValue placeholder="Select Patient" className="text-xs" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="" className="text-xs">All Patients</SelectItem>
+                            {uniquePatients.map(patient => (
+                              <SelectItem key={patient.id} value={patient.id} className="text-xs">
+                                {patient.name} ({patient.id})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </>
+                    )}
 
-                      <Label htmlFor="selectedDate" className="shrink-0 text-xs">Select</Label>
-                      <div className="relative">
-                          <Input id="selectedDate" type="text" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="h-6 w-32 text-xs pr-7" />
-                          <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      </div>
+                    <Label htmlFor="statusFilter" className="shrink-0 text-xs">Status</Label>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger id="statusFilter" className="h-6 w-24 text-xs">
+                        <SelectValue placeholder="ALL" className="text-xs" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
+                        <SelectItem value="COMPLETED" className="text-xs">COMPLETED</SelectItem>
+                        <SelectItem value="PENDING" className="text-xs">PENDING</SelectItem>
+                        <SelectItem value="DRAFT" className="text-xs">DRAFT</SelectItem>
+                        <SelectItem value="UNSIGNED" className="text-xs">UNSIGNED</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                      <Label htmlFor="statusFilter" className="shrink-0 text-xs">Status</Label>
-                      <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger id="statusFilter" className="h-6 w-24 text-xs">
-                          <SelectValue placeholder="ALL" className="text-xs" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ALL" className="text-xs">ALL</SelectItem>
-                          <SelectItem value="COMPLETED" className="text-xs">COMPLETED</SelectItem>
-                          <SelectItem value="PENDING" className="text-xs">PENDING</SelectItem>
-                          <SelectItem value="DRAFT" className="text-xs">DRAFT</SelectItem>
-                          <SelectItem value="UNSIGNED" className="text-xs">UNSIGNED</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <Label htmlFor="fromDate" className="shrink-0 text-xs">From Date</Label>
+                    <div className="relative">
+                      <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-6 w-24 text-xs pr-7" />
+                      <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    </div>
 
-                      <Label htmlFor="fromDate" className="shrink-0 text-xs">From Date</Label>
-                       <div className="relative">
-                          <Input id="fromDate" type="text" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-6 w-24 text-xs pr-7" />
-                          <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      </div>
-                  
-                      <Label htmlFor="toDate" className="shrink-0 text-xs">To</Label>
-                      <div className="relative">
-                          <Input id="toDate" type="text" value={toDateValue} onChange={e => setToDateValue(e.target.value)} className="h-6 w-24 text-xs pr-7" />
-                          <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      </div>
-                      
-                      <Label htmlFor="notesSearch" className="shrink-0 text-xs">Search:</Label>
-                      <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-6 w-28 text-xs" />
+                    <Label htmlFor="toDate" className="shrink-0 text-xs">To</Label>
+                    <div className="relative">
+                      <Input id="toDate" type="text" value={toDateValue} onChange={e => setToDateValue(e.target.value)} className="h-6 w-24 text-xs pr-7" />
+                      <CalendarDays className="h-3 w-3 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    </div>
+
+                    <Label htmlFor="notesSearch" className="shrink-0 text-xs">Search:</Label>
+                    <Input id="notesSearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-6 w-28 text-xs" />
                   </div>
 
-                  <div className="flex-1 overflow-auto min-h-0"> 
-                    <Table className="text-xs w-full"> 
+                  <div className="flex-1 overflow-auto min-h-0">
+                    <Table className="text-xs w-full">
                       <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                         <TableRow>
                           {[
-                            { name: "Notes Title", className: "min-w-[8rem]" }, 
-                            { name: "Date of Entry", className: "" }, 
-                            { name: "Status", className: "" }, 
-                            { name: "Sign" }, 
-                            { name: "Edit" },
-                            { name: "Action" }, 
-                            { name: "Author", className: "" },
-                            { name: "Location", className: "" },
-                            { name: "Cosigner", className: "" },
-                            { name: "Image Upload" }
+                            { name: "Notes Title", className: "min-w-[6rem]" },
+                            { name: "Date of Entry", className: "min-w-[4rem]" },
+                            { name: "Status", className: "min-w-[4rem]" },
+                            { name: "Department", className: "min-w-[4.5rem]" },
+                            { name: "Visit Type", className: "min-w-[4rem]" },
+                            { name: "Sign", className: "min-w-[3rem] text-center" },
+                            { name: "Edit", className: "min-w-[3rem] text-center" },
+                            { name: "Action", className: "min-w-[3rem] text-center" },
+                            { name: "Author", className: "min-w-[4.5rem]" },
+                            { name: "Location", className: "min-w-[4.5rem]" },
+                            { name: "Cosigner", className: "min-w-[4.5rem]" },
+                            { name: "Image Upload", className: "min-w-[3rem] text-center" }
                           ].map(header => (
-                            <TableHead key={header.name} className={`py-2 px-3 text-foreground font-semibold h-auto ${header.className || ''}`}> 
+                            <TableHead key={header.name} className={`py-2 px-1.5 text-foreground font-semibold h-auto ${header.className || ''}`}>
                               <div className="flex items-center justify-between">
-                                <span className="break-words text-xs">{header.name}</span> 
+                                <span className="break-words text-xs">{header.name}</span>
                                 <ArrowUpDown className="h-3 w-3 ml-1 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
                               </div>
                             </TableHead>
@@ -229,109 +278,72 @@ const ClinicalNotesPage = () => {
                         </TableRow>
                       </ShadcnTableHeader>
                       <TableBody>
-                        {filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
-                          <TableRow key={note.id} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                            <TableCell className="py-1.5 px-3 min-w-[8rem]">{truncateText(note.notesTitle, 40)}</TableCell>
-                            <TableCell className="py-1.5 px-3">{note.dateOfEntry}</TableCell> 
-                            <TableCell className="py-1.5 px-3">{note.status}</TableCell> 
-                            <TableCell className="py-1.5 px-3 text-center">
+                        {loading ? (
+                          <TableRow>
+                            <TableCell colSpan={12} className="text-center py-10 text-muted-foreground">
+                              Loading...
+                            </TableCell>
+                          </TableRow>
+                        ) : filteredNotes && Array.isArray(filteredNotes) && filteredNotes.length > 0 ? filteredNotes.map((note, index) => (
+                          <TableRow key={note.id || `${note.notesTitle}-${index}`} onClick={() => handleNoteClick(note.notesTitle)} className={`cursor-pointer hover:bg-muted/50 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                            <TableCell className="py-1.5 px-1.5 min-w-[6rem]">{truncateText(note.notesTitle, 40)}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 min-w-[4rem]">{note.dateOfEntry}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 min-w-[4rem]">{note.status}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 min-w-[4.5rem]">{note.department}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 min-w-[4rem]">{note.visitType}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 text-center min-w-[3rem]">
                               <Button variant="ghost" size="icon" className="h-6 w-6"><FileSignature className="h-3.5 w-3.5" /></Button>
                             </TableCell>
-                            <TableCell className="py-1.5 px-3 text-center">
+                            <TableCell className="py-1.5 px-1.5 text-center min-w-[3rem]">
                               <Button variant="ghost" size="icon" className="h-6 w-6"><Edit2 className="h-3.5 w-3.5" /></Button>
                             </TableCell>
-                            <TableCell className="py-1.5 px-3 text-center">
+                            <TableCell className="py-1.5 px-1.5 text-center min-w-[3rem]">
                               <Button variant="ghost" size="icon" className="h-6 w-6"><MessageSquare className="h-3.5 w-3.5" /></Button>
                             </TableCell>
-                            <TableCell className="py-1.5 px-3">{note.author}</TableCell>
-                            <TableCell className="py-1.5 px-3">{note.location}</TableCell>
-                            <TableCell className="py-1.5 px-3">{note.cosigner || '-'}</TableCell>
-                            <TableCell className="py-1.5 px-3 text-center">
+                            <TableCell className="py-1.5 px-1.5 min-w-[4.5rem]">{note.author}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 min-w-[4.5rem]">{note.location}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 min-w-[4.5rem]">{note.cosigner || '-'}</TableCell>
+                            <TableCell className="py-1.5 px-1.5 text-center min-w-[3rem]">
                               <Button variant="ghost" size="icon" className="h-6 w-6"><ImageUp className="h-3.5 w-3.5" /></Button>
                             </TableCell>
                           </TableRow>
                         )) : (
                           <TableRow>
-                            <TableCell colSpan={10} className="text-center py-10 text-muted-foreground">
-                              No notes found.
+                            <TableCell colSpan={12} className="text-center py-10 text-muted-foreground">
+                              No clinical notes found
                             </TableCell>
                           </TableRow>
                         )}
                       </TableBody>
                     </Table>
                   </div>
-
-                  <div className="flex items-center justify-start p-2.5 border-t text-xs text-muted-foreground mt-auto">
-                    <div>Showing {filteredNotes.length > 0 ? 1 : 0} to {filteredNotes.length} of {filteredNotes.length} entries</div>
-                  </div>
                 </>
-              ) : (
-                <div className="flex flex-1 h-full">
-                  {/* Left Side: List of Note Titles */}
-                  <div className="w-1/3 border-r flex flex-col">
-                    <div className="flex items-center justify-between p-2.5 border-b">
-                      <h3 className="text-base font-semibold text-foreground">Notes</h3>
-                      <Button variant="outline" size="sm" onClick={() => setViewMode('table')} className="text-xs h-7">
-                        <X className="h-3.5 w-3.5 mr-1.5" /> Back to Table
-                      </Button>
-                    </div>
-                    <ScrollArea className="flex-1">
-                      {filteredNotes.map((note, index) => (
-                        <div
-                          key={note.id}
-                          onClick={() => setSelectedNoteContent(note.notesTitle)}
-                          className={`p-3 border-b cursor-pointer hover:bg-muted/50 ${
-                            selectedNoteContent === note.notesTitle ? 'bg-muted' : ''
-                          }`}
-                        >
-                          <p className="text-sm font-medium">{truncateText(note.notesTitle, 40)}</p>
-                          <p className="text-xs text-muted-foreground">{note.dateOfEntry}</p>
-                        </div>
-                      ))}
-                    </ScrollArea>
-                  </div>
-                  {/* Right Side: Selected Note Description */}
-                  <div className="w-2/3 flex flex-col">
-                    <div className="p-2.5 border-b">
-                      <h3 className="text-base font-semibold text-foreground">Note Detail</h3>
-                    </div>
-                    <ScrollArea className="flex-1 p-2.5">
-                      <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
-                        {selectedNoteContent}
-                      </div>
-                    </ScrollArea>
-                  </div>
-                </div>
-              )}
+              ) : null}
             </CardContent>
           </Card>
         )}
+
         {activeSubNav === "New Notes" && <NewNotesView />}
         {activeSubNav === "Scanned Notes" && <ScannedNotesView />}
         {activeSubNav === "Clinical Report" && <ClinicalReportView />}
         {activeSubNav === "Clinical Reminder" && <ClinicalReminderView />}
         {activeSubNav === "Clinical Reminder Analysis" && <ClinicalReminderAnalysisView />}
         {activeSubNav === "Clinical Template" && <ClinicalTemplateView />}
-        
       </main>
-      
+
       <Dialog open={isNoteDetailDialogOpen} onOpenChange={setIsNoteDetailDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogUITitle>Note Detail</DialogUITitle>
+            <DialogUITitle>Clinical Note Details</DialogUITitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh] p-1 rounded-md">
-            <div className="text-sm whitespace-pre-wrap p-3 border rounded-md bg-muted/30">
-                {selectedNoteContent}
-            </div>
-          </ScrollArea>
-          <div className="flex justify-end pt-4">
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
-                Close
-              </Button>
-            </DialogClose>
+          <div className="mt-4">
+            <p className="text-sm whitespace-pre-wrap">{selectedNoteContent}</p>
           </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Close</Button>
+            </DialogClose>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
@@ -347,35 +359,35 @@ type NewNoteTemplateType = {
 
 // Mock New Notes Template Data
 const mockNewNoteTemplates: NewNoteTemplateType[] = [
-  { 
-    id: '1', 
-    templateName: 'Progress Note - General Medicine', 
-    department: 'General Medicine', 
-    lastUpdated: '20 MAY, 2025 14:00' 
+  {
+    id: '1',
+    templateName: 'Progress Note - General Medicine',
+    department: 'General Medicine',
+    lastUpdated: '20 MAY, 2025 14:00'
   },
-  { 
-    id: '2', 
-    templateName: 'Post-Operative Note - Surgery', 
-    department: 'Surgery', 
-    lastUpdated: '21 MAY, 2025 09:30' 
+  {
+    id: '2',
+    templateName: 'Post-Operative Note - Surgery',
+    department: 'Surgery',
+    lastUpdated: '21 MAY, 2025 09:30'
   },
-  { 
-    id: '3', 
-    templateName: 'Psychiatric Assessment', 
-    department: 'Psychiatry', 
-    lastUpdated: '22 MAY, 2025 11:15' 
+  {
+    id: '3',
+    templateName: 'Psychiatric Assessment',
+    department: 'Psychiatry',
+    lastUpdated: '22 MAY, 2025 11:15'
   },
-  { 
-    id: '4', 
-    templateName: 'Physical Therapy Session Note', 
-    department: 'Rehabilitation', 
-    lastUpdated: '23 MAY, 2025 13:45' 
+  {
+    id: '4',
+    templateName: 'Physical Therapy Session Note',
+    department: 'Rehabilitation',
+    lastUpdated: '23 MAY, 2025 13:45'
   },
-  { 
-    id: '5', 
-    templateName: 'Pediatric Discharge Summary', 
-    department: 'Pediatrics', 
-    lastUpdated: '24 MAY, 2025 08:00' 
+  {
+    id: '5',
+    templateName: 'Pediatric Discharge Summary',
+    department: 'Pediatrics',
+    lastUpdated: '24 MAY, 2025 08:00'
   },
 ];
 
@@ -484,50 +496,50 @@ type ScannedNoteDataType = {
 
 // Mock Scanned Notes Data
 const mockScannedNotes: ScannedNoteDataType[] = [
-  { 
-    id: '1', 
-    documentName: 'Handwritten Progress Note - ICU', 
-    scanDate: '20 MAY, 2025', 
-    scanTime: '10:30', 
-    uploadedBy: 'Nurse Patel', 
-    status: 'VERIFIED', 
-    location: 'ICU 1' 
+  {
+    id: '1',
+    documentName: 'Handwritten Progress Note - ICU',
+    scanDate: '20 MAY, 2025',
+    scanTime: '10:30',
+    uploadedBy: 'Nurse Patel',
+    status: 'VERIFIED',
+    location: 'ICU 1'
   },
-  { 
-    id: '2', 
-    documentName: 'Surgical Consent Form', 
-    scanDate: '21 MAY, 2025', 
-    scanTime: '14:00', 
-    uploadedBy: 'Nurse Sharma', 
-    status: 'PENDING', 
-    location: 'Surg Pre-Op' 
+  {
+    id: '2',
+    documentName: 'Surgical Consent Form',
+    scanDate: '21 MAY, 2025',
+    scanTime: '14:00',
+    uploadedBy: 'Nurse Sharma',
+    status: 'PENDING',
+    location: 'Surg Pre-Op'
   },
-  { 
-    id: '3', 
-    documentName: 'Discharge Summary Scan', 
-    scanDate: '22 MAY, 2025', 
-    scanTime: '09:15', 
-    uploadedBy: 'Dr. Gupta', 
-    status: 'VERIFIED', 
-    location: 'Gen Ward' 
+  {
+    id: '3',
+    documentName: 'Discharge Summary Scan',
+    scanDate: '22 MAY, 2025',
+    scanTime: '09:15',
+    uploadedBy: 'Dr. Gupta',
+    status: 'VERIFIED',
+    location: 'Gen Ward'
   },
-  { 
-    id: '4', 
-    documentName: 'Lab Results - Handwritten', 
-    scanDate: '23 MAY, 2025', 
-    scanTime: '11:45', 
-    uploadedBy: 'Nurse Singh', 
-    status: 'PENDING', 
-    location: 'Clinic A' 
+  {
+    id: '4',
+    documentName: 'Lab Results - Handwritten',
+    scanDate: '23 MAY, 2025',
+    scanTime: '11:45',
+    uploadedBy: 'Nurse Singh',
+    status: 'PENDING',
+    location: 'Clinic A'
   },
-  { 
-    id: '5', 
-    documentName: 'Patient Consent Form', 
-    scanDate: '24 MAY, 2025', 
-    scanTime: '08:00', 
-    uploadedBy: 'Dr. Verma', 
-    status: 'VERIFIED', 
-    location: 'Peds Ward' 
+  {
+    id: '5',
+    documentName: 'Patient Consent Form',
+    scanDate: '24 MAY, 2025',
+    scanTime: '08:00',
+    uploadedBy: 'Dr. Verma',
+    status: 'VERIFIED',
+    location: 'Peds Ward'
   },
 ];
 
@@ -661,50 +673,50 @@ type ClinicalReportDataType = {
 
 // Mock Clinical Report Data
 const mockClinicalReports: ClinicalReportDataType[] = [
-  { 
-    id: '1', 
-    reportTitle: 'Monthly Patient Outcomes - ICU', 
-    generatedDate: '20 MAY, 2025', 
-    generatedTime: '15:00', 
-    department: 'ICU', 
-    generatedBy: 'Dr. Sharma', 
-    summary: 'Summary of patient outcomes in ICU for May 2025, including recovery rates and complications.' 
+  {
+    id: '1',
+    reportTitle: 'Monthly Patient Outcomes - ICU',
+    generatedDate: '20 MAY, 2025',
+    generatedTime: '15:00',
+    department: 'ICU',
+    generatedBy: 'Dr. Sharma',
+    summary: 'Summary of patient outcomes in ICU for May 2025, including recovery rates and complications.'
   },
-  { 
-    id: '2', 
-    reportTitle: 'Surgical Procedure Report', 
-    generatedDate: '21 MAY, 2025', 
-    generatedTime: '12:30', 
-    department: 'Surgery', 
-    generatedBy: 'Dr. Gupta', 
-    summary: 'Details of surgical procedures performed, including success rates and post-op complications.' 
+  {
+    id: '2',
+    reportTitle: 'Surgical Procedure Report',
+    generatedDate: '21 MAY, 2025',
+    generatedTime: '12:30',
+    department: 'Surgery',
+    generatedBy: 'Dr. Gupta',
+    summary: 'Details of surgical procedures performed, including success rates and post-op complications.'
   },
-  { 
-    id: '3', 
-    reportTitle: 'Psychiatric Ward Summary', 
-    generatedDate: '22 MAY, 2025', 
-    generatedTime: '10:00', 
-    department: 'Psychiatry', 
-    generatedBy: 'Dr. Patel', 
-    summary: 'Overview of patient progress, medication adherence, and therapy outcomes in the psychiatric ward.' 
+  {
+    id: '3',
+    reportTitle: 'Psychiatric Ward Summary',
+    generatedDate: '22 MAY, 2025',
+    generatedTime: '10:00',
+    department: 'Psychiatry',
+    generatedBy: 'Dr. Patel',
+    summary: 'Overview of patient progress, medication adherence, and therapy outcomes in the psychiatric ward.'
   },
-  { 
-    id: '4', 
-    reportTitle: 'Rehabilitation Progress Report', 
-    generatedDate: '23 MAY, 2025', 
-    generatedTime: '14:15', 
-    department: 'Rehabilitation', 
-    generatedBy: 'Laura White, PT', 
-    summary: 'Progress of patients in rehabilitation, focusing on physical therapy outcomes.' 
+  {
+    id: '4',
+    reportTitle: 'Rehabilitation Progress Report',
+    generatedDate: '23 MAY, 2025',
+    generatedTime: '14:15',
+    department: 'Rehabilitation',
+    generatedBy: 'Laura White, PT',
+    summary: 'Progress of patients in rehabilitation, focusing on physical therapy outcomes.'
   },
-  { 
-    id: '5', 
-    reportTitle: 'Pediatric Admissions Report', 
-    generatedDate: '24 MAY, 2025', 
-    generatedTime: '09:00', 
-    department: 'Pediatrics', 
-    generatedBy: 'Dr. Young', 
-    summary: 'Summary of pediatric admissions, including common diagnoses and treatment plans.' 
+  {
+    id: '5',
+    reportTitle: 'Pediatric Admissions Report',
+    generatedDate: '24 MAY, 2025',
+    generatedTime: '09:00',
+    department: 'Pediatrics',
+    generatedBy: 'Dr. Young',
+    summary: 'Summary of pediatric admissions, including common diagnoses and treatment plans.'
   },
 ];
 
@@ -870,55 +882,55 @@ type ClinicalReminderDataType = {
 
 // Mock Clinical Reminder Data
 const mockClinicalReminders: ClinicalReminderDataType[] = [
-  { 
-    id: '1', 
-    reminderTitle: 'Follow-up Appointment', 
-    dueDate: '25 MAY, 2025', 
-    dueTime: '09:00', 
-    priority: 'MEDIUM', 
-    status: 'PENDING', 
-    assignedTo: 'Dr. Sharma', 
-    patient: 'John Doe' 
+  {
+    id: '1',
+    reminderTitle: 'Follow-up Appointment',
+    dueDate: '25 MAY, 2025',
+    dueTime: '09:00',
+    priority: 'MEDIUM',
+    status: 'PENDING',
+    assignedTo: 'Dr. Sharma',
+    patient: 'John Doe'
   },
-  { 
-    id: '2', 
-    reminderTitle: 'Lab Results Review', 
-    dueDate: '24 MAY, 2025', 
-    dueTime: '14:30', 
-    priority: 'HIGH', 
-    status: 'OVERDUE', 
-    assignedTo: 'Dr. Gupta', 
-    patient: 'Jane Smith' 
+  {
+    id: '2',
+    reminderTitle: 'Lab Results Review',
+    dueDate: '24 MAY, 2025',
+    dueTime: '14:30',
+    priority: 'HIGH',
+    status: 'OVERDUE',
+    assignedTo: 'Dr. Gupta',
+    patient: 'Jane Smith'
   },
-  { 
-    id: '3', 
-    reminderTitle: 'Medication Renewal', 
-    dueDate: '26 MAY, 2025', 
-    dueTime: '10:00', 
-    priority: 'LOW', 
-    status: 'PENDING', 
-    assignedTo: 'Nurse Patel', 
-    patient: 'Alice Brown' 
+  {
+    id: '3',
+    reminderTitle: 'Medication Renewal',
+    dueDate: '26 MAY, 2025',
+    dueTime: '10:00',
+    priority: 'LOW',
+    status: 'PENDING',
+    assignedTo: 'Nurse Patel',
+    patient: 'Alice Brown'
   },
-  { 
-    id: '4', 
-    reminderTitle: 'Vaccination Schedule', 
-    dueDate: '23 MAY, 2025', 
-    dueTime: '11:00', 
-    priority: 'MEDIUM', 
-    status: 'COMPLETED', 
-    assignedTo: 'Dr. Singh', 
-    patient: 'Bob Wilson' 
+  {
+    id: '4',
+    reminderTitle: 'Vaccination Schedule',
+    dueDate: '23 MAY, 2025',
+    dueTime: '11:00',
+    priority: 'MEDIUM',
+    status: 'COMPLETED',
+    assignedTo: 'Dr. Singh',
+    patient: 'Bob Wilson'
   },
-  { 
-    id: '5', 
-    reminderTitle: 'Annual Checkup', 
-    dueDate: '27 MAY, 2025', 
-    dueTime: '08:30', 
-    priority: 'LOW', 
-    status: 'PENDING', 
-    assignedTo: 'Dr. Verma', 
-    patient: 'Emma Davis' 
+  {
+    id: '5',
+    reminderTitle: 'Annual Checkup',
+    dueDate: '27 MAY, 2025',
+    dueTime: '08:30',
+    priority: 'LOW',
+    status: 'PENDING',
+    assignedTo: 'Dr. Verma',
+    patient: 'Emma Davis'
   },
 ];
 
@@ -1079,50 +1091,50 @@ type ClinicalReminderAnalysisDataType = {
 
 // Mock Clinical Reminder Analysis Data
 const mockClinicalReminderAnalysis: ClinicalReminderAnalysisDataType[] = [
-  { 
-    id: '1', 
-    department: 'ICU', 
-    totalReminders: 50, 
-    completedReminders: 40, 
-    overdueReminders: 5, 
-    completionRate: '80%', 
-    analysisDate: '24 MAY, 2025' 
+  {
+    id: '1',
+    department: 'ICU',
+    totalReminders: 50,
+    completedReminders: 40,
+    overdueReminders: 5,
+    completionRate: '80%',
+    analysisDate: '24 MAY, 2025'
   },
-  { 
-    id: '2', 
-    department: 'Surgery', 
-    totalReminders: 30, 
-    completedReminders: 25, 
-    overdueReminders: 2, 
-    completionRate: '83%', 
-    analysisDate: '24 MAY, 2025' 
+  {
+    id: '2',
+    department: 'Surgery',
+    totalReminders: 30,
+    completedReminders: 25,
+    overdueReminders: 2,
+    completionRate: '83%',
+    analysisDate: '24 MAY, 2025'
   },
-  { 
-    id: '3', 
-    department: 'Psychiatry', 
-    totalReminders: 20, 
-    completedReminders: 15, 
-    overdueReminders: 3, 
-    completionRate: '75%', 
-    analysisDate: '24 MAY, 2025' 
+  {
+    id: '3',
+    department: 'Psychiatry',
+    totalReminders: 20,
+    completedReminders: 15,
+    overdueReminders: 3,
+    completionRate: '75%',
+    analysisDate: '24 MAY, 2025'
   },
-  { 
-    id: '4', 
-    department: 'Rehabilitation', 
-    totalReminders: 40, 
-    completedReminders: 35, 
-    overdueReminders: 1, 
-    completionRate: '88%', 
-    analysisDate: '24 MAY, 2025' 
+  {
+    id: '4',
+    department: 'Rehabilitation',
+    totalReminders: 40,
+    completedReminders: 35,
+    overdueReminders: 1,
+    completionRate: '88%',
+    analysisDate: '24 MAY, 2025'
   },
-  { 
-    id: '5', 
-    department: 'Pediatrics', 
-    totalReminders: 25, 
-    completedReminders: 20, 
-    overdueReminders: 2, 
-    completionRate: '80%', 
-    analysisDate: '24 MAY, 2025' 
+  {
+    id: '5',
+    department: 'Pediatrics',
+    totalReminders: 25,
+    completedReminders: 20,
+    overdueReminders: 2,
+    completionRate: '80%',
+    analysisDate: '24 MAY, 2025'
   },
 ];
 
@@ -1280,45 +1292,45 @@ type ClinicalTemplateDataType = {
 
 // Mock Clinical Template Data
 const mockClinicalTemplates: ClinicalTemplateDataType[] = [
-  { 
-    id: '1', 
-    templateName: 'Progress Note - General Medicine', 
-    department: 'General Medicine', 
-    lastUpdated: '20 MAY, 2025 14:00', 
-    createdBy: 'Dr. Sharma', 
-    contentPreview: 'Patient presents with... Vital signs: BP, HR, Temp...' 
+  {
+    id: '1',
+    templateName: 'Progress Note - General Medicine',
+    department: 'General Medicine',
+    lastUpdated: '20 MAY, 2025 14:00',
+    createdBy: 'Dr. Sharma',
+    contentPreview: 'Patient presents with... Vital signs: BP, HR, Temp...'
   },
-  { 
-    id: '2', 
-    templateName: 'Post-Operative Note - Surgery', 
-    department: 'Surgery', 
-    lastUpdated: '21 MAY, 2025 09:30', 
-    createdBy: 'Dr. Gupta', 
-    contentPreview: 'Procedure performed... Post-op status: Stable...' 
+  {
+    id: '2',
+    templateName: 'Post-Operative Note - Surgery',
+    department: 'Surgery',
+    lastUpdated: '21 MAY, 2025 09:30',
+    createdBy: 'Dr. Gupta',
+    contentPreview: 'Procedure performed... Post-op status: Stable...'
   },
-  { 
-    id: '3', 
-    templateName: 'Psychiatric Assessment', 
-    department: 'Psychiatry', 
-    lastUpdated: '22 MAY, 2025 11:15', 
-    createdBy: 'Dr. Patel', 
-    contentPreview: 'Mental status exam... Mood: Stable...' 
+  {
+    id: '3',
+    templateName: 'Psychiatric Assessment',
+    department: 'Psychiatry',
+    lastUpdated: '22 MAY, 2025 11:15',
+    createdBy: 'Dr. Patel',
+    contentPreview: 'Mental status exam... Mood: Stable...'
   },
-  { 
-    id: '4', 
-    templateName: 'Physical Therapy Session Note', 
-    department: 'Rehabilitation', 
-    lastUpdated: '23 MAY, 2025 13:45', 
-    createdBy: 'Laura White, PT', 
-    contentPreview: 'Range of motion exercises... Progress: Improved...' 
+  {
+    id: '4',
+    templateName: 'Physical Therapy Session Note',
+    department: 'Rehabilitation',
+    lastUpdated: '23 MAY, 2025 13:45',
+    createdBy: 'Laura White, PT',
+    contentPreview: 'Range of motion exercises... Progress: Improved...'
   },
-  { 
-    id: '5', 
-    templateName: 'Pediatric Discharge Summary', 
-    department: 'Pediatrics', 
-    lastUpdated: '24 MAY, 2025 08:00', 
-    createdBy: 'Dr. Young', 
-    contentPreview: 'Discharge condition: Stable... Follow-up: 1 week...' 
+  {
+    id: '5',
+    templateName: 'Pediatric Discharge Summary',
+    department: 'Pediatrics',
+    lastUpdated: '24 MAY, 2025 08:00',
+    createdBy: 'Dr. Young',
+    contentPreview: 'Discharge condition: Stable... Follow-up: 1 week...'
   },
 ];
 

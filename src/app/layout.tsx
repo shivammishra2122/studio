@@ -1,17 +1,8 @@
-"use client";
-
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
-import  SidebarNav  from '@/components/layout/sidebar-nav';
-import { TopNav } from '@/components/layout/top-nav';
-import { usePathname } from 'next/navigation';
-import { MOCK_PATIENT } from '@/lib/constants';
-import { useState } from 'react';
 import type { Patient } from '@/lib/constants';
-import PatientsPage from './patients/page';
-import DashboardPage from './page';
+import ClientLayout from '@/components/layout/client-layout';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -83,7 +74,6 @@ const mockPatients: Patient[] = [
   },
 ];
 
-// Add mock data for each patient
 const patientData = {
   '900752869578': {
     problems: [
@@ -125,59 +115,19 @@ const patientData = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const pathname = usePathname();
-  const hideLayout = pathname === '/login' || pathname === '/patients';
-
-  const [selectedPatient, setSelectedPatient] = useState<Patient>(mockPatients[0]);
-
-  if (pathname === '/patients') {
-    return (
-      <html lang="en" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
-          <PatientsPage ={mockPatipatientsents} onView={setSelectedPatient} />
-          <Toaster />
-        </body>
-      </html>
-    );
-  }
-
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
-        {hideLayout ? (
-          <>
-            {children}
-            <Toaster />
-          </>
-        ) : (
-          <SidebarProvider>
-            <div className="flex flex-1 overflow-hidden">
-              <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-                <SidebarNav />
-              </Sidebar>
-              <SidebarInset className="flex-1 flex flex-col bg-background no-scrollbar">
-                <TopNav />
-                <main className="flex-1 p-0 overflow-y-auto no-scrollbar">
-                  {pathname === '/' ? (
-                    <DashboardPage
-                      patient={selectedPatient}
-                      problems={patientData[selectedPatient.id as keyof typeof patientData].problems}
-                      medications={patientData[selectedPatient.id as keyof typeof patientData].medications}
-                      allergies={patientData[selectedPatient.id as keyof typeof patientData].allergies}
-                      vitals={patientData[selectedPatient.id as keyof typeof patientData].vitals}
-                    />
-                  ) : (
-                    children
-                  )}
-                </main>
-              </SidebarInset>
-            </div>
-            <Toaster />
-          </SidebarProvider>
-        )}
+        <ClientLayout
+          mockPatients={mockPatients}
+          patientData={patientData}
+        >
+          {children}
+        </ClientLayout>
+        <Toaster />
       </body>
     </html>
   );

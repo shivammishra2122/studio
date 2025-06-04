@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { api, Patient } from '@/services/api';
-import DashboardPage from '@/app/page';
+import DischargeSummaryPage from '@/app/discharge-summary/page';
 import { usePatient } from '@/hooks/use-patient';
 
-export default function PatientPage() {
+export default function PatientDischargeSummaryPage() {
     const patient = usePatient();
 
     if (!patient) {
@@ -17,13 +17,9 @@ export default function PatientPage() {
         );
     }
 
-    // Mock data for the dashboard
-    const mockData = {
-        problems: [],
-        medications: [],
-        allergies: [],
-        vitals: {}
-    };
-
-    return <DashboardPage patient={patient} {...mockData} />;
+    return (
+        <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm">
+            <DischargeSummaryPage patient={patient} />
+        </div>
+    );
 } 
