@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge'; // Ensure this path is correct
 import {
   Settings,
   FileEdit,
@@ -22,8 +23,11 @@ import {
   ChevronsUpDown,
   Check,
   X as XIcon,
-  Save
+  Save,
+  Pencil,
+  Copy
 } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle as DialogUITitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
@@ -172,20 +176,39 @@ const mockVisitAdtData: VisitAdtDataType[] = [
 ];
 
 // IP Medication Data
-type IpMedicationEntryDataType = {
+interface VisitData {
+  VST_DATE: string;
+  VST_DFT: string | number;
+  VST_HOS: string;
+  VST_IEN: string | number;
+  VST_TYP: string;
+}
+
+interface VisitApiResponse {
+  [key: string]: VisitData;
+}
+
+interface IpMedicationEntryDataType {
   id: string;
   services: string;
   medicationName: string;
-  startDate?: string;
+  status: string;
+  startDate: string;
   startTime?: string;
   stopDate?: string;
   stopTime?: string;
-  status: "ACTIVE" | "HOLD" | "UNRELEASED";
-  orderedBy?: string;
-  medicationDay?: string;
+  orderedBy: string;
+  medicationDay: string;
+  orderURL: string;
   schedule?: string;
   scheduleNote?: string;
-};
+  signURL?: string;
+  discontinueURL?: string;
+  changeURL?: string;
+  copyURL?: string;
+  releaseURL?: string;
+  renewURL?: string;
+}
 
 const mockIpMedicationData: IpMedicationEntryDataType[] = [];
 
@@ -313,7 +336,7 @@ const mockRadiologyData: RadiologyDataType[] = [
 // CPOE Order List View
 const CpoeOrderListView = ({ patient }: { patient: Patient }) => {
   const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingLabOrders, setLoadingLabOrders] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visitDateFilter, setVisitDateFilter] = useState<string>("");
   const [serviceFilter, setServiceFilter] = useState<string>("");
@@ -325,13 +348,13 @@ const CpoeOrderListView = ({ patient }: { patient: Patient }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
-    setLoading(true);
+    setLoadingLabOrders(true);
     setError(null);
 
     const requestBody = {
       UserName: 'CPRS-UAT',
       Password: 'UAT@123',
-      PatientSSN: '671209686', // Test SSN for CPOE list
+      PatientSSN: '670768354', // Test SSN for CPOE list
       DUZ: '115',
       ihtLocation: 102,
       FromDate: '',
@@ -379,7 +402,7 @@ const CpoeOrderListView = ({ patient }: { patient: Patient }) => {
         console.error('Error fetching orders:', err);
         setError('Failed to fetch orders: ' + err.message);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingLabOrders(false));
   }, [patient.ssn]);
 
   const filteredOrders = orders.filter(order => {
@@ -395,7 +418,7 @@ const CpoeOrderListView = ({ patient }: { patient: Patient }) => {
   const endIndex = startIndex + parseInt(showEntries);
   const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
 
-  if (loading) {
+  if (loadingLabOrders) {
     return (
       <Card className="flex-1 flex items-center justify-center">
         <CardContent className="text-center">
@@ -567,19 +590,87 @@ const CpoeOrderListView = ({ patient }: { patient: Patient }) => {
   );
 };
 
-// IP Medication View
 const IpMedicationView = ({ patient }: { patient: Patient }) => {
-  const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>(mockIpMedicationData);
+  const [ipMedicationList, setIpMedicationList] = useState<IpMedicationEntryDataType[]>([]);
   const [isAddIpMedicationDialogOpen, setIsAddIpMedicationDialogOpen] = useState(false);
-  const [isConfirmOrderDialogOpen, setIsConfirmOrderDialogOpen] = useState(false);
-  const [visitDate, setVisitDate] = useState<string | undefined>("15 MAY, 2025 19:4");
+  const [loading, setLoading] = useState(true);
+  const [medicationError, setMedicationError] = useState<string | null>(null);
+  const [visitDate, setVisitDate] = useState<string | undefined>(undefined);
+  
+  // Fetch medications when component mounts or patient changes
+  useEffect(() => {
+    const fetchMedications = async () => {
+      if (!patient?.ssn) {
+        console.log('No patient SSN available');
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setMedicationError(null);
+      
+      try {
+        // TODO: Replace with actual IP medication API endpoint
+        // This is just a placeholder - adjust according to your actual API
+        const response = await fetch('YOUR_IP_MEDICATION_API_ENDPOINT', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            patientSsn: patient.ssn,
+            // Add other required parameters
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // Transform the response to match IpMedicationEntryDataType
+        // Adjust this according to your actual API response structure
+        const medications = Object.entries(data).map(([key, value]: [string, any]) => ({
+          id: key,
+          services: value.services || 'Inpt. Meds',
+          medicationName: value.medicationName || 'Unknown Medication',
+          status: value.status || 'UNKNOWN',
+          startDate: value.startDate || '',
+          startTime: value.startTime || '',
+          stopDate: value.stopDate || '',
+          stopTime: value.stopTime || '',
+          orderedBy: value.orderedBy || 'Unknown',
+          medicationDay: value.medicationDay || '1',
+          orderURL: value.orderURL || '#',
+          schedule: value.schedule || '',
+          signURL: value.signURL,
+          discontinueURL: value.discontinueURL,
+          changeURL: value.changeURL,
+          copyURL: value.copyURL
+        }));
+        
+        setIpMedicationList(medications);
+      } catch (error) {
+        console.error('Error fetching medications:', error);
+        setMedicationError('Failed to load medication data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMedications();
+  }, [patient?.ssn]);
+
+  // This effect is now handled by the main fetchMedications function
+  // No need for a separate effect for visit-based fetching
+  
   const [scheduleType, setScheduleType] = useState<string | undefined>();
-  const [status, setStatus] = useState<string | undefined>();
+  const [status, setStatus] = useState<string>("all");
   const [orderFrom, setOrderFrom] = useState<string>("");
   const [orderTo, setOrderTo] = useState<string>("");
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const [loadingLabOrders, setLoadingLabOrders] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const openOrderMedicinesDialog = () => {
@@ -587,17 +678,18 @@ const IpMedicationView = ({ patient }: { patient: Patient }) => {
   };
 
   const handleConfirmOrder = (rows: any[]) => {
-    const newMedications = rows.map(row => ({
+    const newMedications: IpMedicationEntryDataType[] = rows.map(row => ({
       id: Date.now().toString() + Math.random().toString(36).slice(2, 9),
       services: 'Inpt. Meds',
       medicationName: row.medicationName,
-      status: 'UNRELEASED' as const,
+      status: 'UNRELEASED',
       startDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
       startTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
       stopDate: '',
       stopTime: '',
       orderedBy: 'System (Dialog)',
       medicationDay: 'Day 1',
+      orderURL: '#', // Required field
       schedule: row.schedule === 'SELECT' ? 'Pending' : row.schedule,
       scheduleNote: row.prn ? 'PRN' : row.comment || undefined,
     }));
@@ -609,70 +701,98 @@ const IpMedicationView = ({ patient }: { patient: Patient }) => {
   const ipMedTableHeaders = ["Services", "Medication Name", "Start/Stop Date", "Status", "Ordered By", "Sign", "Discontinue", "Actions", "Medication Day", "Schedule"];
 
   useEffect(() => {
-    setLoading(true);
+    setLoadingLabOrders(true);
     setError(null);
 
-    if (!patient || !patient.ssn) {
-      setError('Patient data not available.');
-      setLoading(false);
+    // Use the hardcoded SSN for development
+    const patientSSN = patient?.ssn || '670768354';
+    
+    if (!patientSSN) {
+      setError('Patient SSN not available.');
+      setLoadingLabOrders(false);
       return;
     }
 
     const requestBody = {
-      UserName: 'CPRS-UAT', // Using UAT credentials for demo
+      UserName: 'CPRS-UAT',
       Password: 'UAT@123',
-      PatientSSN: patient.ssn,
+      PatientSSN: patientSSN, // Use the derived patient SSN
       DUZ: '115',
-      ihtLocation: 102, // Example location, adjust if needed
-      FromDate: '', // Add date filters if needed
-      ToDate: '',
-      rcpAdmDateL: '', // Add admission date if needed
-      rcpoeSerOrd: '6' // Service order for IP Medication
+      rcpoeOrdIP: 99,
+      rordFrmDtPha: '',
+      rordToDtPha: ''
     };
+    
+    console.log('Fetching IP medications for SSN:', patientSSN);
 
+    console.log('Sending request to API with body:', JSON.stringify(requestBody, null, 2));
+    
     fetch('http://3.6.230.54:4003/api/apiOrdMedList.sh', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(requestBody)
     })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+      .then(async response => {
+        console.log('Received response status:', response.status);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error Response:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
         }
-        return res.json();
+        return response.json();
       })
-      .then((data) => {
-        console.log('Medication API response:', data);
-        if (!data || Object.keys(data).length === 0 || data.errors) {
-          setIpMedicationList([]);
-          setError('No data found');
+      .then(data => {
+        console.log('API Response Data:', data);
+        
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid data format received from server');
+        }
+        
+        // Convert the response object to an array of medications
+        const medications = Object.entries(data).map(([key, med]: [string, any]) => {
+          if (typeof med !== 'object' || med === null) {
+            console.warn('Unexpected medication data format:', med);
+            return null;
+          }
+          
+          return {
+            id: med['Order IEN']?.toString() || key,
+            services: med.Services || 'Inpt. Meds',
+            medicationName: med['Medication Name'] || 'Unknown Medication',
+            status: med.Status || 'UNKNOWN',
+            startDate: med['Start Date'] || '',
+            stopDate: med['Stop Date'] || '',
+            orderedBy: med['Ordered By'] || 'Unknown',
+            medicationDay: med['Medication Day'] || '',
+            orderURL: med.OrderURL || med['View Order'] || '#',
+            signURL: med.Sign || '',
+            discontinueURL: med.Discontinue || '',
+            changeURL: med.Change || '',
+            copyURL: med.Copy || '',
+            flagURL: med.Flag || '',
+            unflagURL: med.Unflag || '',
+            holdURL: med.Hold || '',
+            releaseURL: med.Release || '',
+            renewURL: med.Renew || ''
+          };
+        }).filter(Boolean) as IpMedicationEntryDataType[]; // Filter out any null entries
+        
+        if (medications.length === 0) {
+          setError('No medication records found for this patient');
         } else {
-          // Assuming data is an object where values are the medication entries
-          const medicationsArray = Object.values(data).map((item: any) => ({
-            id: item['Medication IEN']?.toString() || item['Order IEN']?.toString() || Date.now().toString() + Math.random().toString(36).slice(2, 9),
-            services: item.Service || 'Inpt. Meds',
-            medicationName: item['Medication Name'] || 'N/A',
-            startDate: item['Start Date'] || '',
-            startTime: item['Start Time'] || '',
-            stopDate: item['Stop Date'] || '',
-            stopTime: item['Stop Time'] || '',
-            status: item.Status as any || 'UNKNOWN',
-            orderedBy: item['Ordered By'] || 'N/A',
-            medicationDay: item['Medication Day'] || 'N/A',
-            schedule: item.Schedule || 'N/A',
-            scheduleNote: item['Schedule Note'] || undefined,
-          }));
-          setIpMedicationList(medicationsArray);
+          setIpMedicationList(medications);
         }
       })
-      .catch((err) => {
-        console.error('Error fetching IP medication list:', err);
-        setError('Failed to fetch medication list: ' + err.message);
+      .catch(error => {
+        console.error('Error fetching IP medications:', error);
+        setError(`Failed to load medication data: ${error.message || 'Unknown error occurred'}`);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoadingLabOrders(false);
+      });
   }, [patient]); // Depend on patient to refetch if it changes
 
   return (
@@ -714,6 +834,154 @@ const IpMedicationView = ({ patient }: { patient: Patient }) => {
                 <SelectItem value="UNRELEASED">UNRELEASED</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground">Loading medication data...</p>
+          </div>
+        ) : medicationError ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-destructive">{medicationError}</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto">
+            <Table>
+              <TableHeader className="bg-accent sticky top-0 z-10">
+                <TableRow>
+                  <TableHead className="py-1 px-2 text-xs">Services</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Medication Name</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Start/Stop Date</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Status</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Ordered By</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Sign</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Discontinue</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Actions</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Medication Day</TableHead>
+                  <TableHead className="py-1 px-2 text-xs">Schedule</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {ipMedicationList.length > 0 ? (
+                  ipMedicationList.map((med, index) => (
+                    <TableRow key={med.id} className={`text-xs ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.services}
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        <a href={med.orderURL} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          {med.medicationName}
+                        </a>
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.startDate && `Start: ${med.startDate} ${med.startTime || ''}`}
+                        {med.stopDate && (
+                          <>
+                            <br />
+                            {`Stop: ${med.stopDate} ${med.stopTime || ''}`}
+                          </>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-1 px-2">
+                        <Badge 
+                          variant={
+                            med.status?.toUpperCase() === 'UNRELEASED' ? 'secondary' : 
+                            med.status?.toUpperCase() === 'ACTIVE' ? 'default' :
+                            med.status?.toUpperCase() === 'DISCONTINUED' ? 'destructive' : 'outline'
+                          }
+                          className="text-[11px] font-normal capitalize"
+                        >
+                          {med.status?.toLowerCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.orderedBy}
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.signURL && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 p-0" asChild>
+                                <a href={med.signURL} target="_blank" rel="noopener noreferrer" title="Sign">
+                                  <PenLine className="h-3 w-3" />
+                                </a>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent className="text-xs">Sign Order</TooltipContent>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.discontinueURL && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 p-0" asChild>
+                                <a href={med.discontinueURL} target="_blank" rel="noopener noreferrer" title="Discontinue">
+                                  <Ban className="h-3 w-3 text-red-500" />
+                                </a>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent className="text-xs">Discontinue</TooltipContent>
+                          </Tooltip>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        <div className="flex gap-1">
+                          {med.changeURL && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 p-0" asChild>
+                                  <a href={med.changeURL} target="_blank" rel="noopener noreferrer" title="Change">
+                                    <Pencil className="h-3 w-3" />
+                                  </a>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent className="text-xs">Change Order</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {med.copyURL && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 p-0" asChild>
+                                  <a href={med.copyURL} target="_blank" rel="noopener noreferrer" title="Copy">
+                                    <Copy className="h-3 w-3" />
+                                  </a>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent className="text-xs">Copy Order</TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.medicationDay || 'N/A'}
+                      </TableCell>
+                      <TableCell className="py-1 px-2 font-normal">
+                        {med.schedule || 'N/A'}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center py-10 text-muted-foreground">
+                      No medication orders found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
+          <div>
+            Showing {ipMedicationList.length > 0 ? 1 : 0} to {ipMedicationList.length} of {ipMedicationList.length} entries
+          </div>
+          <div className="flex items-center space-x-1">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
           </div>
         </div>
       </CardContent>
@@ -868,12 +1136,12 @@ const RadiologyView = ({ patient }: { patient: Patient }) => {
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
   const [radiologyOrders, setRadiologyOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingLabOrders, setLoadingLabOrders] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRadiologyOrders = async () => {
-      setLoading(true);
+      setLoadingLabOrders(true);
       setError(null);
 
       const requestBody = {
@@ -927,7 +1195,7 @@ const RadiologyView = ({ patient }: { patient: Patient }) => {
         console.error('Error fetching radiology orders:', err);
         setError('Failed to fetch radiology orders: ' + err.message);
       } finally {
-        setLoading(false);
+        setLoadingLabOrders(false);
       }
     };
 
@@ -1043,7 +1311,7 @@ const RadiologyView = ({ patient }: { patient: Patient }) => {
         </div>
 
         <div className="flex-1 overflow-auto min-h-0">
-          {loading ? (
+          {loadingLabOrders ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-muted-foreground">Loading orders...</p>
             </div>
@@ -1119,52 +1387,68 @@ const LabCpoeListView = ({ patient }: { patient: Patient }) => {
   const [orderToDate, setOrderToDate] = useState<string>("");
   const [showEntries, setShowEntries] = useState<string>("All");
   const [searchText, setSearchText] = useState<string>("");
+  const [loadingLabOrders, setLoadingLabOrders] = useState(true);
   const [labOrders, setLabOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Hardcoded SSN
+  const hardcodedSSN = "670768354";
+
+  // Fetch lab orders using the hardcoded SSN
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    const fetchLabOrders = async () => {
+      try {
+        setLoadingLabOrders(true);
+        setError(null);
 
-    const requestBody = {
-      UserName: "CPRS-PRO",
-      Password: "ProApk1103@25San",
-      PatientSSN: patient.ssn,
-      DUZ: "115",
-      FromDate: orderFromDate,
-      ToDate: orderToDate
-    };
+        console.log('Fetching lab orders for SSN:', hardcodedSSN);
+        console.log('Date range:', { from: orderFromDate, to: orderToDate });
 
-    fetch('http://3.6.230.54:4003/api/apiOrdLabList.sh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(requestBody),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+        const requestBody = {
+          UserName: "CPRS-UAT",
+          Password: "UAT@123",
+          PatientSSN: hardcodedSSN,
+          DUZ: "115",
+          FromDate: orderFromDate,
+          ToDate: orderToDate
+        };
+
+        const response = await fetch('http://3.6.230.54:4003/api/apiOrdLabList.sh', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return res.json();
-      })
-      .then((data) => {
+
+        const data = await response.json();
+
         if (!data || Object.keys(data).length === 0) {
           setLabOrders([]);
-          setError('No data found');
+          setError('No lab orders found');
         } else {
-          const ordersArray = Object.values(data);
+          // Convert the object of orders to an array
+          const ordersArray = Object.entries(data).map(([key, value]) => ({
+            id: key,
+            ...(value as object)
+          }));
           setLabOrders(ordersArray);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Error fetching lab orders:', err);
-        setError('Failed to fetch lab orders: ' + err.message);
-      })
-      .finally(() => setLoading(false));
-  }, [patient.ssn, orderFromDate, orderToDate]);
+        setError('Failed to fetch lab orders: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      } finally {
+        setLoadingLabOrders(false);
+      }
+    };
+
+    fetchLabOrders();
+  }, [orderFromDate, orderToDate]); // Removed patientSsn dependency as we're using hardcoded SSN
 
   const filteredLabOrders = labOrders.filter(order => {
     const matchesSearch = searchText === '' ||
@@ -1250,7 +1534,7 @@ const LabCpoeListView = ({ patient }: { patient: Patient }) => {
         </div>
 
         <div className="flex-1 overflow-auto min-h-0">
-          {loading ? (
+          {loadingLabOrders ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-muted-foreground">Loading orders...</p>
             </div>
@@ -1317,38 +1601,41 @@ const LabCpoeListView = ({ patient }: { patient: Patient }) => {
   );
 };
 
-interface VisitData {
-  VST_DATE: string;
-  VST_TYP: string;
-  VST_HOS: string;
-  VST_IEN: string;
-  VST_DFT: string;
-}
+// Using the VisitData interface defined earlier in the file
 
 const VisitAdtView = ({ patient }: { patient: Patient }) => {
   const [visitDate, setVisitDate] = useState<string | undefined>("Select");
   const [visitDetails, setVisitDetails] = useState<VisitData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingLabOrders, setLoadingLabOrders] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!patient || !patient.ssn) {
-      setError('Patient data not available.');
-      setLoading(false);
-      return;
-    }
+  console.log('VisitAdtView - Patient data:', patient); // Debug log
 
-    setLoading(true);
+  useEffect(() => {
+    console.log('VisitAdtView - useEffect triggered with patient:', patient);
+    
+    setLoadingLabOrders(true);
     setError(null);
 
+    // Use the provided patient's SSN or fall back to the default SSN
+    const patientSSN = patient?.ssn || '670768354';
+    console.log('Using SSN:', patientSSN);
+
     const requestBody = {
-      UserName: "CPRS-PRO",
-      Password: "ProApk1103@25San",
-      PatientSSN: patient.ssn,
+      UserName: "CPRS-UAT",
+      Password: "UAT@123",
+      PatientSSN: patientSSN,
       DUZ: "115"
     };
 
-    fetch('http://3.6.230.54:4003/api/apiPatVstDtl.sh', {
+    console.log('Fetching visit details for SSN:', patient.ssn);
+    
+    const apiUrl = 'http://3.6.230.54:4003/api/apiPatVstDtl.sh';
+    console.log('API URL:', apiUrl);
+    
+    console.log('Sending request with body:', JSON.stringify(requestBody, null, 2));
+    
+    fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1356,9 +1643,12 @@ const VisitAdtView = ({ patient }: { patient: Patient }) => {
       },
       body: JSON.stringify(requestBody),
     })
-      .then(res => {
+      .then(async res => {
+        console.log('Response status:', res.status);
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          const errorText = await res.text();
+          console.error('API Error:', errorText);
+          throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
         }
         return res.json();
       })
@@ -1381,7 +1671,7 @@ const VisitAdtView = ({ patient }: { patient: Patient }) => {
         console.error('Error fetching visit details:', err);
         setError('Failed to fetch visit details: ' + err.message);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingLabOrders(false));
 
   }, [patient]); // Depend on patient to refetch if it changes
 
@@ -1405,14 +1695,21 @@ const VisitAdtView = ({ patient }: { patient: Patient }) => {
       <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs mb-2">
           <Label htmlFor="visitDate" className="shrink-0 text-xs">Visit Date</Label>
-          <Select value={visitDate} onValueChange={setVisitDate}>
+          <Select 
+            value={visitDate} 
+            onValueChange={setVisitDate}
+          >
             <SelectTrigger id="visitDate" className="h-7 w-40 text-xs">
               <SelectValue placeholder="Select Visit Date" />
             </SelectTrigger>
             <SelectContent>
               {visitDetails.map((visit) => (
-                <SelectItem key={visit.VST_IEN} value={visit.VST_DATE} className="text-xs">
-                  {visit.VST_DATE}
+                <SelectItem 
+                  key={String(visit.VST_IEN)} 
+                  value={String(visit.VST_DATE)} 
+                  className="text-xs"
+                >
+                  {String(visit.VST_DATE)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -1420,7 +1717,7 @@ const VisitAdtView = ({ patient }: { patient: Patient }) => {
         </div>
 
         <div className="flex-1 overflow-auto min-h-0">
-          {loading ? (
+          {loadingLabOrders ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-muted-foreground">Loading visit details...</p>
             </div>
@@ -1444,12 +1741,15 @@ const VisitAdtView = ({ patient }: { patient: Patient }) => {
               </TableHeader>
               <TableBody>
                 {visitDetails.length > 0 ? visitDetails.map((visit, index) => (
-                  <TableRow key={visit.VST_IEN || `visit-row-${index}`} className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                    <TableCell className="py-1 px-3">{visit.VST_DATE}</TableCell>
-                    <TableCell className="py-1 px-3">{visit.VST_TYP}</TableCell>
-                    <TableCell className="py-1 px-3">{visit.VST_HOS}</TableCell>
-                    <TableCell className="py-1 px-3">{visit.VST_IEN}</TableCell>
-                    <TableCell className="py-1 px-3">{visit.VST_DFT}</TableCell>
+                  <TableRow 
+                    key={visit.VST_IEN ? String(visit.VST_IEN) : `visit-row-${index}`} 
+                    className={`${index % 2 === 0 ? 'bg-muted/30' : ''}`}
+                  >
+                    <TableCell className="py-1 px-3">{String(visit.VST_DATE)}</TableCell>
+                    <TableCell className="py-1 px-3">{String(visit.VST_TYP)}</TableCell>
+                    <TableCell className="py-1 px-3">{String(visit.VST_HOS)}</TableCell>
+                    <TableCell className="py-1 px-3">{String(visit.VST_IEN)}</TableCell>
+                    <TableCell className="py-1 px-3">{String(visit.VST_DFT)}</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>
@@ -1508,13 +1808,13 @@ interface ApiPatientResponse {
 const OrdersPage: NextPage<OrdersPageProps> = ({ patient: initialPatient }) => {
   const [activeSubNav, setActiveSubNav] = useState<string>(orderSubNavItems[0]);
   const [patient, setPatient] = useState<Patient | null>(initialPatient || null);
-  const [loading, setLoading] = useState(!initialPatient);
+  const [loadingLabOrders, setLoadingLabOrders] = useState(!initialPatient);
 
   useEffect(() => {
     const fetchDefaultPatient = async () => {
       if (!initialPatient) {
         try {
-          setLoading(true);
+          setLoadingLabOrders(true);
           console.log('Fetching default patient data with default SSN...');
           // Fetch default patient using the default SSN
           const defaultSSN = "670768354";
@@ -1569,7 +1869,7 @@ const OrdersPage: NextPage<OrdersPageProps> = ({ patient: initialPatient }) => {
           console.error('Error fetching default patient:', error);
           setPatient(null);
         } finally {
-          setLoading(false);
+          setLoadingLabOrders(false);
         }
       } else {
         console.log('Using initial patient data:', initialPatient);
@@ -1580,7 +1880,7 @@ const OrdersPage: NextPage<OrdersPageProps> = ({ patient: initialPatient }) => {
     fetchDefaultPatient();
   }, [initialPatient]);
 
-  if (loading) {
+  if (loadingLabOrders) {
     return (
       <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-3">
         <div className="flex items-center justify-center h-full">

@@ -81,19 +81,21 @@ export interface Patient {
   reasonForVisit: string
   ssn: string
   "Admission Date": string
+  "IP No": number
+  "Mobile No": number
+  "Primary Consultant": string
+  "Secondary Consultant": string
+  "Treating Consultant": string
+  
+  // Aliases for backward compatibility
   Age: string | number
   Bed: string
   DFN: number
   DOB: string
   Gender: string
-  "IP No": number
   LOS: string
-  "Mobile No": number
   Name: string
-  "Primary Consultant": string
-  "Secondary Consultant": string
   Specialty: string
-  "Treating Consultant": string
   Ward: string
 }
 
