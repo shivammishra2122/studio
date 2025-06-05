@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { api, Patient } from "@/services/api";
-import { User, Phone, BedDouble, CalendarDays, CreditCard, IdCard } from 'lucide-react'; // Import User icon for avatar placeholder
+import { User, Phone, BedDouble, CalendarDays, CreditCard } from 'lucide-react';
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function SidebarNav() {
   const { id } = useParams();
@@ -68,52 +69,95 @@ export default function SidebarNav() {
     else setPatient(null);
   }, [id]);
 
-  if (!id) return <div className="text-gray-100 bg-teal-700 h-full p-4 text-center">No patient selected</div>;
-  if (loading) return <div className="text-gray-100 bg-teal-700 h-full p-4 text-center">Loading...</div>;
-  if (!patient) return <div className="text-red-200 bg-teal-700 h-full p-4 text-center">Patient not found</div>;
+  const { state: sidebarState } = useSidebar();
+  const isCollapsed = sidebarState === 'collapsed';
+
+  if (!id) return (
+    <div className={`text-gray-100 bg-teal-700 h-full p-4 text-center ${isCollapsed ? 'w-12' : 'w-full'}`}>
+      No patient selected
+    </div>
+  );
+  
+  if (loading) return (
+    <div className={`text-gray-100 bg-teal-700 h-full p-4 text-center ${isCollapsed ? 'w-12' : 'w-full'}`}>
+      Loading...
+    </div>
+  );
+  
+  if (!patient) return (
+    <div className={`text-red-200 bg-teal-700 h-full p-4 text-center ${isCollapsed ? 'w-12' : 'w-full'}`}>
+      Patient not found
+    </div>
+  );
 
   // Format Gender initial and Age
   const genderInitial = patient.gender ? patient.gender.charAt(0).toUpperCase() : '';
   const formattedPatientInfo = `${patient.name} (${genderInitial} ${patient.age})`;
 
   return (
-    <aside className="w-full max-w-xs bg-teal-700 text-white h-screen overflow-y-auto text-xs">
+    <aside 
+      className={`bg-teal-700 text-white h-screen overflow-y-auto text-xs transition-all duration-200 ${
+        isCollapsed ? 'w-12' : 'w-full max-w-xs'
+      }`}
+    >
       <div className="flex flex-col items-center">
-        {/* Avatar Placeholder */}
-        <div className="w-16 h-16 rounded-full bg-teal-600 flex items-center justify-center mb-2 mt-4">
-          <User className="w-10 h-10 text-teal-300" />
-        </div>
-        {/* Patient Name (Gender Age) */}
-        <div className="text-sm font-semibold text-center mb-4">{formattedPatientInfo}</div>
+        {!isCollapsed && (
+          <>
+            {/* Avatar Placeholder */}
+            <div className="w-16 h-16 rounded-full bg-teal-600 flex items-center justify-center mb-2 mt-4">
+              <User className="w-10 h-10 text-teal-300" />
+            </div>
+            {/* Patient Name (Gender Age) */}
+            <div className="text-sm font-semibold text-center mb-4">{formattedPatientInfo}</div>
+          </>
+        )}
 
-        {/* Original Patient Details - Removed or Updated */}
-        {/* Removed: Name, Gender, Patient ID, DOB/Age */} {/* Mobile No. kept for now */}
-        <div className="mb-2 px-4 w-full">
-          {/* Patient ID with Icon */}
-          <div className="flex items-center"><CreditCard className="mr-2 h-4 w-4" /><span className="font-semibold"></span> {patient.DFN}</div> {/* Kept Patient ID */}
-          {/* Mobile No. with Icon */}
-          <div className="flex items-center"><Phone className="mr-2 h-4 w-4" /><span className="font-semibold"></span> {patient["Mobile No"]}</div>
-        </div>
+        {!isCollapsed && (
+          <>
+            <div className="mb-2 px-4 w-full">
+              {/* Patient ID with Icon */}
+              <div className="flex items-center">
+                <CreditCard className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{patient.DFN}</span>
+              </div>
+              {/* Mobile No. with Icon */}
+              <div className="flex items-center">
+                <Phone className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{patient["Mobile No"]}</span>
+              </div>
+            </div>
 
-        <hr className="my-2 border-teal-500 w-full px-4" />
+            <hr className="my-2 border-teal-500 w-full px-4" />
 
-        <div className="mb-4 px-4 w-full">
-          <div className="font-semibold mb-2">Patient Visit / IPD Details</div>
-          {/* Ward - Bed Details with Icon */}
-          <div className="flex items-center gap-2 mb-1"><BedDouble className="mr-2 h-6 w-6" /> {patient.Ward} - {patient.Bed}</div>
-          {/* Admission Date with Icon */}
-          <div className="flex items-center gap-2 mb-1"><CalendarDays className="mr-2 h-4 w-4" /> {patient["Admission Date"]}</div>
-          <div className="mb-1"><span className="font-semibold">LOS:</span> {patient.LOS}</div>
-          <div className="mb-1"><span className="font-semibold">Primary Consultant:</span> {patient["Primary Consultant"]}</div>
-          <div className="mb-1"><span className="font-semibold">Encounter Provider:</span> {patient["Treating Consultant"]}</div>
-        </div>
-        <hr className="my-2 border-teal-500 w-full px-4" />
-        <div className="mb-4 px-4 w-full">
-          <div className="font-semibold mb-2">Patient Clinical Details</div>
-          <div className="mb-1"><span className="font-semibold">Final Diagnosis:</span> {patient.finalDiagnosis}</div>
-          <div className="mb-1"><span className="font-semibold">Posting:</span> {patient.posting}</div>
-          <div className="mb-1"><span className="font-semibold">Reason For Visit:</span> {patient.reasonForVisit}</div>
-        </div>
+            <div className="mb-4 px-4 w-full">
+              <div className="font-semibold mb-2">Patient Visit / IPD Details</div>
+              <div className="flex items-center gap-2 mb-1">
+                <BedDouble className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{patient.Ward} - {patient.Bed}</span>
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <CalendarDays className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{patient["Admission Date"]}</span>
+              </div>
+              <div className="mb-1">
+                <span className="font-semibold">LOS:</span> {patient.LOS}
+              </div>
+              <div className="mb-1">
+                <span className="font-semibold">Primary Consultant:</span> {patient["Primary Consultant"]}
+              </div>
+              <div className="mb-1">
+                <span className="font-semibold">Encounter Provider:</span> {patient["Treating Consultant"]}
+              </div>
+            </div>
+            <hr className="my-2 border-teal-500 w-full px-4" />
+            <div className="mb-4 px-4 w-full">
+              <div className="font-semibold mb-2">Patient Clinical Details</div>
+              <div className="mb-1"><span className="font-semibold">Final Diagnosis:</span> {patient.finalDiagnosis}</div>
+              <div className="mb-1"><span className="font-semibold">Posting:</span> {patient.posting}</div>
+              <div className="mb-1"><span className="font-semibold">Reason For Visit:</span> {patient.reasonForVisit}</div>
+            </div>
+          </>
+        )}
       </div>
     </aside>
   );
