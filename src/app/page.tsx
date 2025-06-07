@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
+
 // Chart configurations
 const glucoseChartConfig: ChartConfig = { level: { label: 'Glucose (mg/dL)', color: 'hsl(var(--chart-2))' } };
 const bloodPressureChartConfig: ChartConfig = {

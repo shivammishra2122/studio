@@ -1,222 +1,261 @@
 'use client';
 
-import type { NextPage } from 'next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-// ScrollArea removed
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarDays, ArrowUpDown, FileSearch2 } from 'lucide-react';
+import { Loader2, FileSearch2, Pencil, Copy, Trash2, Flag, Eye, Plus, Search } from 'lucide-react';
 import type { Patient } from '@/services/api';
+import { fetchRadiologyOrders, type RadiologyEntry } from '@/services/radiology';
 
 const radiologySubNavItems = ["Radiology Test", "Pending Results", "Archived Scans"];
-
-type RadiologyEntryDataType = {
-  id: string;
-  sNo: string;
-  imagingProcedure: string;
-  imagingType: string;
-  orderDateTime: string;
-  status: "ACTIVE" | "COMPLETE";
-  provider: string;
-};
-
-// Mock data for different patients
-const mockRadiologyData: Record<string, RadiologyEntryDataType[]> = {
-  '900752869578': [
-    { id: '1', sNo: '1', imagingProcedure: 'USG RENAL DOPPLER', imagingType: 'US', orderDateTime: '31 AUG, 2022 10:43', status: 'ACTIVE', provider: 'Dr. Emily Carter' },
-    { id: '2', sNo: '2', imagingProcedure: 'X-RAY CHEST PA/AP VIEW', imagingType: 'RAD', orderDateTime: '31 AUG, 2022 10:43', status: 'COMPLETE', provider: 'Dr. Emily Carter' },
-  ],
-  '900752869579': [
-    { id: '1', sNo: '1', imagingProcedure: 'CT SCAN BRAIN', imagingType: 'CT', orderDateTime: '15 MAY, 2024 09:30', status: 'ACTIVE', provider: 'Dr. Alex Smith' },
-    { id: '2', sNo: '2', imagingProcedure: 'MRI SPINE', imagingType: 'MRI', orderDateTime: '15 MAY, 2024 11:15', status: 'COMPLETE', provider: 'Dr. Alex Smith' },
-  ],
-  '900752869580': [
-    { id: '1', sNo: '1', imagingProcedure: 'USG ABDOMINAL', imagingType: 'US', orderDateTime: '14 MAY, 2024 14:20', status: 'ACTIVE', provider: 'Dr. Emily Carter' },
-    { id: '2', sNo: '2', imagingProcedure: 'X-RAY KUB', imagingType: 'RAD', orderDateTime: '14 MAY, 2024 15:45', status: 'COMPLETE', provider: 'Dr. Emily Carter' },
-  ],
-};
 
 interface RadiologyPageProps {
   patient: Patient;
 }
 
-const RadiologyPage: NextPage<RadiologyPageProps> = ({ patient }) => {
+export default function RadiologyPage({ patient }: RadiologyPageProps) {
+  console.log('RadiologyPage rendered with patient:', patient);
   const [activeSubNav, setActiveSubNav] = useState<string>(radiologySubNavItems[0]);
-
-  // State for filters
-  const [visitDate, setVisitDate] = useState<string>("18 DEC, 2022 23:36 - ICU ONE");
-  const [orderFrom, setOrderFrom] = useState<string>("");
-  const [orderTo, setToDate] = useState<string>("");
-  const [showEntries, setShowEntries] = useState<string>("All");
+  const [isLoading, setIsLoading] = useState(false);
+  console.log('Current loading state:', isLoading);
+  const [error, setError] = useState<string | null>(null);
+  const [radiologyData, setRadiologyData] = useState<RadiologyEntry[]>([]);
+  const [filteredData, setFilteredData] = useState<RadiologyEntry[]>([]);
   const [searchText, setSearchText] = useState<string>("");
 
-  // Get patient-specific radiology entries
-  const patientEntries = mockRadiologyData[patient.id] || [];
+  // Fetch radiology data on component mount
+  useEffect(() => {
+    const loadRadiologyData = async () => {
+      // Always use the default SSN for now
+      const defaultSSN = '671209686';
+      console.log('Using default SSN for radiology data:', defaultSSN);
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        console.log('Fetching radiology orders with SSN:', defaultSSN);
+        const data = await fetchRadiologyOrders(defaultSSN);
+        
+        if (data && data.length > 0) {
+          console.log('Successfully fetched radiology data:', data);
+          setRadiologyData(data);
+          setFilteredData(data);
+        } else {
+          console.log('No radiology data found');
+          setError('No radiology orders found for this patient');
+          setRadiologyData([]);
+          setFilteredData([]);
+        }
+      } catch (err) {
+        console.error('Error fetching radiology data:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load radiology data';
+        setError(`Error: ${errorMessage}`);
+        setRadiologyData([]);
+        setFilteredData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRadiologyData();
+  }, []); // Empty dependency array since we're using a fixed SSN
 
   // Filter entries based on search text
-  const filteredEntries = patientEntries.filter(entry =>
-    entry.imagingProcedure.toLowerCase().includes(searchText.toLowerCase()) ||
-    entry.imagingType.toLowerCase().includes(searchText.toLowerCase()) ||
-    entry.provider.toLowerCase().includes(searchText.toLowerCase())
-  );
+  useEffect(() => {
+    const filteredData = radiologyData.filter(entry =>
+      entry.imagingProcedure.toLowerCase().includes(searchText.toLowerCase()) ||
+      entry.imagingType.toLowerCase().includes(searchText.toLowerCase()) ||
+      entry.provider.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setFilteredData(filteredData);
+  }, [searchText, radiologyData]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--top-nav-height,40px))] bg-background text-sm p-2">
-      {/* Horizontal Sub-Navigation Bar */}
-      <div className="flex items-end space-x-1 px-1 pb-0 mb-3 overflow-x-auto no-scrollbar border-b-2 border-border bg-card">
-        {radiologySubNavItems.map((item) => (
-          <Button
-            key={item}
-            onClick={() => setActiveSubNav(item)}
-            className={`text-xs px-3 py-1.5 h-auto rounded-b-none rounded-t-md whitespace-nowrap focus-visible:ring-0 focus-visible:ring-offset-0
-              ${activeSubNav === item
-                ? 'bg-background text-primary border-x border-t border-border border-b-2 border-b-background shadow-sm relative -mb-px z-10 hover:bg-background hover:text-primary'
-                : 'bg-muted text-muted-foreground hover:bg-accent hover:text-foreground border-x border-t border-transparent'
-              }`}
-          >
-            {item}
-          </Button>
-        ))}
+    <div className="flex flex-col h-screen bg-white text-sm w-full overflow-hidden">
+      {/* Header */}
+      <div className="bg-[#1a365d] px-6 py-3 flex-shrink-0">
+        <div className="max-w-[2000px] mx-auto">
+          <h2 className="text-lg font-semibold text-white break-words">Radiology Orders</h2>
+        </div>
       </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col gap-3 overflow-hidden">
-        {activeSubNav === "Radiology Test" && (
-          <Card className="flex-1 flex flex-col shadow overflow-hidden">
-            <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
-              <CardTitle className="text-base font-semibold">Radiology List - Active &amp; Completed</CardTitle>
-            </CardHeader>
+      {/* Action Bar */}
+      <div className="bg-white p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center space-x-3">
+          <div className="relative">
+            <Input
+              placeholder="Search orders..."
+              className="w-64 h-9 text-sm pl-9 pr-3 py-1.5 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            <Search className="h-4 w-4 text-gray-400 absolute left-3 top-2.5" />
+          </div>
+          <Select>
+            <SelectTrigger className="h-9 w-36 text-sm">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="complete">Complete</SelectItem>
+              <SelectItem value="unreleased">Unreleased</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button className="h-9 text-sm bg-[#3182ce] hover:bg-[#2c5282] text-white">
+          <Plus className="h-4 w-4 mr-1.5" /> New Order
+        </Button>
+      </div>
 
-            <CardContent className="p-2.5 flex-1 flex flex-col overflow-hidden">
-              {/* Filter Bars */}
-              <div className="space-y-2 mb-2 text-xs">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <Label htmlFor="visitDate" className="shrink-0">Visit Date</Label>
-                  <Select value={visitDate} onValueChange={setVisitDate}>
-                    <SelectTrigger id="visitDate" className="h-7 w-48 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="18 DEC, 2022 23:36 - ICU ONE">18 DEC, 2022 23:36 - ICU ONE</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Label htmlFor="orderFrom" className="shrink-0">Order From</Label>
-                  <div className="relative">
-                    <Input id="orderFrom" type="text" value={orderFrom} onChange={e => setOrderFrom(e.target.value)} className="h-7 w-28 text-xs pr-7" />
-                    <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  </div>
-
-                  <Label htmlFor="orderTo" className="shrink-0">Order To</Label>
-                  <div className="relative">
-                    <Input id="orderTo" type="text" value={orderTo} onChange={e => setToDate(e.target.value)} className="h-7 w-28 text-xs pr-7" />
-                    <CalendarDays className="h-3.5 w-3.5 absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <Label htmlFor="showEntries" className="shrink-0">Show</Label>
-                  <Select value={showEntries} onValueChange={setShowEntries}>
-                    <SelectTrigger id="showEntries" className="h-7 w-20 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="25">25</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Label className="shrink-0">entries</Label>
-                  <div className="flex-grow"></div>
-                  <Label htmlFor="radiologySearch" className="shrink-0">Search:</Label>
-                  <Input id="radiologySearch" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} className="h-7 w-40 text-xs" />
-                </div>
+      {/* Main Table */}
+      <div className="flex-1 overflow-auto p-0 w-full">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg border border-gray-200 m-4">
+            <Loader2 className="h-8 w-8 animate-spin text-[#3182ce] mb-3" />
+            <p className="text-gray-600">Loading radiology orders...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 m-4 rounded">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
               </div>
-
-              {/* Table */}
-              <div className="flex-1 overflow-hidden min-h-0">
-                <Table className="text-xs flex-1 min-h-0 table-fixed">
-                  <TableHeader className="bg-accent sticky top-0 z-10">
-                    <TableRow>
-                      {[
-                        { label: "S No.", width: "w-[5%]" },
-                        { label: "Imaging Procedure", width: "w-[18%]" },
-                        { label: "Imaging Type", width: "w-[10%]" },
-                        { label: "Order Date and Time", width: "w-[15%]" },
-                        { label: "Status", width: "w-[10%]" },
-                        { label: "Provider", width: "w-[15%]" },
-                        { label: "Result View", width: "w-[10%]" },
-                        { label: "Imaging Pacs", width: "w-[8%]" },
-                        { label: "Order View", width: "w-[9%]" },
-                      ].map(header => (
-                        <TableHead key={header.label} className={`py-2 px-3 text-foreground font-semibold h-8 break-words ${header.width}`}>
-                          <div className="flex items-center justify-between">
-                            {header.label}
-                            <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                          </div>
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredEntries.length > 0 ? filteredEntries.map((entry, index) => (
-                      <TableRow key={entry.id} className={`hover:bg-muted/30 ${index % 2 === 0 ? 'bg-muted/30' : ''}`}>
-                        <TableCell className="py-1.5 px-3 break-words w-[5%]">{entry.sNo}</TableCell>
-                        <TableCell className="py-1.5 px-3 break-words w-[18%]">{entry.imagingProcedure}</TableCell>
-                        <TableCell className="py-1.5 px-3 break-words w-[10%]">{entry.imagingType}</TableCell>
-                        <TableCell className="py-1.5 px-3 break-words w-[15%]">{entry.orderDateTime}</TableCell>
-                        <TableCell className="py-1.5 px-3 break-words w-[10%]">{entry.status}</TableCell>
-                        <TableCell className="py-1.5 px-3 break-words w-[15%]">{entry.provider}</TableCell>
-                        <TableCell className="py-1.5 px-3 text-center break-words w-[10%]">
-                          <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
-                        </TableCell>
-                        <TableCell className="py-1.5 px-3 text-center break-words w-[8%]">
-                          <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
-                        </TableCell>
-                        <TableCell className="py-1.5 px-3 text-center break-words w-[9%]">
-                          <Button variant="ghost" size="icon" className="h-6 w-6"><FileSearch2 className="h-3.5 w-3.5 text-blue-600" /></Button>
-                        </TableCell>
-                      </TableRow>
-                    )) : (
-                      <TableRow>
-                        <TableCell colSpan={9} className="text-center py-10 text-muted-foreground">
-                          No radiology entries found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
               </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
-                <div>Showing {filteredEntries.length > 0 ? 1 : 0} to {filteredEntries.length} of {filteredEntries.length} entries</div>
-                <div className="flex items-center space-x-1">
-                  <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
-                  <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
-                  <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Next</Button>
-                </div>
+            </div>
+          </div>
+        ) : filteredData.length === 0 ? (
+          <div className="h-full flex items-center justify-center bg-white rounded-lg border border-gray-200">
+            <div className="text-center p-8">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
+                <Search className="h-8 w-8 text-gray-400" />
               </div>
-            </CardContent>
-          </Card>
+              <h3 className="text-lg font-medium text-gray-900">No radiology orders</h3>
+              <p className="mt-1 text-sm text-gray-500">No radiology orders found for this patient.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="h-full flex flex-col bg-white overflow-auto w-full">
+            <div className="min-w-max w-full">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-[#1a365d]">
+                  <tr>
+                    <th scope="col" className="px-1 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-[40px] min-w-[40px]">
+                      <div className="break-words">S.NO</div>
+                    </th>
+                    <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-white uppercase tracking-wider w-[300px] min-w-[200px]">
+                      <div className="break-words">IMAGING PROCEDURE</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-left text-xs font-medium text-white uppercase tracking-wider w-[100px] min-w-[80px]">
+                      <div className="break-words">TYPE</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-left text-xs font-medium text-white uppercase tracking-wider w-[140px] min-w-[120px]">
+                      <div className="break-words">EXAM DATE/TIME</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-left text-xs font-medium text-white uppercase tracking-wider w-[100px] min-w-[80px]">
+                      <div className="break-words">STATUS</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-left text-xs font-medium text-white uppercase tracking-wider w-[180px] min-w-[150px]">
+                      <div className="break-words">PROVIDER</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-[60px] min-w-[60px]">
+                      <div className="break-words">VIEW</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-[60px] min-w-[60px]">
+                      <div className="break-words">SIGN</div>
+                    </th>
+                    <th scope="col" className="px-1 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-[80px] min-w-[80px]">
+                      <div className="break-words">CHANGE</div>
+                    </th>
+
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredData.map((item, index) => (
+                    <tr key={item.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-50/80`}>
+                      <td className="px-1 py-2 text-center text-sm text-gray-900 w-[40px] min-w-[40px]">
+                        {index + 1}
+                      </td>
+                      <td className="px-2 py-2 text-sm font-medium text-gray-900 w-[300px] min-w-[200px]">
+                        <div className="line-clamp-2">{item.imagingProcedure}</div>
+                      </td>
+                      <td className="px-1 py-2 text-sm text-gray-600 w-[100px] min-w-[80px]">
+                        <div className="truncate">{item.imagingType}</div>
+                      </td>
+                      <td className="px-1 py-2 text-sm text-gray-600 w-[140px] min-w-[120px] whitespace-nowrap">
+                        {item.orderDateTime}
+                      </td>
+                      <td className="px-1 py-2 w-[100px] min-w-[80px]">
+                        <div className="flex items-center">
+                          <span 
+                            className={`px-1.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full whitespace-nowrap ${
+                              item.status === 'COMPLETE' 
+                                ? 'bg-green-100 text-green-800' 
+                                : item.status === 'UNRELEASED'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-1 py-2 text-sm text-gray-600 w-[180px] min-w-[150px]">
+                        <div className="line-clamp-2">{item.provider}</div>
+                      </td>
+                      <td className="px-1 py-2 w-[60px] min-w-[60px]">
+                        <div className="flex justify-center">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 w-7 p-0 text-gray-500 hover:text-[#3182ce] hover:bg-blue-50 rounded-md"
+                            title="View"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                      <td className="px-1 py-2 w-[60px] min-w-[60px]">
+                        <div className="flex justify-center">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 w-7 p-0 text-gray-500 hover:text-[#3182ce] hover:bg-blue-50 rounded-md"
+                            title="Sign"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                      <td className="px-1 py-2 w-[80px] min-w-[80px]">
+                        <div className="flex justify-center">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 w-7 p-0 text-gray-500 hover:text-[#3182ce] hover:bg-blue-50 rounded-md"
+                            title="Change"
+                          >
+                            <FileSearch2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
-        {activeSubNav !== "Radiology Test" && (
-          <Card className="flex-1 flex items-center justify-center">
-            <CardContent className="text-center">
-              <CardTitle className="text-xl text-muted-foreground">
-                {activeSubNav} View
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Content for this section is not yet implemented.</p>
-            </CardContent>
-          </Card>
-        )}
-      </main>
+      </div>
     </div>
   );
-};
-
-export default RadiologyPage;
+}
