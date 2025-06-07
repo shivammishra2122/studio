@@ -11,11 +11,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as ShadcnTableHeade
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, CalendarDays, RefreshCw, ArrowUpDown, ChevronDown, ChevronUp, Settings, FileEdit, Printer, Download, Filter, Ban, FileText, PenLine } from 'lucide-react';
+import { 
+  Edit3, CalendarDays, RefreshCw, ArrowUpDown, ChevronDown, ChevronUp, 
+  Settings, FileEdit, Printer, Download, Filter, Ban,Plus, FileText, PenLine 
+} from 'lucide-react';
+
 import { Switch } from "@/components/ui/switch";
 import { fetchClinicalNotes, Patient } from '@/services/api';
-
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
+import { usePatientProblems } from '@/hooks/usePatientProblems';
+import { usePatientDiagnosis } from '@/hooks/usePatientDiagnosis';
+import { usePatientAllergies } from '@/hooks/usePatientAllergies';
+import { usePatientComplaints } from '@/hooks/usePatientComplaints';
 const verticalNavItems = [
   "Vitals", "Intake/Output", "Problems", "Final Diagnosis",
   "Chief-Complaints", "Allergies", "OPD/IPD Details"]
@@ -235,11 +244,11 @@ const VitalsView = () => {
               <Table className="text-xs">
                 <ShadcnTableHeader className="bg-accent sticky top-0 z-10">
                   <TableRow>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Vitals</TableHead>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Not Recordable</TableHead>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Value</TableHead>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Unit</TableHead>
-                    <TableHead className="text-foreground font-semibold py-2 px-3 h-8">Qualifiers</TableHead>
+                    <TableHead className="table-header-3d text-foreground font-semibold py-2 px-3 h-8">Vitals</TableHead>
+                    <TableHead className="table-header-3d text-foreground font-semibold py-2 px-3 h-8">Not Recordable</TableHead>
+                    <TableHead className="table-header-3d text-foreground font-semibold py-2 px-3 h-8">Value</TableHead>
+                    <TableHead className="table-header-3d text-foreground font-semibold py-2 px-3 h-8">Unit</TableHead>
+                    <TableHead className="table-header-3d text-foreground font-semibold py-2 px-3 h-8">Qualifiers</TableHead>
                   </TableRow>
                 </ShadcnTableHeader>
                 <TableBody>
@@ -1147,19 +1156,78 @@ const IntakeOutputView = () => {
   );
 };
 
+interface Problem {
+  id: string;
+  problem: string;
+  dateOfOnset: string;
+  status: string;
+  immediacy: string;
+  orderIen: number;
+  editUrl: string;
+  removeUrl: string;
+  viewUrl: string;
+}
+
 const ProblemsView = () => {
   const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
-  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
-  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
   const [searchValue, setSearchValueState] = useState<string>("");
-  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false); // State for popup visibility
+  const [statusFilter, setStatusFilter] = useState<string>('A'); // 'A' for active, 'I' for inactive
+  const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState<boolean>(false);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  
+  // Use the patient's SSN or a default one
+  const { problems, loading, error } = usePatientProblems('670230065');
+  
+  const tableHeaders = ["S.No", "Problem", "Type", "Date", "Status", "Actions"];
+  
+  const filteredProblems = problems.filter((problem: Problem) => {
+    const matchesSearch = problem.problem.toLowerCase().includes(searchValue.toLowerCase());
+    const matchesStatus = statusFilter === 'ALL' || problem.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      return format(new Date(dateString), 'dd MMM, yyyy');
+    } catch (e) {
+      return dateString; // Return as is if date parsing fails
+    }
+  };
 
-  const tableHeaders = ["S.No", "Problem", "Type", "Date", "Remark", "Status", "Edit", "Remove"];
+  if (loading) {
+    return (
+      <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
+        <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+          <CardTitle className="text-xs">Problems</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 space-y-4">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
+        <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
+          <CardTitle className="text-xs">Problems</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 text-red-500">
+          Error loading problems. Please try again.
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
-        <CardTitle className="text-xs">Diagnosis</CardTitle>
+        <CardTitle className="text-xs">Problems</CardTitle>
       </CardHeader>
       <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
@@ -1179,45 +1247,97 @@ const ProblemsView = () => {
             <Label htmlFor="showEntriesProblem" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Label htmlFor="visitDateProblem" className="text-xs">Visit Date</Label>
-            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
-              <SelectTrigger id="visitDateProblem" className="h-7 w-40 text-xs">
-                <SelectValue placeholder="Select Date" />
+            <Label htmlFor="statusFilter" className="text-xs">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="statusFilter" className="h-7 w-32 text-xs">
+                <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
+                <SelectItem value="ALL" className="text-xs">All Status</SelectItem>
+                <SelectItem value="A" className="text-xs">Active</SelectItem>
+                <SelectItem value="I" className="text-xs">Inactive</SelectItem>
               </SelectContent>
             </Select>
-            <Label htmlFor="statusSwitchProblem" className="text-xs">Status</Label>
-            <Switch id="statusSwitchProblem" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9" />
-            <Label htmlFor="statusSwitchProblem" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchProblem" className="text-xs">Search:</Label>
-            <Input id="searchProblem" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input 
+              id="searchProblem" 
+              type="text" 
+              value={searchValue} 
+              onChange={(e) => setSearchValueState(e.target.value)} 
+              className="h-7 w-48 text-xs" 
+              placeholder="Search problems..."
+            />
           </div>
         </div>
         <div className="flex-1 overflow-hidden min-h-0">
           <div className="flex-1 overflow-auto">
-            <Table className="text-xs min-h-0">
-              <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
+            <Table>
+              <ShadcnTableHeader>
                 <TableRow>
-                  {tableHeaders.map(header => (
-                    <TableHead key={header} className="py-2 px-3 h-8 whitespace-nowrap text-foreground">
-                      <div className="flex items-center justify-between">
-                        {header}
-                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
-                      </div>
+                  {tableHeaders.map((header, index) => (
+                    <TableHead key={index} className="text-xs font-medium text-foreground">
+                      {header}
                     </TableHead>
                   ))}
                 </TableRow>
               </ShadcnTableHeader>
               <TableBody>
-                <TableRow className="even:bg-muted/30">
-                  <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                    No Data Found
-                  </TableCell>
-                </TableRow>
+                {filteredProblems.length > 0 ? (
+                  filteredProblems.map((problem: Problem, index: number) => (
+                    <TableRow key={problem.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="link" 
+                          className="h-auto p-0 text-xs text-left"
+                          onClick={() => {
+                            setSelectedProblem(problem);
+                            setIsViewOpen(true);
+                          }}
+                        >
+                          {problem.problem.split(' (')[0]}
+                        </Button>
+                      </TableCell>
+                      <TableCell>{problem.immediacy || 'N/A'}</TableCell>
+                      <TableCell>{formatDate(problem.dateOfOnset)}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          problem.status === 'A' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {problem.status === 'A' ? 'Active' : 'Inactive'}
+                        </span>
+                      </TableCell>
+                      <TableCell className="space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6"
+                          onClick={() => window.open(problem.editUrl, '_blank')}
+                        >
+                          <Edit3 className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 text-red-500 hover:text-red-600"
+                          onClick={() => window.open(problem.removeUrl, '_blank')}
+                        >
+                          <Ban className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-4 text-muted-foreground">
+                      No problems found
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
@@ -1313,8 +1433,29 @@ const FinalDiagnosisView = () => {
   const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
   const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
   const [searchValue, setSearchValueState] = useState<string>("");
-
-  const tableHeaders = ["Primary/Secondary", "Diagnosis Description", "Comment", "Entered Date", "Provider", "Primary", "Add", "Remove"];
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState<Record<string, string>>({});
+  
+  // Use the patient's SSN or a default one
+  const { diagnosis, loading, error, refresh } = usePatientDiagnosis('670768354');
+  
+  // Debug logs
+  useEffect(() => {
+    console.log('Diagnosis data in component:', diagnosis);
+    console.log('Loading state:', loading);
+    console.log('Error state:', error);
+  }, [diagnosis, loading, error]);
+  
+  const tableHeaders = ["S.No", "Type", "Diagnosis Description", "Comment", "Entered Date", "Provider", "Actions"];
+  
+  const handleDiagnosisAction = (diagnosisId: string, action: 'add' | 'remove') => {
+    setSelectedDiagnosis(prev => ({
+      ...prev,
+      [diagnosisId]: action
+    }));
+    
+    // In a real app, you would make an API call here to update the diagnosis
+    console.log(`${action === 'add' ? 'Adding' : 'Removing'} diagnosis:`, diagnosisId);
+  };
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
@@ -1351,7 +1492,13 @@ const FinalDiagnosisView = () => {
           </div>
           <div className="flex items-center space-x-2">
             <Label htmlFor="searchDiagnosis" className="text-xs">Search:</Label>
-            <Input id="searchDiagnosis" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input 
+              id="searchDiagnosis" 
+              type="text" 
+              value={searchValue} 
+              onChange={(e) => setSearchValueState(e.target.value)} 
+              className="h-7 w-48 text-xs" 
+            />
           </div>
         </div>
         <div className="flex-1 overflow-hidden min-h-0">
@@ -1370,17 +1517,75 @@ const FinalDiagnosisView = () => {
                 </TableRow>
               </ShadcnTableHeader>
               <TableBody>
-                <TableRow className="even:bg-muted/30">
-                  <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                    No Data Found
-                  </TableCell>
-                </TableRow>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-10">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <span>Loading diagnosis data...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-10 text-red-500">
+                      Error loading diagnosis data. <Button variant="link" className="h-auto p-0 text-red-500" onClick={refresh}>Retry</Button>
+                    </TableCell>
+                  </TableRow>
+                ) : Object.keys(diagnosis).length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                      No diagnosis data found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  Object.entries(diagnosis).map(([id, diag]: [string, any]) => (
+                    <TableRow key={id} className="even:bg-muted/30">
+                      <TableCell>{id}</TableCell>
+                      <TableCell className="capitalize">{diag.Type || 'N/A'}</TableCell>
+                      <TableCell>{diag["Diagnosis Description"] || 'N/A'}</TableCell>
+                      <TableCell>{diag.Comment || 'N/A'}</TableCell>
+                      <TableCell>{diag["Entered Date"] || 'N/A'}</TableCell>
+                      <TableCell>{diag.Provider || 'N/A'}</TableCell>
+                      <TableCell className="space-x-1">
+                        {selectedDiagnosis[id] === 'add' ? (
+                          <Button variant="outline" size="sm" className="h-7 text-xs" disabled>
+                            Added
+                          </Button>
+                        ) : selectedDiagnosis[id] === 'remove' ? (
+                          <Button variant="outline" size="sm" className="h-7 text-xs" disabled>
+                            Removed
+                          </Button>
+                        ) : (
+                          <>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-7 text-xs"
+                              onClick={() => handleDiagnosisAction(id, 'add')}
+                            >
+                              Add
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-7 text-xs text-red-500 hover:text-red-600"
+                              onClick={() => handleDiagnosisAction(id, 'remove')}
+                            >
+                              Remove
+                            </Button>
+                          </>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
         </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
-          <div>Showing 0 to 0 of 0 entries</div>
+          <div>Showing {Object.keys(diagnosis).length > 0 ? 1 : 0} to {Object.keys(diagnosis).length} of {Object.keys(diagnosis).length} entries</div>
           <div className="flex items-center space-x-1">
             <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
             <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
@@ -1397,36 +1602,49 @@ const FinalDiagnosisView = () => {
 
 const ChiefComplaintsView = () => {
   const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
-  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
-  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
   const [searchValue, setSearchValueState] = useState<string>("");
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const { complaints, loading, error, refresh } = usePatientComplaints('670768354');
+  
+  const tableHeaders = ["S.No", "Complaint", "Type", "Date/Time", "Status", "Remarks"];
 
-
-  const tableHeaders = ["S.No", "Complaints", "Complaints Type", "Date", "Status", "Remark"];
+  // Debug logs
+  useEffect(() => {
+    console.log('Complaints data:', complaints);
+  }, [complaints]);
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Chief-Complaints</CardTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-primary hover:bg-muted/50"
-            onClick={() => setIsPopupOpen(true)}
-          >
-            <Edit3 className="h-4 w-4" />
-          </Button>
-
+          <CardTitle className="text-base font-semibold">Chief Complaints</CardTitle>
+          <div className="flex space-x-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7 text-primary hover:bg-muted/50"
+              onClick={refresh}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7 text-primary hover:bg-muted/50"
+              onClick={() => setIsPopupOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-1 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-wrap items-center justify-between p-2 border-b gap-y-2 mb-2">
           <div className="flex items-center space-x-2">
-            <Label htmlFor="showEntriesComplaint" className="text-xs">Show</Label>
+            <Label htmlFor="showEntries" className="text-xs">Show</Label>
             <Select value={showEntriesValue} onValueChange={setShowEntriesValueState}>
-              <SelectTrigger id="showEntriesComplaint" className="h-7 w-20 text-xs">
+              <SelectTrigger id="showEntries" className="h-7 w-20 text-xs">
                 <SelectValue placeholder="10" />
               </SelectTrigger>
               <SelectContent>
@@ -1436,25 +1654,18 @@ const ChiefComplaintsView = () => {
                 <SelectItem value="all" className="text-xs">All</SelectItem>
               </SelectContent>
             </Select>
-            <Label htmlFor="showEntriesComplaint" className="text-xs">entries</Label>
+            <Label htmlFor="showEntries" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Label htmlFor="visitDateComplaint" className="text-xs">Visit Date</Label>
-            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
-              <SelectTrigger id="visitDateComplaint" className="h-7 w-40 text-xs">
-                <SelectValue placeholder="Select Date" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label htmlFor="statusSwitchComplaint" className="text-xs">Status</Label>
-            <Switch id="statusSwitchComplaint" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9" />
-            <Label htmlFor="statusSwitchComplaint" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="searchComplaint" className="text-xs">Search:</Label>
-            <Input id="searchComplaint" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
+            <Label htmlFor="search" className="text-xs">Search:</Label>
+            <Input 
+              id="search" 
+              type="text" 
+              value={searchValue} 
+              onChange={(e) => setSearchValueState(e.target.value)} 
+              className="h-7 w-48 text-xs" 
+              placeholder="Search complaints..." 
+            />
           </div>
         </div>
         <div className="flex-1 overflow-hidden min-h-0">
@@ -1473,17 +1684,56 @@ const ChiefComplaintsView = () => {
                 </TableRow>
               </ShadcnTableHeader>
               <TableBody>
-                <TableRow className="even:bg-muted/30">
-                  <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                    No Data Found
-                  </TableCell>
-                </TableRow>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <span>Loading complaints data...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-red-500">
+                      Error loading complaints. <Button variant="link" className="h-auto p-0 text-red-500" onClick={refresh}>Retry</Button>
+                    </TableCell>
+                  </TableRow>
+                ) : Object.keys(complaints).length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                      No complaints found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  Object.entries(complaints).map(([id, complaint]) => (
+                    <TableRow key={id} className="even:bg-muted/30">
+                      <TableCell>{id}</TableCell>
+                      <TableCell className="font-medium">{complaint.CompName}</TableCell>
+                      <TableCell>{complaint.CmpType}</TableCell>
+                      <TableCell>{complaint.DateTime}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          complaint.Status === 'ACTIVE' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {complaint.Status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate" title={complaint.Remark}>
+                        {complaint.Remark || '-'}
+                      </TableCell>
+                      
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
         </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
-          <div>Showing 0 to 0 of 0 entries</div>
+          <div>Showing {Object.keys(complaints).length > 0 ? 1 : 0} to {Object.keys(complaints).length} of {Object.keys(complaints).length} entries</div>
           <div className="flex items-center space-x-1">
             <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
             <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
@@ -1491,9 +1741,8 @@ const ChiefComplaintsView = () => {
           </div>
         </div>
       </CardContent>
-      <div className="flex items-center justify-center p-2.5 border-t">
-        <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Chief Complaints</Button>
-      </div>
+
+      {/* Add Complaint Popup */}
       {isPopupOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-lg shadow-xl w-[500px] p-5 relative">
@@ -1503,7 +1752,7 @@ const ChiefComplaintsView = () => {
             >
               ✖
             </button>
-            <h2 className="text-base font-semibold mb-4">Edit Chief Complaint</h2>
+            <h2 className="text-base font-semibold mb-4">Add Chief Complaint</h2>
             <form className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Complaint</label>
@@ -1536,26 +1785,45 @@ const ChiefComplaintsView = () => {
           </div>
         </div>
       )}
-
     </Card>
   );
 };
 
 const AllergiesView = () => {
   const [showEntriesValue, setShowEntriesValueState] = useState<string>("10");
-  const [visitDateValue, setVisitDateValueState] = useState<string>("10 SEP, 2024 13:10");
-  const [statusSwitchChecked, setStatusSwitchCheckedState] = useState<boolean>(true);
   const [searchValue, setSearchValueState] = useState<string>("");
+  const [selectedAllergies, setSelectedAllergies] = useState<Record<string, boolean>>({});
+  const { allergies, loading, error, refresh } = usePatientAllergies('670768354');
 
-  const tableHeaders = ["S.No", "Allergen", "Reaction", "Severity", "Type", "Onset Date", "Status"];
+  // Debug logs
+  useEffect(() => {
+    console.log('Allergies data in component:', allergies);
+  }, [allergies]);
+
+  const tableHeaders = ["S.No", "Allergies", "Date", "Nature of Reaction", "Observed/Historical", "Originator", "Symptoms", "Actions"];
+
+  const handleAllergyAction = (allergyId: string, action: 'add' | 'remove') => {
+    setSelectedAllergies(prev => ({
+      ...prev,
+      [allergyId]: action === 'add'
+    }));
+    // In a real app, you would make an API call here to update the allergy status
+    console.log(`${action === 'add' ? 'Adding' : 'Removing'} allergy:`, allergyId);
+  };
 
   return (
     <Card className="flex-1 flex flex-col shadow text-xs overflow-hidden">
       <CardHeader className="p-2.5 border-b bg-card text-foreground rounded-t-md">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold">Allergies</CardTitle>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:bg-muted/50">
-            <Edit3 className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-7 w-7 text-primary hover:bg-muted/50"
+            onClick={refresh}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </CardHeader>
@@ -1577,22 +1845,15 @@ const AllergiesView = () => {
             <Label htmlFor="showEntriesAllergy" className="text-xs">entries</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Label htmlFor="visitDateAllergy" className="text-xs">Date Range</Label>
-            <Select value={visitDateValue} onValueChange={setVisitDateValueState}>
-              <SelectTrigger id="visitDateAllergy" className="h-7 w-40 text-xs">
-                <SelectValue placeholder="Select Date" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10 SEP, 2024 13:10" className="text-xs">10 SEP, 2024 13:10</SelectItem>
-              </SelectContent>
-            </Select>
-            <Label htmlFor="statusSwitchAllergy" className="text-xs">Status</Label>
-            <Switch id="statusSwitchAllergy" checked={statusSwitchChecked} onCheckedChange={setStatusSwitchCheckedState} className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-input h-5 w-9" />
-            <Label htmlFor="statusSwitchAllergy" className="text-xs ml-1">{statusSwitchChecked ? "ACTIVE" : "INACTIVE"}</Label>
-          </div>
-          <div className="flex items-center space-x-2">
             <Label htmlFor="searchAllergy" className="text-xs">Search:</Label>
-            <Input id="searchAllergy" type="text" value={searchValue} onChange={(e) => setSearchValueState(e.target.value)} className="h-7 w-48 text-xs" />
+            <Input 
+              id="searchAllergy" 
+              type="text" 
+              value={searchValue} 
+              onChange={(e) => setSearchValueState(e.target.value)} 
+              className="h-7 w-48 text-xs" 
+              placeholder="Search allergies..." 
+            />
           </div>
         </div>
         <div className="flex-1 overflow-hidden min-h-0">
@@ -1601,27 +1862,85 @@ const AllergiesView = () => {
               <ShadcnTableHeader className="bg-accent text-foreground sticky top-0 z-10">
                 <TableRow>
                   {tableHeaders.map(header => (
-                    <TableHead key={header} className="py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground">
+                    <TableHead 
+                      key={header} 
+                      className={`py-2 px-3 font-semibold h-8 whitespace-nowrap text-foreground ${
+                        header === 'Actions' ? 'text-center' : ''
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
                         {header}
-                        <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        {header !== 'Actions' && (
+                          <ArrowUpDown className="h-3 w-3 ml-1 text-muted-foreground hover:text-foreground cursor-pointer" />
+                        )}
                       </div>
                     </TableHead>
                   ))}
                 </TableRow>
               </ShadcnTableHeader>
               <TableBody>
-                <TableRow className="even:bg-muted/30">
-                  <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
-                    No Data Found
-                  </TableCell>
-                </TableRow>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                        <span>Loading allergies data...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-red-500">
+                      Error loading allergies data. <Button variant="link" className="h-auto p-0 text-red-500" onClick={refresh}>Retry</Button>
+                    </TableCell>
+                  </TableRow>
+                ) : Object.keys(allergies).length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length} className="text-center py-10 text-muted-foreground">
+                      No allergies found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  Object.entries(allergies).map(([id, allergy], index) => (
+                    <TableRow key={id} className="even:bg-muted/30">
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell className="font-medium">{allergy.Allergies}</TableCell>
+                      <TableCell>{allergy.Date}</TableCell>
+                      <TableCell>
+                        {allergy["Nature of Reaction"] && (
+                          <span className="capitalize">{allergy["Nature of Reaction"]}</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {allergy["Observed/Historical"] && (
+                          <span className="capitalize">{allergy["Observed/Historical"]}</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{allergy.Originator}</TableCell>
+                      <TableCell>{allergy.Symptoms}</TableCell>
+                      <TableCell className="text-center">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className={`h-7 text-xs ${
+                            selectedAllergies[id] 
+                              ? 'bg-red-50 text-red-600 hover:bg-red-100' 
+                              : 'bg-green-50 text-green-600 hover:bg-green-100'
+                          }`}
+                          onClick={() => handleAllergyAction(id, selectedAllergies[id] ? 'remove' : 'add')}
+                        >
+                          {selectedAllergies[id] ? 'Remove' : 'Add'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
         </div>
         <div className="flex items-center justify-between p-2.5 border-t text-xs text-muted-foreground mt-auto">
-          <div>Showing 0 to 0 of 0 entries</div>
+          <div>Showing {Object.keys(allergies).length > 0 ? 1 : 0} to {Object.keys(allergies).length} of {Object.keys(allergies).length} entries</div>
           <div className="flex items-center space-x-1">
             <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1">Previous</Button>
             <Button variant="outline" size="sm" className="h-7 text-xs px-2 py-1 bg-accent text-foreground border-border">1</Button>
@@ -1629,9 +1948,6 @@ const AllergiesView = () => {
           </div>
         </div>
       </CardContent>
-      <div className="flex items-center justify-center p-2.5 border-t">
-        <Button size="sm" className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground">New Allergy</Button>
-      </div>
     </Card>
   );
 };

@@ -42,6 +42,12 @@ export interface HealthMetric {
 export interface Problem {
   id: string
   description: string
+  dateOnset?: string
+  status?: ProblemStatus
+  category?: ProblemCategory
+  immediacy?: ProblemImmediacy
+  service?: ProblemService
+  notes?: string
 }
 
 export interface Medication {

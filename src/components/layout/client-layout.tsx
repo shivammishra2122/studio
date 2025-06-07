@@ -41,7 +41,7 @@ export default function ClientLayout({
                 </Sidebar>
                 <SidebarInset className="flex-1 flex flex-col bg-background">
                     <TopNav />
-                    <main className="flex-1 overflow-hidden">
+                    <main className="flex-1 overflow-hidden bg-gray-50">
                         {pathname === '/' ? (
                             <DashboardPage
                                 patient={selectedPatient}

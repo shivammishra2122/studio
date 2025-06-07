@@ -67,6 +67,7 @@ interface Allergy {
   createdAt: string;
 }
 
+
 // Define Dialog types
 type DialogType = 'problem' | 'medication' | 'info-item' | 'allergies' | 'radiology' | 'report';
 
@@ -118,6 +119,7 @@ export default function DashboardPage({
   const [quickOrder, setQuickOrder] = useState<string>('');
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [filteredMeds, setFilteredMeds] = useState<string[]>([]);
+  const [localMedications, setLocalMedications] = useState<Medication[]>(medications || []);
   const [selectedRows, setSelectedRows] = useState<MedicationRow[]>([]);
   const [showProblemDialog, setShowProblemDialog] = useState(false);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
@@ -1337,7 +1339,7 @@ export default function DashboardPage({
                             timing: row.schedule || 'N/A',
                             status: 'Active',
                           };
-                          setMedications((prev) => [newMed, ...prev]);
+                          setLocalMedications((prev: Medication[]) => [newMed, ...prev]);
                         });
                         toast.success('Medications added successfully!');
                         closeFloatingDialog(dialog.id);
